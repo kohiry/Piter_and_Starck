@@ -37,8 +37,11 @@ class Hero:
             return 'End'
 
 
+class Enemy:
+    pass
+    
 
-class Attack:  # ПОСМОТРЕТЬ РОЛИК НА ЮТЬЮБЕ
+class Attack:
     def __init__(self, xy, radius, speed, front):
         self.xy = xy.copy()
         self.radius = radius
