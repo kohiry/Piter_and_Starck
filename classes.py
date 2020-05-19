@@ -8,7 +8,7 @@ class Hero:
         self.height = height
         self.colour = (0, 0, 0)
         self.speed = speed
-        self.jumping = 7
+        self.jumping = 8
         self.front = 1
 
     def draw(self, screen):
@@ -26,14 +26,14 @@ class Hero:
         pass
 
     def jump(self):
-        if self.jumping >= -7:
+        if self.jumping >= -8:
             if self.jumping >= 0:
                 self.xy[1] -= self.jumping ** 2
             else:
                 self.xy[1] += self.jumping ** 2
             self.jumping -= 1
         else:
-            self.jumping = 7
+            self.jumping = 8
             return 'End'
 
 
