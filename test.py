@@ -3,6 +3,7 @@ pygame.init()
 import starter_obj
 import random
 from screeninfo import get_monitors
+import menu
 
 
 size = width, height = 900, 500
@@ -16,7 +17,9 @@ Black = (0, 0, 0)
 is_jump = False
 attack = False
 
+
 def draw():
+    menu.main(screen, width, height)
     if attack:
         for i in starter_obj.bullets:  #отрисовка всех болл-паутин
             i.draw(screen)

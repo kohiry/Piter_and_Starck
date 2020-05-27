@@ -55,6 +55,7 @@ class Enemy:
         self.damage(screen)
         if self.damages:
             self.hp -= 1
+            self.damages = False
 
 
     def damage(self, screen):
@@ -90,3 +91,8 @@ class Attack:
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.colour, (self.xy[0], self.xy[1]), self.radius)
+
+
+if __name__ == '__main__':
+    print('Файл с классами')
+    input('нажми любую кнопку, чтобы выйти')
