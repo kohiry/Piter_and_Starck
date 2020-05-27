@@ -57,6 +57,8 @@ class Enemy:
             self.hp -= 1
             self.damages = False
 
+    def AI(self):  # искусственный интеллект бота
+        pass
 
     def damage(self, screen):
         font = pygame.font.Font("pixle_font.ttf", 40)
