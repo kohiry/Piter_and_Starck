@@ -35,7 +35,7 @@ def draw():
 running = True
 while running:
     #starter_obj.enemy.damages = False
-    pygame.time.Clock().tick(90)
+    pygame.time.Clock().tick(60)
     pygame.mouse.set_visible(True)  # скрывает мышь
 
     special_action.AI()
@@ -53,9 +53,8 @@ while running:
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
              if event.button == 1:
-                 if len(starter_obj.bullets) < 4:
-                     if starter_obj.attack_ball():
-                         attack = True
+                 if starter_obj.attack_ball():
+                     attack = True
 
     keys = pygame.key.get_pressed()  # движения персонажей под зажим
 

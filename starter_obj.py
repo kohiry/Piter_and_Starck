@@ -9,7 +9,7 @@ enemys = []
 xy = [1, 330]
 width = 60
 height = 60
-speed = 9
+speed = 11
 hero = classes.Hero(xy, width, height, speed)
 "_____________________________________________"
 
@@ -23,14 +23,11 @@ def enemy_add(width):
 "_____________________________________________"
 
 def attack_ball():  # выстрел
-    if len(bullets) < 4:
-        speed_ball = 12
-        x_ball = hero.xy[0] + hero.width//2
-        y_ball = hero.xy[1] + hero.height//2
-        bullets.append(classes.Attack([x_ball, y_ball], hero.width//4, speed_ball, hero.front))
-        return True
-    else:
-        return False
+    speed_ball = 20
+    x_ball = hero.xy[0] + hero.width//2
+    y_ball = hero.xy[1] + hero.height//2
+    bullets.append(classes.Attack([x_ball, y_ball], hero.width//4, speed_ball, hero.front))
+    return True
 
 "_____________________________________________"
 #([500, 330], 60, 60, 8)
