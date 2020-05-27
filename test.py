@@ -18,21 +18,8 @@ is_jump = False
 attack = False
 my_font = "pixle_font.ttf"
 
-
-def menu(screen, width, height):
-
-    font = pygame.font.Font(my_font, 40)
-    text = font.render('Прыгать - Space', 25, (255, 0, 0))
-    screen.blit(text, (width//2 - 100, height//2 - 90))
-    text2 = font.render('Стрелять - F', 25, (255, 0, 0))
-    screen.blit(text2, (width//2 - 100, height//2 - 60))
-    text3 = font.render('создавать врагов - E', 25, (255, 0, 0))
-    screen.blit(text3, (width//2 - 100, height//2 - 30))
-    text4 = font.render('всего "патрон" - 4', 25, (255, 0, 0))
-    screen.blit(text4, (width//2 - 100, height//2))
-
 def draw():
-    menu(screen, width, height)
+    menu.main(screen, width, height, my_font)
     if attack:
         for i in starter_obj.bullets:  #отрисовка всех болл-паутин
             i.draw(screen)
@@ -42,6 +29,17 @@ def draw():
         if i.hp <= 0:
             starter_obj.enemys.pop(starter_obj.enemys.index(i))
     pygame.draw.line(screen, Black, (0, 390),  (width, 390), 2)
+
+
+def strike():  # выстрел
+    if len(starter_obj.bullets) < 4:
+        speed_ball = 15
+        x_ball = starter_obj.hero.xy[0] + starter_obj.hero.width//2
+        y_ball = starter_obj.hero.xy[1] + starter_obj.hero.height//2
+        starter_obj.bullets.append(starter_obj.attack_ball([x_ball, y_ball], starter_obj.hero.width//4, speed_ball, starter_obj.hero.front))
+        return True
+    else:
+        return False
 
 
 running = True
@@ -54,14 +52,13 @@ while running:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_f:  # создание новой болл-паутины
-                if len(starter_obj.bullets) < 4:
-                    speed_ball = 15
-                    x_ball = starter_obj.hero.xy[0] + starter_obj.hero.width//2
-                    y_ball = starter_obj.hero.xy[1] + starter_obj.hero.height//2
-                    starter_obj.bullets.append(starter_obj.attack_ball([x_ball, y_ball], starter_obj.hero.width//4, speed_ball, starter_obj.hero.front))
-                    attack = True
+                attack = strike()
             if event.key == pygame.K_e:  #создаём врагов для отладки
                 starter_obj.enemys.append(starter_obj.enemy([random.randint(1, width), 330], 60, 60, 8))
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+             if event.button == 1:
+                 if len(starter_obj.bullets) < 4:
+                     attack = strike()
     keys = pygame.key.get_pressed()  # движения персонажей под зажим
     if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:
         if not is_jump:
