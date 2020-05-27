@@ -4,6 +4,7 @@ import starter_obj
 import random
 from screeninfo import get_monitors
 import menu
+import special_action
 
 
 size = width, height = 900, 500
@@ -31,39 +32,38 @@ def draw():
     pygame.draw.line(screen, Black, (0, 390),  (width, 390), 2)
 
 
-def strike():  # выстрел
-    if len(starter_obj.bullets) < 4:
-        speed_ball = 15
-        x_ball = starter_obj.hero.xy[0] + starter_obj.hero.width//2
-        y_ball = starter_obj.hero.xy[1] + starter_obj.hero.height//2
-        starter_obj.bullets.append(starter_obj.attack_ball([x_ball, y_ball], starter_obj.hero.width//4, speed_ball, starter_obj.hero.front))
-        return True
-    else:
-        return False
-
-
 running = True
 while running:
-    starter_obj.enemy.damages = False
-    pygame.time.Clock().tick(60)
+    #starter_obj.enemy.damages = False
+    pygame.time.Clock().tick(90)
     pygame.mouse.set_visible(True)  # скрывает мышь
+
+    special_action.AI()
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
             running = False
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_f:  # создание новой болл-паутины
-                attack = strike()
+                if starter_obj.attack_ball():
+                    attack = True
             if event.key == pygame.K_e:  #создаём врагов для отладки
-                starter_obj.enemys.append(starter_obj.enemy([random.randint(1, width), 330], 60, 60, 8))
+                starter_obj.enemy_add(width)
+
         elif event.type == pygame.MOUSEBUTTONDOWN:
              if event.button == 1:
                  if len(starter_obj.bullets) < 4:
-                     attack = strike()
+                     if starter_obj.attack_ball():
+                         attack = True
+
     keys = pygame.key.get_pressed()  # движения персонажей под зажим
+
     if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:
         if not is_jump:
             is_jump = True
         starter_obj.hero.move_x_a()  # при зажиме прыжок идёт с движение
+
     if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0:
         starter_obj.hero.move_x_a()  #границы джвижения
 
@@ -71,6 +71,7 @@ while running:
         starter_obj.hero.move_x_d()
         if not is_jump:
             is_jump = True   # при зажиме прыжок идёт с движение
+
     if keys[pygame.K_d] and starter_obj.hero.xy[0] < width - starter_obj.hero.width:
         starter_obj.hero.move_x_d() #границы джвижения
 
@@ -84,15 +85,18 @@ while running:
                 for j in starter_obj.enemys:
                     if i.rect().colliderect(j.rect()):  #проверка соприкосновения патрона и врага
                         j.damages = True
-                        starter_obj.bullets.pop(starter_obj.bullets.index(i))
+                        try:
+                            starter_obj.bullets.pop(starter_obj.bullets.index(i))
+                        except ValueError:
+                            continue
 
     if keys[pygame.K_SPACE]:  #реакция на нажатие пробела
         if not is_jump:
             is_jump = True
+
     if is_jump:  #реализация прыжка
         if starter_obj.hero.jump() == 'End':
             is_jump = False
-        pygame.time.Clock().tick(60)
 
     screen.fill(White)
     draw()

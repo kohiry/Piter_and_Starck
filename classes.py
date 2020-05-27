@@ -57,8 +57,14 @@ class Enemy:
             self.hp -= 1
             self.damages = False
 
-    def AI(self):  # искусственный интеллект бота
-        pass
+    def AI(self, hero):  # искусственный интеллект бота
+        if -30 <= hero.xy[0] - self.xy[0] <= 30:
+            pass
+        elif hero.xy[0] - self.xy[0] <= 100 - (hero.width + 10):  # используем коорды бота и игрока
+            self.move_x_a()
+        elif self.xy[0] - hero.xy[0] <= 100:  # используем коорды бота и игрока
+            self.move_x_d()
+
 
     def damage(self, screen):
         font = pygame.font.Font("pixle_font.ttf", 40)

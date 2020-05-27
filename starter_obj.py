@@ -1,10 +1,36 @@
 import pygame
 import classes
+import random
 
-
-hero = classes.Hero([1, 330], 60, 60, 8)
-enemy = classes.Enemy
+"_____________________________________________"
 bullets = []
 enemys = []
-attack_ball = classes.Attack
+"_____________________________________________"
+xy = [1, 330]
+width = 60
+height = 60
+speed = 9
+hero = classes.Hero(xy, width, height, speed)
+"_____________________________________________"
+
+def enemy_add(width):
+    xy = [random.randint(1, width), 320]
+    width_enemy = 60
+    height = 70
+    speed = 5
+    enemys.append(classes.Enemy(xy, width_enemy, height, speed))
+
+"_____________________________________________"
+
+def attack_ball():  # выстрел
+    if len(bullets) < 4:
+        speed_ball = 12
+        x_ball = hero.xy[0] + hero.width//2
+        y_ball = hero.xy[1] + hero.height//2
+        bullets.append(classes.Attack([x_ball, y_ball], hero.width//4, speed_ball, hero.front))
+        return True
+    else:
+        return False
+
+"_____________________________________________"
 #([500, 330], 60, 60, 8)
