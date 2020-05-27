@@ -59,7 +59,7 @@ class Enemy:
 
 
     def damage(self, screen):
-        font = pygame.font.Font(None, 40)
+        font = pygame.font.Font("pixle_font.ttf", 40)
         text = font.render(str(self.hp), 25, (255, 0, 0))
         screen.blit(text, (self.xy[0] + self.width//2, self.xy[1] - 40))
 

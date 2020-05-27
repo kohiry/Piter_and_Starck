@@ -16,10 +16,23 @@ White = (255, 255, 255)
 Black = (0, 0, 0)
 is_jump = False
 attack = False
+my_font = "pixle_font.ttf"
 
+
+def menu(screen, width, height):
+
+    font = pygame.font.Font(my_font, 40)
+    text = font.render('Прыгать - Space', 25, (255, 0, 0))
+    screen.blit(text, (width//2 - 100, height//2 - 90))
+    text2 = font.render('Стрелять - F', 25, (255, 0, 0))
+    screen.blit(text2, (width//2 - 100, height//2 - 60))
+    text3 = font.render('создавать врагов - E', 25, (255, 0, 0))
+    screen.blit(text3, (width//2 - 100, height//2 - 30))
+    text4 = font.render('всего "патрон" - 4', 25, (255, 0, 0))
+    screen.blit(text4, (width//2 - 100, height//2))
 
 def draw():
-    menu.main(screen, width, height)
+    menu(screen, width, height)
     if attack:
         for i in starter_obj.bullets:  #отрисовка всех болл-паутин
             i.draw(screen)
@@ -50,7 +63,6 @@ while running:
             if event.key == pygame.K_e:  #создаём врагов для отладки
                 starter_obj.enemys.append(starter_obj.enemy([random.randint(1, width), 330], 60, 60, 8))
     keys = pygame.key.get_pressed()  # движения персонажей под зажим
-
     if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:
         if not is_jump:
             is_jump = True
