@@ -30,6 +30,7 @@ def draw():
         if i.hp <= 0:
             starter_obj.enemys.pop(starter_obj.enemys.index(i))
     pygame.draw.line(screen, Black, (0, 390),  (width, 390), 2)
+    special_action.spider_check(screen)  # запускает паучье чутьё
 
 
 running = True

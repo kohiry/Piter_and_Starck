@@ -11,6 +11,11 @@ class Hero:
         self.jumping = 13
         self.front = 1
 
+    def check(self, screen):
+        font = pygame.font.Font("pixle_font.ttf", 40)
+        text = font.render("Картинка чутья", 25, (255, 0, 0))
+        screen.blit(text, (self.xy[0] - self.width, self.xy[1] - 40))
+
     def rect(self):
         return pygame.Rect((self.xy[0], self.xy[1]), (self.width, self.height))
 
@@ -58,12 +63,14 @@ class Enemy:
             self.damages = False
 
     def AI(self, hero):  # искусственный интеллект бота
-        if -30 <= hero.xy[0] - self.xy[0] <= 30:
+        around = 300
+        dont_move = 50
+        if 0 <= hero.xy[0] - self.xy[0] <= dont_move:
             pass
-        elif hero.xy[0] - self.xy[0] <= 100 - (hero.width + 10):  # используем коорды бота и игрока
-            self.move_x_a()
-        elif self.xy[0] - hero.xy[0] <= 100:  # используем коорды бота и игрока
+        elif 0 <= hero.xy[0] - self.xy[0] <= around - (hero.width + 10):  # используем коорды бота и игрока
             self.move_x_d()
+        elif 0 <= self.xy[0] - hero.xy[0] <= around:  # используем коорды бота и игрока
+            self.move_x_a()
 
 
     def damage(self, screen):
