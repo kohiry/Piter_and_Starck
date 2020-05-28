@@ -51,6 +51,9 @@ while running:
                     attack = True
             if event.key == pygame.K_e:  #создаём врагов для отладки
                 starter_obj.enemy_add(width)
+            if event.key == pygame.K_SPACE:
+                if not is_jump:
+                    is_jump = True
 
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -60,39 +63,26 @@ while running:
 
 
 
-    keys = pygame.key.get_pressed()  # движения персонажей под зажим
-
-    if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:  #pygame.K_LEFT
-        if not is_jump:
-            is_jump = True
-        starter_obj.hero.move_x_a()  # при зажиме прыжок идёт с движение
-
-    elif keys[pygame.K_LEFT] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:  #pygame.K_LEFT
-        if not is_jump:
-            is_jump = True
-        starter_obj.hero.move_x_a()  # при зажиме прыжок идёт с движение
-
+    keys = pygame.key.get_pressed()  # движения персонажей под зажим\
     if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0:
         starter_obj.hero.move_x_a()  #границы джвижения
+        if keys[pygame.K_SPACE]:
+            starter_obj.hero.move_x_a()
 
     elif keys[pygame.K_LEFT] and starter_obj.hero.xy[0] > 0:
         starter_obj.hero.move_x_a()  #границы джвижения
-
-    if keys[pygame.K_d] and starter_obj.hero.xy[0] < width - starter_obj.hero.width and keys[pygame.K_SPACE]:
-        starter_obj.hero.move_x_d()
-        if not is_jump:
-            is_jump = True   # при зажиме прыжок идёт с движение
-
-    elif keys[pygame.K_RIGHT] and starter_obj.hero.xy[0] < width - starter_obj.hero.width and keys[pygame.K_SPACE]:
-        starter_obj.hero.move_x_d()
-        if not is_jump:
-            is_jump = True   # при зажиме прыжок идёт с движение
+        if keys[pygame.K_SPACE]:
+            starter_obj.hero.move_x_a()
 
     if keys[pygame.K_d] and starter_obj.hero.xy[0] < width - starter_obj.hero.width:
         starter_obj.hero.move_x_d() #границы джвижения
+        if keys[pygame.K_SPACE]:
+            starter_obj.hero.move_x_d()
 
     elif keys[pygame.K_RIGHT] and starter_obj.hero.xy[0] < width - starter_obj.hero.width:
         starter_obj.hero.move_x_d() #границы джвижения
+        if keys[pygame.K_SPACE]:
+            starter_obj.hero.move_x_d()
 
     if attack:  # движение болл-паутины
         for i in starter_obj.bullets:
@@ -108,10 +98,6 @@ while running:
                             starter_obj.bullets.pop(starter_obj.bullets.index(i))
                         except ValueError:
                             continue
-
-    if keys[pygame.K_SPACE]:  #реакция на нажатие пробела
-        if not is_jump:
-            is_jump = True
 
     if is_jump:  #реализация прыжка
         if starter_obj.hero.jump() == 'End':

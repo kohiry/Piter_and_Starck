@@ -54,6 +54,7 @@ class Enemy:
         self.speed = speed
         self.hp = 3
         self.damages = False
+        self.around = 300
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.colour, (self.xy[0], self.xy[1], self.width, self.height))
@@ -61,15 +62,15 @@ class Enemy:
         if self.damages:
             self.hp -= 1
             self.damages = False
+            self.around = 1000
 
     def AI(self, hero):  # искусственный интеллект бота
-        around = 300
         dont_move = 50
         if 0 <= hero.xy[0] - self.xy[0] <= dont_move:
             pass
-        elif 0 <= hero.xy[0] - self.xy[0] <= around - (hero.width + 10):  # используем коорды бота и игрока
+        elif 0 <= hero.xy[0] - self.xy[0] <= self.around - (hero.width + 10):  # используем коорды бота и игрока
             self.move_x_d()
-        elif 0 <= self.xy[0] - hero.xy[0] <= around:  # используем коорды бота и игрока
+        elif 0 <= self.xy[0] - hero.xy[0] <= self.around:  # используем коорды бота и игрока
             self.move_x_a()
 
 
