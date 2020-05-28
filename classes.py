@@ -8,7 +8,7 @@ class Hero:
         self.height = height
         self.colour = (0, 0, 0)
         self.speed = speed
-        self.jumping = 15
+        self.jumping = 13
         self.front = 1
 
     def rect(self):
@@ -29,14 +29,14 @@ class Hero:
         pass
 
     def jump(self):
-        if self.jumping >= -15:
+        if self.jumping >= -13:
             if self.jumping >= 0:
-                self.xy[1] -= (self.jumping) ** 2 // 5
+                self.xy[1] -= (self.jumping) ** 2 // 4
             else:
-                self.xy[1] += (self.jumping) ** 2 // 5
+                self.xy[1] += (self.jumping) ** 2 // 4
             self.jumping -= 1
         else:
-            self.jumping = 15
+            self.jumping = 13
             return 'End'
 
 
