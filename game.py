@@ -7,7 +7,7 @@ import menu
 import special_action
 
 
-size = width, height = 900, 500
+size = width, height = starter_obj.width_window, starter_obj.height_window
 #size = width, height = get_monitors()[0].width, get_monitors()[0].height
 screen = pygame.display.set_mode(size)
 #screen = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
@@ -15,12 +15,13 @@ pygame.display.set_caption('Gay game')
 
 White = (255, 255, 255)
 Black = (0, 0, 0)
-is_jump = False
+
 attack = False
 my_font = "pixle_font.ttf"
 
 def draw():
-    menu.main(screen, width, height, my_font)
+    menu.main(screen, width, height, my_font)  # типо меню
+    starter_obj.background.draw(screen)
     if attack:
         for i in starter_obj.bullets:  #отрисовка всех болл-паутин
             i.draw(screen)
@@ -29,7 +30,6 @@ def draw():
         i.draw(screen)
         if i.hp <= 0:
             starter_obj.enemys.pop(starter_obj.enemys.index(i))
-    pygame.draw.line(screen, Black, (0, 390),  (width, 390), 2)
     special_action.spider_check(screen)  # запускает паучье чутьё
 
 
@@ -52,8 +52,8 @@ while running:
             if event.key == pygame.K_e:  #создаём врагов для отладки
                 starter_obj.enemy_add(width)
             if event.key == pygame.K_SPACE:
-                if not is_jump:
-                    is_jump = True
+                if not starter_obj.is_jump:
+                    starter_obj.is_jump = True
 
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -65,14 +65,19 @@ while running:
 
     keys = pygame.key.get_pressed()  # движения персонажей под зажим\
 
+    if keys[pygame.K_a] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_d]:
+        starter_obj.hero.action = False
+    else:
+        starter_obj.hero.action = True
+
     if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:  #pygame.K_LEFT
-        if not is_jump:
-            is_jump = True
+        if not starter_obj.is_jump:
+            starter_obj.is_jump = True
         starter_obj.hero.move_x_a()  # при зажиме прыжок идёт с движение
 
     elif keys[pygame.K_LEFT] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:  #pygame.K_LEFT
-        if not is_jump:
-            is_jump = True
+        if not starter_obj.is_jump:
+            starter_obj.is_jump = True
         starter_obj.hero.move_x_a()  # при зажиме прыжок идёт с движение
 
     if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0:
@@ -83,13 +88,13 @@ while running:
 
     if keys[pygame.K_d] and starter_obj.hero.xy[0] < width - starter_obj.hero.width and keys[pygame.K_SPACE]:
         starter_obj.hero.move_x_d()
-        if not is_jump:
-            is_jump = True   # при зажиме прыжок идёт с движение
+        if not starter_obj.is_jump:
+            starter_obj.is_jump = True   # при зажиме прыжок идёт с движение
 
     elif keys[pygame.K_RIGHT] and starter_obj.hero.xy[0] < width - starter_obj.hero.width and keys[pygame.K_SPACE]:
         starter_obj.hero.move_x_d()
-        if not is_jump:
-            is_jump = True   # при зажиме прыжок идёт с движение
+        if not starter_obj.is_jump:
+            starter_obj.is_jump = True   # при зажиме прыжок идёт с движение
 
     if keys[pygame.K_d] and starter_obj.hero.xy[0] < width - starter_obj.hero.width:
         starter_obj.hero.move_x_d() #границы джвижения
@@ -113,9 +118,9 @@ while running:
                         except ValueError:
                             continue
 
-    if is_jump:  #реализация прыжка
+    if starter_obj.is_jump:  #реализация прыжка
         if starter_obj.hero.jump() == 'End':
-            is_jump = False
+            starter_obj.is_jump = False
 
     screen.fill(White)
     draw()
