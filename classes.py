@@ -15,7 +15,8 @@ class Hero:
         self.move = 0  # 0-стойка 1-бег влево 2-вправо 3-прыжок влево 4-прыжок вправо
         # 5-прыжок с паутиной влево 6-прыжок с паутиной вправо 7-выстрел вправо 8- выстрел влево
         # 9 - лезет справа 10 - лезет слева 11- лесез вправо по верху 12-лезетвлево по верху
-        self.sprites = sprites.sprites_hero()
+
+        self.sprite = starter_obj.sprite_hero.give_sprites()
         self.anim_count = 0
         self.action = False
         self.count = 0
@@ -23,7 +24,7 @@ class Hero:
     def check(self, screen):
         font = pygame.font.Font("pixle_font.ttf", 40)
         text = font.render("Картинка чутья", 25, (255, 0, 0))
-        screen.blit(text, (self.xy[0] - self.width, self.xy[1] - 40))
+        screen.blit(text, (self.xy[0] - self.width, self.xy[1]))
 
     def rect(self):
         return pygame.Rect((self.xy[0], self.xy[1]), (self.width, self.height))
@@ -50,37 +51,36 @@ class Hero:
             self.jumping = 13
             return 'End'
 
-    def animation(self, list_anim, screen):
-        maxx = 0
-        if len(list_anim) >= 5:  # исправляю баг с вылетом из списка спрайтов
-            maxx = 40
-        else:
-            maxx = 20
-        if list_anim[0] + 1 >= maxx:
-            list_anim[0] = 0
-        img = list_anim[1:len(list_anim)][list_anim[0] // 10]
+    def animation(self, list_anim, screen, maxx, speed):
+        if list_anim[0].give() + 1 >= maxx:
+            list_anim[0].clear()
+        img = list_anim[1:len(list_anim)][list_anim[0].give() // speed]
         img = pygame.transform.scale(img, (self.width, self.height))
-        print(self.xy)
         screen.blit(img, tuple(self.xy))
-        list_anim[0] += 1
+        list_anim[0].use()
+        for i in starter_obj.sprite_hero.groups.keys():
+            obj = starter_obj.sprite_hero.groups[i]
+            if obj != list_anim[0] and obj.flags() is True:
+                obj.dont_use()
+                obj.clear()
 
     def draw(self, screen):
         #pygame.draw.rect(screen, self.colour, (self.xy[0], self.xy[1], self.width, self.height))
         if starter_obj.is_jump:
             if self.front > 0:  #вправо
-                self.animation(self.sprites['прыжок']['вправо'], screen)
+                self.animation(self.sprite['прыжок']['вправо'], screen, 40, 10)
             else:
-                self.animation(self.sprites['прыжок']['влево'], screen)
+                self.animation(self.sprite['прыжок']['влево'], screen, 40, 10)
         elif self.action:  #двигается ли он
             if self.front > 0:  #вправо
-                self.animation(self.sprites['стойка']['вправо'], screen)
+                self.animation(self.sprite['стойка']['вправо'], screen, 20, 10)
             else:
-                self.animation(self.sprites['стойка']['влево'], screen)
+                self.animation(self.sprite['стойка']['влево'], screen, 20, 10)
         else:
             if self.front > 0:  #вправо
-                self.animation(self.sprites['бег']['вправо'], screen)
+                self.animation(self.sprite['бег']['вправо'], screen, 10, 5)
             else:
-                self.animation(self.sprites['бег']['влево'], screen)
+                self.animation(self.sprite['бег']['влево'], screen, 10, 5)
 
 
 

@@ -3,6 +3,8 @@ import classes
 import random
 import sprites
 
+
+sprite_hero = sprites.Sprites_hero()
 "_____________________________________________"
 width_window = 700
 height_window = 700
@@ -34,3 +36,6 @@ def attack_ball():  # выстрел
     y_ball = hero.xy[1] + hero.height//2
     bullets.append(classes.Attack([x_ball, y_ball], hero.width//15, speed_ball, hero.front))
     return True
+
+
+"_____________________________________________"
