@@ -45,21 +45,11 @@ def spider_check(screen):  # паучье чутьё
 def camera():
     if starter_obj.width_window//2 - 50 <= starter_obj.hero.xy[0] + starter_obj.hero.width // 2 <= starter_obj.width_window//2 + 50:  #игрок по середине экрана
         starter_obj.hero.clear_speed()
-        for i in starter_obj.enemys:
-            if starter_obj.hero.action:
-                i.return_speed()
-            else:
-                i.rewrite_speed(i.old_speed - starter_obj.hero.old_speed * starter_obj.hero.front)
-        for i in starter_obj.bullets:
-            i.rewrite_speed(starter_obj.hero.old_speed * 4)
         if starter_obj.hero.action:
             starter_obj.background.move(starter_obj.hero.front*-1, starter_obj.hero.old_speed, starter_obj.hero)
     else:
         starter_obj.hero.rewrite_speed()
-        for i in starter_obj.enemys:
-            i.return_speed()
-        for i in starter_obj.bullets:
-            i.return_speed()
+        
 
 def draw():
     #menu(screen, width, height, my_font)  # типо меню
@@ -164,7 +154,7 @@ while running:
         if starter_obj.hero.jump() == 'End':
             starter_obj.is_jump = False
 
-    screen.fill(White)
+    screen.fill(Black)
     camera()
     draw()
     pygame.display.flip()

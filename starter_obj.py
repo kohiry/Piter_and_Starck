@@ -14,16 +14,16 @@ enemys = []
 "_____________________________________________"
 width_h = 50
 height_h = 50
-speed = 11
+speed = 10
 is_jump = False
-xy = [1, height_window - int(height_h + 120)]  #320
+xy = [1, height_window - int(height_h + 110)]  #320
 hero = classes.Hero(xy, width_h, height_h, speed)
 "_____________________________________________"
 
 def enemy_add(width_en):
     width_enemy = 60
     height_enemy = 70
-    xy = [random.randint(1, width_en), 530 - height_enemy]
+    xy = [random.randint(1, width_en), 410 - height_enemy]
     speed = 5
     enemys.append(classes.Enemy(xy, width_enemy, height_enemy, speed))
 

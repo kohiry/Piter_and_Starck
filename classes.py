@@ -22,11 +22,11 @@ class Background:
         return pygame.Rect((self.x + self.width, self.y), (self.height, self.height))
 
     def move(self, front, speed, hero):
-        if self.rect_left().colliderect(hero.rect()) == 0 or self.rect_right().colliderect(hero.rect()) == 0:
-            self.x += speed * front
+        print(hero.xy[0])
+        if -self.height <= hero.xy[0] <= self.height:
+            pass
         else:
-            hero.rewrite_speed()
-            print(self.rect_left().colliderect(hero.rect()), self.rect_right().colliderect(hero.rect()))
+            self.x += speed * front
 
     def draw(self, screen):
         screen.blit(self.sprite['границы'][0], (self.x, self.y))
@@ -153,7 +153,7 @@ class Hero:
         screen.blit(text, (self.xy[0] - self.width, self.xy[1]))
 
     def rect(self):
-        return pygame.Rect((self.xy[0], self.xy[1]), (self.width, self.height))
+        return pygame.Rect((self.xy[0] + self.speed * self.front, self.xy[1]), (self.width, self.height))
 
     def move_x_a(self):
         self.xy[0] -= self.speed
