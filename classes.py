@@ -2,36 +2,38 @@ import pygame
 import starter_obj
 
 
-class Background:
-    def __init__(self, width, height, x, y):
-        pos, end = 'data/фоны/', '.png'
-        self.x, self.y = x, y
-        self.sprite = {
-            'границы': [pygame.image.load(pos + 'начало' + end), pygame.image.load(pos + 'конец' + end)],
-            'центр': [pygame.image.load(pos + 'горизонталь_1' + end), pygame.image.load(pos + 'горизонталь_2' + end)]
-        }
-        for i in self.sprite.keys():
-            for j in self.sprite[i]:
-                self.sprite[i][self.sprite[i].index(j)] = pygame.transform.scale(j, (height, height))
-        self.width, self.height = width, height
+class Platform:
+    def __init__(self, width=50, height=150):
+        pass
 
-    def rect_left(self):
-        return pygame.Rect((self.x, self.y), (self.height, self.height))
 
-    def rect_right(self):
-        return pygame.Rect((self.x + self.width, self.y), (self.height, self.height))
+def backs(width, height):
+    pos, end = 'data/фоны/', '.png'
+    sprite = {
+        'границы': [pygame.image.load(pos + 'начало' + end), pygame.image.load(pos + 'конец' + end)],
+        'центр': [pygame.image.load(pos + 'горизонталь_1' + end), pygame.image.load(pos + 'горизонталь_2' + end)]
+    }
+    list_key = sprite.keys()
+    for i in list_key:
+        for j in sprite[i]:
+            sprite[i][sprite[i].index(j)] = pygame.transform.scale(j, (height, height))
+    return sprite
 
-    def move(self, front, speed, hero):
-        print(hero.xy[0])
-        if -self.height <= hero.xy[0] <= self.height:
-            pass
-        else:
-            self.x += speed * front
 
-    def draw(self, screen):
-        screen.blit(self.sprite['границы'][0], (self.x, self.y))
-        screen.blit(self.sprite['границы'][1], (self.x + self.width, self.y))
-        screen.blit(self.sprite['центр'][0], (self.x + self.width//2, self.y))
+def maps(width, height, map):
+    sprites = backs(width, height)
+    if map == 1:
+        return [sprites['границы'][0], sprites['центр'][0], sprites['границы'][1]]
+
+class Map:
+    def __init__(self, width, height, speed):
+        self.sprite = maps(width, height, 1)
+
+    def draw(self, screen, width):
+        for i in self.sprite:
+            screen.blit(i, (width//2 * self.sprite.index(i), 0))
+
+
 '''
 class Count:
     def __init__(self):
@@ -304,3 +306,27 @@ if __name__ == '__main__':
     print('Файл с классами')
     input('нажми любую кнопку, чтобы выйти')
 '''
+
+
+class Button:
+    def __init__(self, x, y, text):
+        self.x, self.y = x, y
+        font = pygame.font.Font("pixle_font.ttf", 50)
+        self.text = font.render(text, 1, (50, 255, 50))
+        self.width = self.text.get_width()
+        self.height = self.text.get_height()
+
+    def rect(self):
+        return pygame.Rect(self.x, self.y, self.width, self.height)
+
+    def draw(self, screen, click):
+        screen.blit(self.text, (self.x, self.y))
+        if click:
+            pygame.draw.rect(screen, (0, 150, 0), (self.x - 10, self.y - 10,
+                                                   self.width + 20, self.height + 20), 10)
+            return False
+
+        else:
+            pygame.draw.rect(screen, (200, 255, 200), (self.x - 10, self.y - 10,
+                                                   self.width + 20, self.height + 20), 10)
+            return True

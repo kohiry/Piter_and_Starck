@@ -5,28 +5,18 @@ import random
 from screeninfo import get_monitors
 
 
-size = width, height = starter_obj.width_window, starter_obj.height_window
-#size = width, height = get_monitors()[0].width, get_monitors()[0].height
-screen = pygame.display.set_mode(size)
-#screen = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
+#size = width, height = starter_obj.width_window, starter_obj.height_window
+size = width, height = 1000, 1000
+#screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
 pygame.display.set_caption('Gay game')
 
 White = (255, 255, 255)
 Black = (0, 0, 0)
+menu = -1
 
 attack = False
 my_font = "pixle_font.ttf"
-
-
-def menu(screen, width, height, font):
-
-    font = pygame.font.Font(font, 40)
-    text = font.render('Прыгать - Space', 25, (255, 0, 0))
-    screen.blit(text, (width//2 - 100, height//2 - 90))
-    text2 = font.render('Стрелять - F, ЛКМ', 25, (255, 0, 0))
-    screen.blit(text2, (width//2 - 100, height//2 - 60))
-    text3 = font.render('создавать врагов - E', 25, (255, 0, 0))
-    screen.blit(text3, (width//2 - 100, height//2 - 30))
 
 
 def AI():
@@ -43,26 +33,25 @@ def spider_check(screen):  # паучье чутьё
 
 
 def camera():
-    if starter_obj.width_window//2 - 50 <= starter_obj.hero.xy[0] + starter_obj.hero.width // 2 <= starter_obj.width_window//2 + 50:  #игрок по середине экрана
-        starter_obj.hero.clear_speed()
-        if starter_obj.hero.action:
-            starter_obj.background.move(starter_obj.hero.front*-1, starter_obj.hero.old_speed, starter_obj.hero)
-    else:
-        starter_obj.hero.rewrite_speed()
-        
+    pass
+
 
 def draw():
+    global running
     #menu(screen, width, height, my_font)  # типо меню
-    starter_obj.background.draw(screen)
-    if attack:
-        for i in starter_obj.bullets:  #отрисовка всех болл-паутин
+    if menu == 1:
+        running = starter_obj.exit_menu.draw(screen, starter_obj.click)
+    else:
+        starter_obj.background.draw(screen, width)
+        if attack:
+            for i in starter_obj.bullets:  #отрисовка всех болл-паутин
+                i.draw(screen)
+        starter_obj.hero.draw(screen)
+        for i in starter_obj.enemys:
             i.draw(screen)
-    starter_obj.hero.draw(screen)
-    for i in starter_obj.enemys:
-        i.draw(screen)
-        if i.hp <= 0:
-            starter_obj.enemys.pop(starter_obj.enemys.index(i))
-    spider_check(screen)  # запускает паучье чутьё
+            if i.hp <= 0:
+                starter_obj.enemys.pop(starter_obj.enemys.index(i))
+        spider_check(screen)  # запускает паучье чутьё
 
 
 running = True
@@ -86,13 +75,18 @@ while running:
             if event.key == pygame.K_SPACE:
                 if not starter_obj.is_jump:
                     starter_obj.is_jump = True
+            if event.key == pygame.K_ESCAPE:  #создаём врагов для отладки
+                menu *= -1
 
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-             if event.button == 1:
-                 if starter_obj.attack_ball():
-                     attack = True
-
+            if event.button == 1:
+                if menu == 1:
+                    if starter_obj.exit_menu.rect().collidepoint(event.pos):
+                        starter_obj.click = True
+                else:
+                    if starter_obj.attack_ball():
+                        attack = True
 
 
     keys = pygame.key.get_pressed()  # движения персонажей под зажим\

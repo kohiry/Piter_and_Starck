@@ -5,12 +5,15 @@ import random
 
 #sprite_hero = classes.Sprites_hero()
 "_____________________________________________"
-width_window = 1000
+width_window = 500
 height_window = 500
-background = classes.Background(width_window, height_window, 0, 0)  #все фоны
+background = classes.Map(width_window, height_window, 10)  #все фоны
 "_____________________________________________"
 bullets = []
 enemys = []
+"_____________________________________________"
+click = False
+exit_menu = classes.Button(width_window // 2, height_window // 2, "Выход")
 "_____________________________________________"
 width_h = 50
 height_h = 50
