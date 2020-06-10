@@ -2,11 +2,11 @@ import pygame
 pygame.init()
 import starter_obj
 import random
-from screeninfo import get_monitors
 
 
-#size = width, height = starter_obj.width_window, starter_obj.height_window
-size = width, height = 1000, 1000
+
+size = width, height = starter_obj.width_window, starter_obj.height_window
+#size = width, height = 1000, 1000
 #screen = pygame.display.set_mode(size)
 screen = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
 pygame.display.set_caption('Gay game')
@@ -18,6 +18,14 @@ menu = -1
 attack = False
 my_font = "pixle_font.ttf"
 
+def touches(hero):  #
+    for i in starter_obj.blocks:  # скопом обрабатывать все возможные соприкосновения с блоками
+        h = starter_obj.hero
+        h.touch(i.touch(h.xy[0], h.xy[1], h.width, h.height), starter_obj.is_jump)
+
+def draw_block(screen):
+    for i in starter_obj.blocks:
+        i.draw(screen)
 
 def AI():
     for i in starter_obj.enemys:
@@ -32,13 +40,10 @@ def spider_check(screen):  # паучье чутьё
             break
 
 
-def camera():
-    pass
-
-
 def draw():
     global running
     #menu(screen, width, height, my_font)  # типо меню
+
     if menu == 1:
         running = starter_obj.exit_menu.draw(screen, starter_obj.click)
     else:
@@ -52,12 +57,13 @@ def draw():
             if i.hp <= 0:
                 starter_obj.enemys.pop(starter_obj.enemys.index(i))
         spider_check(screen)  # запускает паучье чутьё
+        draw_block(screen)
 
 
 running = True
 while running:
     #starter_obj.enemy.damages = False
-    pygame.time.Clock().tick(60)
+    #pygame.time.Clock().tick(10)
     pygame.mouse.set_visible(True)  # скрывает мышь
 
     AI()
@@ -81,6 +87,7 @@ while running:
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
+                starter_obj.hero.respawn(event.pos)
                 if menu == 1:
                     if starter_obj.exit_menu.rect().collidepoint(event.pos):
                         starter_obj.click = True
@@ -149,7 +156,7 @@ while running:
             starter_obj.is_jump = False
 
     screen.fill(Black)
-    camera()
+    touches(starter_obj.hero)
     draw()
     pygame.display.flip()
 

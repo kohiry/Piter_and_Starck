@@ -2,11 +2,6 @@ import pygame
 import starter_obj
 
 
-class Platform:
-    def __init__(self, width=50, height=150):
-        pass
-
-
 def backs(width, height):
     pos, end = 'data/фоны/', '.png'
     sprite = {
@@ -23,7 +18,7 @@ def backs(width, height):
 def maps(width, height, map):
     sprites = backs(width, height)
     if map == 1:
-        return [sprites['границы'][0], sprites['центр'][0], sprites['границы'][1]]
+        return [sprites['границы'][0], sprites['центр'][0]]
 
 class Map:
     def __init__(self, width, height, speed):
@@ -31,7 +26,7 @@ class Map:
 
     def draw(self, screen, width):
         for i in self.sprite:
-            screen.blit(i, (width//2 * self.sprite.index(i), 0))
+            screen.blit(i, ((width-200) * self.sprite.index(i), 0))
 
 
 '''
@@ -132,7 +127,7 @@ class Hero:
         self.colour = (255, 255, 255)
         self.speed = speed
         self.old_speed = speed
-        self.jumping = 13
+        self.jumping = 15
         self.front = 1  # 1-вправо -1-влево
         self.move = 0  # 0-стойка 1-бег влево 2-вправо 3-прыжок влево 4-прыжок вправо
         # 5-прыжок с паутиной влево 6-прыжок с паутиной вправо 7-выстрел вправо 8- выстрел влево
@@ -142,6 +137,9 @@ class Hero:
         self.anim_count = 0
         self.action = False
         self.count = 0
+        self.wall = 0  # -1 - слева стена; 0 - стен нет; 1 - справа стена
+        self.fall = False  # False - на платформе; True - падает
+        self.speed_fall = 0
 
     def clear_speed(self):
         self.speed = 0
@@ -155,29 +153,43 @@ class Hero:
         screen.blit(text, (self.xy[0] - self.width, self.xy[1]))
 
     def rect(self):
-        return pygame.Rect((self.xy[0] + self.speed * self.front, self.xy[1]), (self.width, self.height))
+        return pygame.Rect((self.xy[0], self.xy[1]), (self.width, self.height))
 
     def move_x_a(self):
-        self.xy[0] -= self.speed
-        self.front = -1
+        if self.wall != -1:
+            self.xy[0] -= self.speed
+            self.front = -1
 
     def move_x_d(self):
-        self.xy[0] += self.speed
-        self.front = 1
+        if self.wall != 1:
+            self.xy[0] += self.speed
+            self.front = 1
 
     def action_jump(self):  # может быть когда-нибудь рализую двойной прыжок
         pass
 
     def jump(self):
-        if self.jumping >= -13:
+        if self.jumping >= -15:
             if self.jumping >= 0:
-                self.xy[1] -= (self.jumping) ** 2 // 4
+                self.xy[1] -= (self.jumping) ** 2 // 5
             else:
-                self.xy[1] += (self.jumping) ** 2 // 4
+                self.xy[1] += (self.jumping) ** 2 // 5
             self.jumping -= 1
         else:
-            self.jumping = 13
+            self.jumping = 15
             return 'End'
+
+    def respawn(self, xy):
+        self.speed_fall = 0
+        self.xy[1] = (xy[1] // 10) * 10
+        self.xy[0] = (xy[0] // 10) * 10
+
+    def falling(self):
+        if self.fall:
+            self.xy[1] += self.speed_fall
+            self.speed_fall += 1
+        else:
+            self.speed_fall = 0
 
     def animation(self, list_anim, screen, maxx, speed):
         if list_anim[0].give() + 1 >= maxx:
@@ -191,6 +203,28 @@ class Hero:
             if obj != list_anim[0] and obj.flags() is True:
                 obj.dont_use()
                 obj.clear()
+
+    def touch(self, answer, jump):
+        self.fall = True
+        print(self.xy[1], '|', self.speed_fall)
+        if 'down' in answer:
+            if jump:
+                self.jumping = 15
+                starter_obj.is_jump = False
+        elif 'up' in answer:
+            self.xy[1] = answer[0].y - self.height
+            self.fall = False
+            if jump:
+                self.jumping = 15
+                starter_obj.is_jump = False
+        elif 'right' in answer:
+            self.wall = 1
+        elif 'left' in answer:
+            self.wall = -1
+        else:
+            self.wall = 0
+        self.falling()
+
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.colour, (self.xy[0], self.xy[1], self.width, self.height))
@@ -212,6 +246,43 @@ class Hero:
                 self.animation(self.sprite['стойка']['влево'], screen, 10, 5)
         '''
 
+
+class Platform:
+    def __init__(self, x, y, width=150, height=50, speed=10):
+        self.rect = pygame.Rect((x, y), (width, height))
+        self.speed = speed
+        self.height = height
+        self.width = width
+        self.x, self.y = x, y
+
+    def move(self, x, y, width, height):
+        self.rect.move(self.x + self.speed * front, self.y)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, (0, 255, 0), self.rect)
+
+    def touch(self, x, y, width, height):
+        print(self.y)
+        left    = pygame.Rect((x, y), (2, height))
+        right   = pygame.Rect((x + width-1, y), (2, height))
+        up      = pygame.Rect((x, y + height - 1), (width, 10))
+        down    = pygame.Rect((x, y), (width, 2))
+
+        self_left   = pygame.Rect((self.x, self.y), (2, self.height))
+        self_right  = pygame.Rect((self.x + self.width-1, self.y), (2, self.height))
+        self_up     = pygame.Rect((self.x, self.y + self.height - 1), (self.width, height//2))
+        self_down   = pygame.Rect((self.x, self.y), (self.width, height//2))
+        answer      = []
+        if self_down.colliderect(up):
+            answer.append('up')
+        elif self_up.colliderect(down):
+            answer.append('down')
+        elif self_right.colliderect(left):
+            answer.append('left')
+        elif self_left.colliderect(right):
+            answer.append('right')
+
+        return [self] + answer
 
 class Enemy:
     def __init__(self, xy, width, height, speed):

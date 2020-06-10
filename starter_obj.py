@@ -1,25 +1,28 @@
 import pygame
 import classes
 import random
+from screeninfo import get_monitors
 
+"_____________________________________________"
 
 #sprite_hero = classes.Sprites_hero()
+
 "_____________________________________________"
-width_window = 500
-height_window = 500
+width_window = 800
+height_window = 800
 background = classes.Map(width_window, height_window, 10)  #все фоны
 "_____________________________________________"
 bullets = []
 enemys = []
 "_____________________________________________"
 click = False
-exit_menu = classes.Button(width_window // 2, height_window // 2, "Выход")
+exit_menu = classes.Button(get_monitors()[0].width // 2 - 100, get_monitors()[0].height // 2, "Выход")
 "_____________________________________________"
 width_h = 50
 height_h = 50
 speed = 10
 is_jump = False
-xy = [1, height_window - int(height_h + 110)]  #320
+xy = [0, 550]  #320
 hero = classes.Hero(xy, width_h, height_h, speed)
 "_____________________________________________"
 
@@ -40,4 +43,7 @@ def attack_ball():  # выстрел
     return True
 
 
+"_____________________________________________"
+blocks = []
+blocks.append(classes.Platform(0, 650, 1000, 50))
 "_____________________________________________"
