@@ -8,7 +8,7 @@ from screeninfo import get_monitors
 #sprite_hero = classes.Sprites_hero()
 
 "_____________________________________________"
-width_window = 800
+width_window = 1000
 height_window = 800
 background = classes.Map(width_window, height_window, 10)  #все фоны
 "_____________________________________________"

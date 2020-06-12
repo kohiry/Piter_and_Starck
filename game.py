@@ -63,7 +63,7 @@ def draw():
 running = True
 while running:
     #starter_obj.enemy.damages = False
-    #pygame.time.Clock().tick(10)
+    pygame.time.delay(1000)
     pygame.mouse.set_visible(True)  # скрывает мышь
 
     AI()

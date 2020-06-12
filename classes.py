@@ -18,7 +18,7 @@ def backs(width, height):
 def maps(width, height, map):
     sprites = backs(width, height)
     if map == 1:
-        return [sprites['границы'][0], sprites['центр'][0]]
+        return [sprites['границы'][0], sprites['центр'][0], sprites['центр'][0], sprites['центр'][0]]
 
 class Map:
     def __init__(self, width, height, speed):
