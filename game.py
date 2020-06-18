@@ -1,164 +1,52 @@
 import pygame
 pygame.init()
-import starter_obj
-import random
+from screeninfo import get_monitors
+from settings import WIDTH, HEIGHT, SIZE, SIDE, UP
+from settings import GREEN
+from starter_obj import group_draw, HERO, platforms
 
 
-
-size = width, height = starter_obj.width_window, starter_obj.height_window
-#size = width, height = 1000, 1000
-#screen = pygame.display.set_mode(size)
-screen = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
+#size = width, height = 500, 500
+#window = pygame.display.set_mode(size)
+window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
+screen = pygame.Surface(SIZE)
+#screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
-
-White = (255, 255, 255)
-Black = (0, 0, 0)
-menu = -1
-
-attack = False
-my_font = "pixle_font.ttf"
-
-def touches(hero):  #
-    for i in starter_obj.blocks:  # скопом обрабатывать все возможные соприкосновения с блоками
-        h = starter_obj.hero
-        h.touch(i.touch(h.xy[0], h.xy[1], h.width, h.height), starter_obj.is_jump)
-
-def draw_block(screen):
-    for i in starter_obj.blocks:
-        i.draw(screen)
-
-def AI():
-    for i in starter_obj.enemys:
-        i.AI(starter_obj.hero)
-
-def spider_check(screen):  # паучье чутьё
-    around = 200
-    max_len = 500
-    for enemy in starter_obj.enemys:
-        if max_len >= abs(enemy.xy[0] - starter_obj.hero.xy[0]) >= around:
-            starter_obj.hero.check(screen)
-            break
 
 
 def draw():
-    global running
-    #menu(screen, width, height, my_font)  # типо меню
-
-    if menu == 1:
-        running = starter_obj.exit_menu.draw(screen, starter_obj.click)
-    else:
-        starter_obj.background.draw(screen, width)
-        if attack:
-            for i in starter_obj.bullets:  #отрисовка всех болл-паутин
-                i.draw(screen)
-        starter_obj.hero.draw(screen)
-        for i in starter_obj.enemys:
-            i.draw(screen)
-            if i.hp <= 0:
-                starter_obj.enemys.pop(starter_obj.enemys.index(i))
-        spider_check(screen)  # запускает паучье чутьё
-        draw_block(screen)
+    screen.fill(GREEN)
+    group_draw.draw(screen)
+    window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
 
 
 running = True
 while running:
     #starter_obj.enemy.damages = False
-    pygame.time.delay(1000)
-    pygame.mouse.set_visible(True)  # скрывает мышь
 
-    AI()
+    pygame.mouse.set_visible(True)  # скрывает мышь
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
             running = False
 
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_f:  # создание новой болл-паутины
-                if starter_obj.attack_ball():
-                    attack = True
-            if event.key == pygame.K_e:  #создаём врагов для отладки
-                starter_obj.enemy_add(width)
-            if event.key == pygame.K_SPACE:
-                if not starter_obj.is_jump:
-                    starter_obj.is_jump = True
-            if event.key == pygame.K_ESCAPE:  #создаём врагов для отладки
-                menu *= -1
-
-
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                starter_obj.hero.respawn(event.pos)
-                if menu == 1:
-                    if starter_obj.exit_menu.rect().collidepoint(event.pos):
-                        starter_obj.click = True
-                else:
-                    if starter_obj.attack_ball():
-                        attack = True
-
-
     keys = pygame.key.get_pressed()  # движения персонажей под зажим\
-
-    if keys[pygame.K_a] or keys[pygame.K_RIGHT] or keys[pygame.K_LEFT] or keys[pygame.K_d]:
-        starter_obj.hero.action = True
+    if keys[pygame.K_ESCAPE]:
+        running = False
+    if keys[pygame.K_SPACE]:
+        UP = True
     else:
-        starter_obj.hero.action = False
-
-    if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:  #pygame.K_LEFT
-        if not starter_obj.is_jump:
-            starter_obj.is_jump = True
-        starter_obj.hero.move_x_a()  # при зажиме прыжок идёт с движение
-
-    elif keys[pygame.K_LEFT] and starter_obj.hero.xy[0] > 0 and keys[pygame.K_SPACE]:  #pygame.K_LEFT
-        if not starter_obj.is_jump:
-            starter_obj.is_jump = True
-        starter_obj.hero.move_x_a()  # при зажиме прыжок идёт с движение
-
-    if keys[pygame.K_a] and starter_obj.hero.xy[0] > 0:
-        starter_obj.hero.move_x_a()  #границы джвижения
-
-    elif keys[pygame.K_LEFT] and starter_obj.hero.xy[0] > 0:
-        starter_obj.hero.move_x_a()  #границы джвижения
-
-    if keys[pygame.K_d] and starter_obj.hero.xy[0] < width - starter_obj.hero.width and keys[pygame.K_SPACE]:
-        starter_obj.hero.move_x_d()
-        if not starter_obj.is_jump:
-            starter_obj.is_jump = True   # при зажиме прыжок идёт с движение
-
-    elif keys[pygame.K_RIGHT] and starter_obj.hero.xy[0] < width - starter_obj.hero.width and keys[pygame.K_SPACE]:
-        starter_obj.hero.move_x_d()
-        if not starter_obj.is_jump:
-            starter_obj.is_jump = True   # при зажиме прыжок идёт с движение
-
-    if keys[pygame.K_d] and starter_obj.hero.xy[0] < width - starter_obj.hero.width:
-        starter_obj.hero.move_x_d() #границы джвижения
-
-    elif keys[pygame.K_RIGHT] and starter_obj.hero.xy[0] < width - starter_obj.hero.width:
-        starter_obj.hero.move_x_d() #границы джвижения
-
-
-    if attack:  # движение болл-паутины
-        for i in starter_obj.bullets:
-            if 0 < i.xy[0] < width:
-                i.move()
-            else:
-                starter_obj.bullets.pop(starter_obj.bullets.index(i))
-            if len(starter_obj.enemys) > 0:
-                for j in starter_obj.enemys:
-                    if i.rect().colliderect(j.rect()):  #проверка соприкосновения патрона и врага
-                        j.damages = True
-                        try:
-                            starter_obj.bullets.pop(starter_obj.bullets.index(i))
-                        except ValueError:
-                            continue
-
-    if starter_obj.is_jump:  #реализация прыжка
-        if starter_obj.hero.jump() == 'End':
-            starter_obj.is_jump = False
-
-    screen.fill(Black)
-    touches(starter_obj.hero)
+        UP = False
+    if keys[pygame.K_a]:
+        SIDE = -1
+    elif keys[pygame.K_d]:
+        SIDE = 1
+    else:
+        SIDE = 0
+    HERO.update(SIDE, UP, platforms)
     draw()
     pygame.display.flip()
+    pygame.time.Clock().tick(60)
 
 pygame.quit()
 
