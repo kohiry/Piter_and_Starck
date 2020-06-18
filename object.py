@@ -30,7 +30,8 @@ class Player(Sprite):
 
     def update(self, side, up, platforms):
         # лево право
-        self.rect.x += SPEED * side
+        if side != 0:
+            self.rect.x += SPEED * side
 
         # прыжок
         if not self.onGround:
@@ -50,20 +51,23 @@ class Player(Sprite):
     def collide(self, yvel, side, platforms):
         for pl in platforms:
             if collide_rect(self, pl):
+
+
                 if yvel > 0:
-                    self.side = 0
+                    self.yvel = 0
                     self.onGround = True
                     self.rect.bottom = pl.rect.top
-                    self.yvel = 0
-
                 elif yvel < 0:
-                    self.side = 0
                     self.rect.top = pl.rect.bottom
                 # лаганно презимляется
-                if side == -1:
-                    self.rect.left = pl.rect.right
-                elif side == 1:
-                    self.rect.right = pl.rect.left
+                if self.yvel < 20:
+                    if side == -1:
+                        self.rect.left = pl.rect.right
+                    elif side == 1:
+                        self.rect.right = pl.rect.left
+                elif self.onGround:
+                    self.yvel = 0
+
 
                     #self.yvel = 0
 

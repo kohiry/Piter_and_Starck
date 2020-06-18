@@ -6,9 +6,9 @@ from settings import GREEN
 from starter_obj import group_draw, HERO, platforms
 
 
-#size = width, height = 500, 500
-#window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
+size = width, height = 1000, 1000
+window = pygame.display.set_mode(size)
+#window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
 screen = pygame.Surface(SIZE)
 #screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
@@ -29,14 +29,17 @@ while running:
 
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                UP = True
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE:
+                UP = False
 
     keys = pygame.key.get_pressed()  # движения персонажей под зажим\
     if keys[pygame.K_ESCAPE]:
         running = False
-    if keys[pygame.K_SPACE]:
-        UP = True
-    else:
-        UP = False
+
     if keys[pygame.K_a]:
         SIDE = -1
     elif keys[pygame.K_d]:
