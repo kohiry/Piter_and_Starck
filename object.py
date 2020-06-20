@@ -7,8 +7,8 @@ from settings import SIZE
 
 
 SPEED = 20
-GRAVITY = 0.4
-JUMP_POWER = 20
+GRAVITY = 1
+JUMP_POWER = 10
 
 
 class Player(Sprite):
@@ -23,30 +23,38 @@ class Player(Sprite):
         self.yvel = 0
         self.xvel = 0
         self.onGround = False
+        self.count = 0
+        self.jump = False
 
     def new_coord(self, x, y):
         self.rect.x = x
         self.rect.y = y
 
     def update(self, left, right, up, platforms):
-        print(left, right)
+
         # лево право
-        if left:
-            self.xvel = -SPEED
-        if right:
-            self.xvel = SPEED
-        if not(left and left):
+        if left or right:
+            if left:
+                self.xvel = -SPEED
+            if right:
+                self.xvel = SPEED
+        else:
             self.xvel = 0
 
         # прыжок
         if not self.onGround:
             self.yvel += GRAVITY
-        #if up and self.onGround:
-            #self.onGround = False
-            #self.yvel = -JUMP_POWER
+            if up and self.count < 1 and self.yvel > 0:
+                self.count += 1
+                self.yvel += -JUMP_POWER*2
 
+        if up and self.onGround:
+            self.jump = True
+            self.onGround = False
+            self.yvel = -JUMP_POWER*2
 
-        #self.onGround = False
+        self.onGround = False
+        print(self.xvel, left, right)
         self.rect.x += self.xvel
         self.collide(self.xvel, 0, platforms)
         self.rect.y += self.yvel
@@ -57,6 +65,7 @@ class Player(Sprite):
         for pl in platforms:
             if collide_rect(self, pl):
                 if yvel > 0:
+                    self.count = 0
                     self.onGround = True
                     self.rect.bottom = pl.rect.top
                 if yvel < 0:
