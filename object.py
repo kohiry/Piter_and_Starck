@@ -3,7 +3,6 @@ from pygame.draw import rect
 from pygame import Surface
 from pygame.image import load
 from pygame.transform import scale
-from settings import SIZE
 
 
 SPEED = 20

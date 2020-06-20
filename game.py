@@ -1,9 +1,53 @@
 import pygame
 pygame.init()
 from screeninfo import get_monitors
-from settings import WIDTH, HEIGHT, SIZE, UP, RIGHT, LEFT
-from settings import GREEN
-from starter_obj import group_draw, HERO, platforms
+from level import level1
+import object
+
+#setting
+SIZE = WIDTH, HEIGHT = 1080, 700
+BACK_SIZE = int(1080/1.5)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 200, 0)
+FONT = "pixle_font.ttf"
+UP = False
+LEFT = False
+RIGHT = False
+
+#startet_obj
+group_draw = pygame.sprite.Group()
+HERO = object.Player(10, 10)
+platforms = []
+x_hero, y_hero = 0, 0
+def make_level(level):
+    x, y = 0, 0
+    lens = 43
+    #width =
+    for row in level:
+        for col in row:
+            if col == '-':
+                pl = object.Platform(x, y, lens, lens)
+                group_draw.add(pl)
+                platforms.append(pl)
+            if col == '@':
+                HERO.new_coord(x, y)
+            if col == '1':
+                group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
+                pl = object.Platform(x, y, lens, lens)
+                group_draw.add(pl)
+                platforms.append(pl)
+            if col == '2':
+                group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_1.png'))
+                pl = object.Platform(x, y, lens, lens)
+                group_draw.add(pl)
+                platforms.append(pl)
+            x += lens
+        y += lens
+        x = 0
+make_level(level1)
+group_draw.add(HERO)
+
 
 
 #size = width, height = 1000, 1000
@@ -12,6 +56,31 @@ window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygam
 screen = pygame.Surface(SIZE)
 #screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
+
+#camera
+class Camera:
+    def __init__(self, camera_func, width, height):
+        self.camera_func = camera_func
+        self.state = pygame.Rect(0, 0, width, height)
+
+    def apply(self, target):
+        return target.rect.move(self.state.topleft)
+
+    def update(self, target):
+        self.state = self.camera_func(self.state, target.rect)
+
+def camera_func(camera, target_rect):
+    l = -target_rect.x + SIZE[0]/2
+    t = -target_rect.x + SIZE[1]/2
+    w, h = camera.width, camera.height
+
+    l = min(0, l)
+    l = max(-(camera.width - SIZE[0], l))
+    t = max(-(camera.height-SIZE[1]), ts)
+    t = min(0, t)
+    return pygame.Rect(l, t, w, h)
+
+total_level_width = len(level1[0]*43)
 
 
 def draw():
