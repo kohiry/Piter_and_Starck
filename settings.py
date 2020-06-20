@@ -8,7 +8,6 @@ GREEN = (0, 200, 0)
 
 FONT = "pixle_font.ttf"
 
-SIDE = 0
-
-
 UP = False
+LEFT = False
+RIGHT = False

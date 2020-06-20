@@ -1,14 +1,14 @@
 import pygame
 pygame.init()
 from screeninfo import get_monitors
-from settings import WIDTH, HEIGHT, SIZE, SIDE, UP
+from settings import WIDTH, HEIGHT, SIZE, UP, RIGHT, LEFT
 from settings import GREEN
 from starter_obj import group_draw, HERO, platforms
 
 
-size = width, height = 1000, 1000
-window = pygame.display.set_mode(size)
-#window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
+#size = width, height = 1000, 1000
+#window = pygame.display.set_mode(size)
+window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
 screen = pygame.Surface(SIZE)
 #screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
@@ -32,21 +32,24 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 UP = True
+            if event.key == pygame.K_LEFT:
+                LEFT = True
+            if event.key == pygame.K_RIGHT:
+                RIGHT = True
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 UP = False
+            if event.key == pygame.K_LEFT:
+                LEFT = False
+            if event.key == pygame.K_RIGHT:
+                RIGHT = False
 
     keys = pygame.key.get_pressed()  # движения персонажей под зажим\
     if keys[pygame.K_ESCAPE]:
         running = False
 
-    if keys[pygame.K_a]:
-        SIDE = -1
-    elif keys[pygame.K_d]:
-        SIDE = 1
-    else:
-        SIDE = 0
-    HERO.update(SIDE, UP, platforms)
+    HERO.update(LEFT, RIGHT, UP, platforms)
     draw()
     pygame.display.flip()
     pygame.time.Clock().tick(60)

@@ -7,7 +7,7 @@ from settings import SIZE
 
 
 SPEED = 20
-GRAVITY = 1
+GRAVITY = 0.4
 JUMP_POWER = 20
 
 
@@ -21,56 +21,50 @@ class Player(Sprite):
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
-        self.side = 0
+        self.xvel = 0
         self.onGround = False
 
     def new_coord(self, x, y):
         self.rect.x = x
         self.rect.y = y
 
-    def update(self, side, up, platforms):
+    def update(self, left, right, up, platforms):
+        print(left, right)
         # лево право
-        if side != 0:
-            self.rect.x += SPEED * side
+        if left:
+            self.xvel = -SPEED
+        if right:
+            self.xvel = SPEED
+        if not(left and left):
+            self.xvel = 0
 
         # прыжок
         if not self.onGround:
             self.yvel += GRAVITY
-        if up and self.onGround:
-            self.onGround = False
-            self.yvel = -JUMP_POWER
+        #if up and self.onGround:
+            #self.onGround = False
+            #self.yvel = -JUMP_POWER
 
 
         #self.onGround = False
+        self.rect.x += self.xvel
+        self.collide(self.xvel, 0, platforms)
         self.rect.y += self.yvel
-        self.side = side
-        self.collide(0, self.side, platforms)
-        self.collide(self.yvel, 0, platforms)
-        print(side, '|', self.yvel, '|', self.onGround)
+        self.collide(0, self.yvel, platforms)
 
-    def collide(self, yvel, side, platforms):
+
+    def collide(self, xvel, yvel, platforms):
         for pl in platforms:
             if collide_rect(self, pl):
-
-
                 if yvel > 0:
-                    self.yvel = 0
                     self.onGround = True
                     self.rect.bottom = pl.rect.top
-                elif yvel < 0:
+                if yvel < 0:
                     self.rect.top = pl.rect.bottom
-                # лаганно презимляется
-                if self.yvel < 20:
-                    if side == -1:
-                        self.rect.left = pl.rect.right
-                    elif side == 1:
-                        self.rect.right = pl.rect.left
-                elif self.onGround:
-                    self.yvel = 0
-
-
-                    #self.yvel = 0
-
+                if xvel < 0:
+                    self.rect.left = pl.rect.right
+                if xvel > 0:
+                    self.rect.right = pl.rect.left
 
 
 class Background(Sprite):
