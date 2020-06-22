@@ -20,28 +20,38 @@ group_draw = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 platforms = []
 x_hero, y_hero = 0, 0
+lens = 45
+
 def make_level(level):
     x, y = 0, 0
-    lens = 43
     #width =
     for row in level:
+
         for col in row:
-            if col == '-':
+            if col in ['-', '1', '2', '3', '4', '5', '6', '7', '0']:
+                if col == '1':
+                    group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
+                # горизонталь
+                if col == '2':
+                    group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_1.png'))
+                if col == '3':
+                    group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_2.png'))
+                # поворот
+                if col == '4':
+                    group_draw.add(object.Background(x, y, 'data/фоны/поворот_1.png'))
+                if col == '5':
+                    group_draw.add(object.Background(x, y, 'data/фоны/поворот_2.png'))
+                if col == '6':
+                    group_draw.add(object.Background(x, y, 'data/фоны/поворот_3.png'))
+                if col == '7':
+                    group_draw.add(object.Background(x, y, 'data/фоны/поворот_4.png'))
+                if col == '0':
+                    group_draw.add(object.Background(x, y, 'data/фоны/конец.png'))
                 pl = object.Platform(x, y, lens, lens)
-                group_draw.add(pl)
+                #group_draw.add(pl)
                 platforms.append(pl)
             if col == '@':
                 HERO.new_coord(x, y)
-            if col == '1':
-                group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
-                pl = object.Platform(x, y, lens, lens)
-                group_draw.add(pl)
-                platforms.append(pl)
-            if col == '2':
-                group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_1.png'))
-                pl = object.Platform(x, y, lens, lens)
-                group_draw.add(pl)
-                platforms.append(pl)
             x += lens
         y += lens
         x = 0
@@ -71,28 +81,30 @@ class Camera:
 
 def camera_func(camera, target_rect):
     l = -target_rect.x + SIZE[0]/2
-    t = -target_rect.x + SIZE[1]/2
+    t = -target_rect.y + SIZE[1]/2
     w, h = camera.width, camera.height
 
     l = min(0, l)
-    l = max(-(camera.width - SIZE[0], l))
-    t = max(-(camera.height-SIZE[1]), ts)
+    l = max(-(camera.width - SIZE[0]), l)
+    t = max(-(camera.height - SIZE[1]), t)
     t = min(0, t)
     return pygame.Rect(l, t, w, h)
 
-total_level_width = len(level1[0]*43)
+total_level_width = len(level1[0])*lens
+total_level_height = len(level1)*lens
 
+camera = Camera(camera_func, total_level_width, total_level_height)
 
 def draw():
-    screen.fill(GREEN)
-    group_draw.draw(screen)
+    screen.fill((0, 0, 25))
+    camera.update(HERO)
+    for e in group_draw:
+        screen.blit(e.image, camera.apply(e))
     window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
 
 
 running = True
 while running:
-    #starter_obj.enemy.damages = False
-
     pygame.mouse.set_visible(True)  # скрывает мышь
     for event in pygame.event.get():
 
