@@ -1,7 +1,7 @@
 import pygame
 pygame.init()
 from screeninfo import get_monitors
-from level import level1
+from level import map as MAP
 import object
 
 #setting
@@ -14,6 +14,10 @@ FONT = "pixle_font.ttf"
 UP = False
 LEFT = False
 RIGHT = False
+
+# map
+location = 1
+draw_loc = 1
 
 #startet_obj
 group_draw = pygame.sprite.Group()
@@ -28,7 +32,7 @@ def make_level(level):
     for row in level:
 
         for col in row:
-            if col in ['-', '1', '2', '3', '4', '5', '6', '7', '0']:
+            if col in ['-', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']:
                 if col == '1':
                     group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
                 # горизонталь
@@ -45,18 +49,26 @@ def make_level(level):
                     group_draw.add(object.Background(x, y, 'data/фоны/поворот_3.png'))
                 if col == '7':
                     group_draw.add(object.Background(x, y, 'data/фоны/поворот_4.png'))
+
+                if col == '8':
+                    group_draw.add(object.Background(x, y, 'data/фоны/вертикаль.png'))
                 if col == '0':
                     group_draw.add(object.Background(x, y, 'data/фоны/конец.png'))
                 pl = object.Platform(x, y, lens, lens)
                 #group_draw.add(pl)
                 platforms.append(pl)
-            if col == '@':
+            if col == '@' and HERO.spawn == '@':
                 HERO.new_coord(x, y)
+            if col == '#' and HERO.spawn == '#':
+                HERO.new_coord(x, y)
+            if col == "_":
+                pl = object.Teleport(x, y, lens, lens)
+                platforms.append(pl)
+                #group_draw.add(pl)  # блоки телепорты
             x += lens
         y += lens
         x = 0
-make_level(level1)
-group_draw.add(HERO)
+
 
 
 
@@ -71,6 +83,9 @@ pygame.display.set_caption('Gay game')
 class Camera:
     def __init__(self, camera_func, width, height):
         self.camera_func = camera_func
+        self.state = pygame.Rect(0, 0, width, height)
+
+    def new(self, width, height):
         self.state = pygame.Rect(0, 0, width, height)
 
     def apply(self, target):
@@ -90,13 +105,37 @@ def camera_func(camera, target_rect):
     t = min(0, t)
     return pygame.Rect(l, t, w, h)
 
-total_level_width = len(level1[0])*lens
-total_level_height = len(level1)*lens
 
-camera = Camera(camera_func, total_level_width, total_level_height)
+camera = Camera(camera_func, 1, 1)
+total_level_width = len(MAP['level1'][0])*lens
+total_level_height = len(MAP['level1'])*lens
+camera.new(total_level_width, total_level_height)
+make_level(MAP['level1'])
+group_draw.add(HERO)
+
+def camera_level(place):
+    for e in group_draw:
+        e.kill()
+    platforms.clear()
+    total_level_width = len(MAP[place][0])*lens
+    total_level_height = len(MAP[place])*lens
+    camera.new(total_level_width, total_level_height)
+    make_level(MAP[place])
+    group_draw.add(HERO)
 
 def draw():
+    global draw_loc, location
     screen.fill((0, 0, 25))
+    last_level = location
+    location = HERO.level
+    try:
+        if draw_loc != location:
+            draw_loc = location
+            camera_level(f'level{location}')
+
+    except KeyError:
+        HERO.level = last_level
+
     camera.update(HERO)
     for e in group_draw:
         screen.blit(e.image, camera.apply(e))
@@ -105,7 +144,7 @@ def draw():
 
 running = True
 while running:
-    pygame.mouse.set_visible(True)  # скрывает мышь
+    pygame.mouse.set_visible(False)  # скрывает мышь
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
