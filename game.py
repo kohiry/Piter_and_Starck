@@ -28,6 +28,11 @@ lens = 45
 
 def make_level(level):
     x, y = 0, 0
+
+    def platform(pl, obj):
+        pl = obj(x, y, lens, lens)
+        group_draw.add(pl)
+        platforms.append(pl)
     #width =
     for row in level:
 
@@ -54,17 +59,15 @@ def make_level(level):
                     group_draw.add(object.Background(x, y, 'data/фоны/вертикаль.png'))
                 if col == '0':
                     group_draw.add(object.Background(x, y, 'data/фоны/конец.png'))
-                pl = object.Platform(x, y, lens, lens)
-                #group_draw.add(pl)
-                platforms.append(pl)
+                platform(pl, object.Platform)
             if col == '@' and HERO.spawn == '@':
                 HERO.new_coord(x, y)
             if col == '#' and HERO.spawn == '#':
                 HERO.new_coord(x, y)
-            if col == "_":
-                pl = object.Teleport(x, y, lens, lens)
-                platforms.append(pl)
-                #group_draw.add(pl)  # блоки телепорты
+            if col == "^":
+                platform(pl, object.Teleport_A)
+            if col == "v":
+                platform(pl, object.Teleport_B)
             x += lens
         y += lens
         x = 0

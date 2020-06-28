@@ -77,8 +77,8 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.image.fill((0, 200, 0))
         self.rect = self.image.get_rect()
-        self.spawn = '#'
-        self.level = 3
+        self.spawn = '@'
+        self.level = 1
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
@@ -121,7 +121,8 @@ class Player(Sprite):
 
         # прыжок
         if not self.onGround:
-            self.yvel += GRAVITY
+            if self.yvel < 50:
+                self.yvel += GRAVITY
             if up and self.count < 1 and self.yvel > 0:
                 self.count += 1
                 self.yvel += -JUMP_POWER**2
@@ -161,15 +162,14 @@ class Player(Sprite):
                     if xvel > 0:
                         self.yvel = 0
                         self.rect.right = pl.rect.left
-                if pl.name == '_':
-                    if xvel < 0:
-                        self.level -= 1
-                        self.spawn = '#'
-                    if xvel > 0:
-                        self.level += 1
-                        self.spawn = '@'
+                if pl.name == '^':
+                    self.level += pl.move
+                    self.spawn = '@'
                     break
-
+                if pl.name == 'v':
+                    self.level -= pl.move
+                    self.spawn = '#'
+                    break
 
 class Background(Sprite):
     def __init__(self, x, y, filename):
@@ -179,8 +179,6 @@ class Background(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def update(self, side):
-        pass
 
 class Platform(Sprite):
     def __init__(self, x, y, width, height):
@@ -192,14 +190,24 @@ class Platform(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def update(self, side):
-        pass
 
-
-class Teleport(Sprite):
-    def __init__(self, x, y, width, height):
+class Teleport_A(Sprite):
+    def __init__(self, x, y, width, height, move=1):
         Sprite.__init__(self)
-        self.name = '_'
+        self.name = '^'
+        self.move = move
+        self.image = Surface((width, height))
+        self.image.fill((0, 100, 0))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
+class Teleport_B(Sprite):
+    def __init__(self, x, y, width, height, move=1):
+        Sprite.__init__(self)
+        self.name = 'v'
+        self.move = move
         self.image = Surface((width, height))
         self.image.fill((0, 100, 0))
         self.rect = self.image.get_rect()
