@@ -23,51 +23,63 @@ draw_loc = 1
 group_draw = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 platforms = []
+teleports = []
 x_hero, y_hero = 0, 0
 lens = 45
 
 def make_level(level):
     x, y = 0, 0
 
-    def platform(pl, obj):
+    def platform(row, col, obj, find=False):
         pl = obj(x, y, lens, lens)
+        try:
+            if find:
+                if object.Teleport_A == obj and row[row.index(col)+1].isdigit():
+                    pl.update(int(row[row.index(col)+1]))
+                if object.Teleport_B == obj and row[row.index(col)+1].isdigit():  # не может верно телепортировать назад на 2 комнаты
+                    pl.update(int(row[row.index(col)+1]))
+
+        except IndexError:
+            pass
         group_draw.add(pl)
-        platforms.append(pl)
+        if object.Platform == obj:
+            platforms.append(pl)
+        else:
+            teleports.append(pl)
+
     #width =
     for row in level:
 
         for col in row:
-            if col in ['-', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']:
-                if col == '1':
+            if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']:
+                if col == 'q':
                     group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
                 # горизонталь
-                if col == '2':
+                if col == 'w':
                     group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_1.png'))
-                if col == '3':
+                if col == 'e':
                     group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_2.png'))
                 # поворот
-                if col == '4':
+                if col == 'r':
                     group_draw.add(object.Background(x, y, 'data/фоны/поворот_1.png'))
-                if col == '5':
+                if col == 't':
                     group_draw.add(object.Background(x, y, 'data/фоны/поворот_2.png'))
-                if col == '6':
+                if col == 'y':
                     group_draw.add(object.Background(x, y, 'data/фоны/поворот_3.png'))
-                if col == '7':
+                if col == 'u':
                     group_draw.add(object.Background(x, y, 'data/фоны/поворот_4.png'))
 
-                if col == '8':
+                if col == 'i':
                     group_draw.add(object.Background(x, y, 'data/фоны/вертикаль.png'))
-                if col == '0':
+                if col == 'p':
                     group_draw.add(object.Background(x, y, 'data/фоны/конец.png'))
-                platform(pl, object.Platform)
-            if col == '@' and HERO.spawn == '@':
-                HERO.new_coord(x, y)
-            if col == '#' and HERO.spawn == '#':
+                platform(row, col, object.Platform)
+            if (col == '@' and HERO.spawn == '@') or (col == '#' and HERO.spawn == '#'):
                 HERO.new_coord(x, y)
             if col == "^":
-                platform(pl, object.Teleport_A)
+                platform(row, col, object.Teleport_A, True)
             if col == "v":
-                platform(pl, object.Teleport_B)
+                platform(row, col, object.Teleport_B, True)
             x += lens
         y += lens
         x = 0
@@ -75,7 +87,7 @@ def make_level(level):
 
 
 
-#size = width, height = 1000, 1000
+#size = width, height = 1080, 720
 #window = pygame.display.set_mode(size)
 window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
 screen = pygame.Surface(SIZE)
@@ -98,8 +110,8 @@ class Camera:
         self.state = self.camera_func(self.state, target.rect)
 
 def camera_func(camera, target_rect):
-    l = -target_rect.x + SIZE[0]/2
-    t = -target_rect.y + SIZE[1]/2
+    l = -target_rect.x + SIZE[0]//2
+    t = -target_rect.y + SIZE[1]//2
     w, h = camera.width, camera.height
 
     l = min(0, l)
@@ -120,6 +132,7 @@ def camera_level(place):
     for e in group_draw:
         e.kill()
     platforms.clear()
+    teleports.clear()
     total_level_width = len(MAP[place][0])*lens
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)
@@ -134,7 +147,7 @@ def draw():
     try:
         if draw_loc != location:
             draw_loc = location
-            camera_level(f'level{location}')
+            camera_level(f'level{str(location)}')
 
     except KeyError:
         HERO.level = last_level
@@ -172,7 +185,7 @@ while running:
     if keys[pygame.K_ESCAPE]:
         running = False
 
-    HERO.update(LEFT, RIGHT, UP, platforms)
+    HERO.update(LEFT, RIGHT, UP, platforms, teleports)
     draw()
     pygame.display.flip()
     pygame.time.Clock().tick(60)

@@ -77,8 +77,8 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.image.fill((0, 200, 0))
         self.rect = self.image.get_rect()
-        self.spawn = '@'
-        self.level = 1
+        self.spawn = '#'
+        self.level = 5
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
@@ -92,7 +92,7 @@ class Player(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def update(self, left, right, up, platforms):
+    def update(self, left, right, up, platforms, teleports):
 
         # лево право
         if left or right:
@@ -140,6 +140,10 @@ class Player(Sprite):
         self.rect.y += self.yvel
         self.collide(0, self.yvel, platforms)
 
+        answer = self.teleport(self.xvel, 0, teleports)
+        if answer:
+            self.teleport(0, self.yvel, teleports)
+
 
     def collide(self, xvel, yvel, platforms):
         for pl in platforms:
@@ -162,14 +166,30 @@ class Player(Sprite):
                     if xvel > 0:
                         self.yvel = 0
                         self.rect.right = pl.rect.left
+
+
+    def teleport(self, xvel, yvel, teleport):
+        for pl in teleport:
+            if collide_rect(self, pl):
+                if yvel > 0:
+                    self.onGround = True
+                    self.rect.bottom = pl.rect.top
+                if yvel < 0:
+                    self.rect.top = pl.rect.bottom
+                if xvel < 0:
+                    self.rect.left = pl.rect.right
+                if xvel > 0:
+                    self.rect.right = pl.rect.left
+
                 if pl.name == '^':
                     self.level += pl.move
                     self.spawn = '@'
-                    break
-                if pl.name == 'v':
+                    return True
+
+                if pl.name == 'v':  # проблема с ебаным телепортом не решена
                     self.level -= pl.move
                     self.spawn = '#'
-                    break
+                    return True
 
 class Background(Sprite):
     def __init__(self, x, y, filename):
@@ -202,6 +222,9 @@ class Teleport_A(Sprite):
         self.rect.x = x
         self.rect.y = y
 
+    def update(self, move):
+        self.move = move
+
 
 class Teleport_B(Sprite):
     def __init__(self, x, y, width, height, move=1):
@@ -209,7 +232,10 @@ class Teleport_B(Sprite):
         self.name = 'v'
         self.move = move
         self.image = Surface((width, height))
-        self.image.fill((0, 100, 0))
+        self.image.fill((0, 0, 100))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+    def update(self, move):
+        self.move = move
