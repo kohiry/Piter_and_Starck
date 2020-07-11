@@ -3,11 +3,13 @@ from pygame.draw import rect
 from pygame import Surface
 from pygame.image import load
 from pygame.transform import scale
+from pygame.font import Font
 
 
 SPEED = 20
 GRAVITY = 2
 JUMP_POWER = 5
+
 
 class Enemy(Sprite):
     def __init__(self, x, y, width=50, height=50):
@@ -22,17 +24,20 @@ class Enemy(Sprite):
         self.xvel = 0
         self.onGround = False
 
-    def new_coord(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
+    def AI(self, hero, platforms):
+        if hero.rect.x <= self.rect.x + 200 and hero.rect.x > self.rect.x + self.rect.width:
+            self.update(False, True, platforms)
+        elif hero.rect.x >= self.rect.x - 200 and hero.rect.x < self.rect.x - self.rect.width:
+            self.update(True, False, platforms)
+        else:
+            self.update(False, False, platforms)
 
-    def update(self, left, right, up, platforms):
-
+    def update(self, left, right, platforms):
         # лево право
         if left:
-            self.xvel = -SPEED
+            self.xvel = -SPEED * 0.5
         if right:
-            self.xvel = SPEED
+            self.xvel = SPEED * 0.5
         if not (left or right):
             self.xvel = 0
 
@@ -63,13 +68,42 @@ class Enemy(Sprite):
                     self.yvel = 0
                     self.rect.right = pl.rect.left
 
-'''
-    def AI(self, hero):
-        if -100 < hero.x - self.x < 100:
-            if -100 < hero.y - self.y < 100:
-                if self.
-                self.update
-'''
+class Ball(Sprite):
+    def __init__(self, x, y, r=10):
+        self.image = Surface((width, width))
+        self.image.fill((10, 200, 136))
+        self.rect = self.image.get_rect()
+        self.left = left
+        self.right = right
+        self.rect.x = x
+        self.rect.y = y
+        self.yvel = 0
+        self.xvel = 0
+        #self.ball =
+
+    def update(self, platforms, enemys):
+        # лево право
+        if self.left:
+            self.xvel = -SPEED * 0.5
+        if self.right:
+            self.xvel = SPEED * 0.5
+
+        self.rect.x += self.xvel
+        self.collide(self.xvel, 0, platforms, enemys)
+        self.rect.y += self.yvel
+        self.collide(0, self.yvel, platforms, enemys)
+
+    def collide(self, xvel, yvel, platforms, enemys):
+        for pl in platforms:
+            if collide_rect(self, pl):
+                return 'die'
+        for pl in enemys:
+            if collide_rect(self, pl):
+                enemys.pop(pl)
+                return 'die'
+
+
+
 class Player(Sprite):
     def __init__(self, x, y, width=50, height=50):
         Sprite.__init__(self)
@@ -77,8 +111,8 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.image.fill((0, 200, 0))
         self.rect = self.image.get_rect()
-        self.spawn = '#'
-        self.level = 5
+        self.spawn = '@'
+        self.level = 6
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
@@ -92,7 +126,7 @@ class Player(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def update(self, left, right, up, platforms, teleports):
+    def update(self, left, right, up, platforms, teleports, tree, use, screen):
 
         # лево право
         if left or right:
@@ -111,13 +145,6 @@ class Player(Sprite):
                 self.yvel = 0
             else:
                 self.xvel = 0
-                '''
-        if self.serf and (left or right) and up:
-            self.serf = False
-            if left:
-                self.xvel = -SPEED
-            if right:
-                self.xvel = SPEED '''
 
         # прыжок
         if not self.onGround:
@@ -141,8 +168,12 @@ class Player(Sprite):
         self.collide(0, self.yvel, platforms)
 
         answer = self.teleport(self.xvel, 0, teleports)
-        if answer:
+        if not answer:
             self.teleport(0, self.yvel, teleports)
+
+        answer = self.wooden(tree, use, screen)
+
+            #
 
 
     def collide(self, xvel, yvel, platforms):
@@ -168,6 +199,17 @@ class Player(Sprite):
                         self.rect.right = pl.rect.left
 
 
+    def wooden(self, tree, use, screen):
+        for pl in tree:
+            if collide_rect(self, pl):  # текст не отобравжается
+                font = Font('pixle_font.ttf', 70)
+                txt = font.render('собрать ягоду', 1, (255, 255, 255))
+                screen.blit(txt, (self.rect.x, self.rect.y + 25))
+                if use:
+                    pl.use()
+                    break
+
+
     def teleport(self, xvel, yvel, teleport):
         for pl in teleport:
             if collide_rect(self, pl):
@@ -191,6 +233,16 @@ class Player(Sprite):
                     self.spawn = '#'
                     return True
 
+                if pl.name == '!':  # проблема с ебаным телепортом не решена
+                    self.level = pl.move
+                    self.spawn = '@'
+                    return True
+
+                if pl.name == '?':  # проблема с ебаным телепортом не решена
+                    self.level = pl.move
+                    self.spawn = '%'
+                    return True
+
 class Background(Sprite):
     def __init__(self, x, y, filename):
         Sprite.__init__(self)
@@ -198,6 +250,18 @@ class Background(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+class Tree(Sprite):
+    def __init__(self, x, y, filename_True, filename_False):
+        Sprite.__init__(self)
+        self.image = scale(load(filename_True), (int(720), int(720)))
+        self.filename_False = filename_False
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def use(self):  # теперь ягоды с дерева собраны
+        self.image = scale(load(self.filename_False), (int(720), int(720)))
 
 
 class Platform(Sprite):
@@ -239,3 +303,41 @@ class Teleport_B(Sprite):
 
     def update(self, move):
         self.move = move
+
+class Teleport_BOSS(Sprite):
+    def __init__(self, x, y, width, height):
+        Sprite.__init__(self)
+        self.name = '!'
+        self.move = 69
+        self.boss = True
+        self.image = Surface((width, height))
+        self.image.fill((100, 0, 100))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+class Teleport_COME(Sprite):
+    def __init__(self, x, y, width, height):
+        Sprite.__init__(self)
+        self.name = '?'
+        self.move = 10
+        self.image = Surface((width, height))
+        self.image.fill((0, 100, 100))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def teleport(self, boss):
+        if not boss:
+            return self.move
+
+class Monster_platform(Sprite):
+    def __init__(self, x, y, width, height, move=1):
+        Sprite.__init__(self)
+        self.name = '_'
+        self.move = move
+        self.image = Surface((width, height))
+        self.image.fill((0, 100, 100))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y

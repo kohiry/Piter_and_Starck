@@ -14,6 +14,7 @@ FONT = "pixle_font.ttf"
 UP = False
 LEFT = False
 RIGHT = False
+E = False
 
 # map
 location = 1
@@ -24,23 +25,16 @@ group_draw = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 platforms = []
 teleports = []
+enemy = []
+tree = []
 x_hero, y_hero = 0, 0
 lens = 45
 
 def make_level(level):
     x, y = 0, 0
 
-    def platform(row, col, obj, find=False):
+    def platform(row, col, obj):
         pl = obj(x, y, lens, lens)
-        try:
-            if find:
-                if object.Teleport_A == obj and row[row.index(col)+1].isdigit():
-                    pl.update(int(row[row.index(col)+1]))
-                if object.Teleport_B == obj and row[row.index(col)+1].isdigit():  # не может верно телепортировать назад на 2 комнаты
-                    pl.update(int(row[row.index(col)+1]))
-
-        except IndexError:
-            pass
         group_draw.add(pl)
         if object.Platform == obj:
             platforms.append(pl)
@@ -51,35 +45,61 @@ def make_level(level):
     for row in level:
 
         for col in row:
-            if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']:
-                if col == 'q':
-                    group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
-                # горизонталь
-                if col == 'w':
-                    group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_1.png'))
-                if col == 'e':
-                    group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_2.png'))
-                # поворот
-                if col == 'r':
-                    group_draw.add(object.Background(x, y, 'data/фоны/поворот_1.png'))
-                if col == 't':
-                    group_draw.add(object.Background(x, y, 'data/фоны/поворот_2.png'))
-                if col == 'y':
-                    group_draw.add(object.Background(x, y, 'data/фоны/поворот_3.png'))
-                if col == 'u':
-                    group_draw.add(object.Background(x, y, 'data/фоны/поворот_4.png'))
-
-                if col == 'i':
-                    group_draw.add(object.Background(x, y, 'data/фоны/вертикаль.png'))
-                if col == 'p':
-                    group_draw.add(object.Background(x, y, 'data/фоны/конец.png'))
-                platform(row, col, object.Platform)
-            if (col == '@' and HERO.spawn == '@') or (col == '#' and HERO.spawn == '#'):
-                HERO.new_coord(x, y)
-            if col == "^":
-                platform(row, col, object.Teleport_A, True)
-            if col == "v":
-                platform(row, col, object.Teleport_B, True)
+            if col == ' ':
+                pass
+            else:
+                if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f']:
+                    if col == 'q':
+                        group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
+                    # горизонталь
+                    if col == 'w':
+                        group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_1.png'))
+                    if col == 'e':
+                        group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_2.png'))
+                    # поворот
+                    if col == 'r':
+                        group_draw.add(object.Background(x, y, 'data/фоны/поворот_1.png'))
+                    if col == 't':
+                        group_draw.add(object.Background(x, y, 'data/фоны/поворот_2.png'))
+                    if col == 'y':
+                        group_draw.add(object.Background(x, y, 'data/фоны/поворот_3.png'))
+                    if col == 'u':
+                        group_draw.add(object.Background(x, y, 'data/фоны/поворот_4.png'))
+                    if col == 'f':
+                        group_draw.add(object.Background(x, y, 'data/фоны/овраг.png'))
+                    if col == 'i':
+                        group_draw.add(object.Background(x, y, 'data/фоны/вертикаль.png'))
+                    if col == 'p':
+                        group_draw.add(object.Background(x, y, 'data/фоны/конец.png'))
+                    if col == 'a':
+                        pl = object.Tree(x, y, 'data/фоны/развилка_вниз.png', 'data/фоны/развилка_вниз_без_ягод.png')
+                        group_draw.add(pl)
+                        tree.append(pl)
+                    if col == 's':
+                        pl = object.Tree(x, y, 'data/фоны/развилка_наверх.png', 'data/фоны/развилка_наверх_без_ягод.png')
+                        group_draw.add(pl)
+                        tree.append(pl)
+                    if col == 'd':
+                        pl = object.Tree(x, y, 'data/фоны/развилка_направо.png', 'data/фоны/развилка_направо_без_ягод.png')
+                        group_draw.add(pl)
+                        tree.append(pl)
+                    platform(row, col, object.Platform)
+                if (col == '@' and HERO.spawn == '@') or (col == '#' and HERO.spawn == '#') or (col == '%' and HERO.spawn == '%'):
+                    HERO.new_coord(x, y)
+                if col == "^":
+                    platform(row, col, object.Teleport_A)
+                if col == "v":
+                    platform(row, col, object.Teleport_B)
+                if col == "!":
+                    platform(row, col, object.Teleport_BOSS)
+                if col == "?":
+                    platform(row, col, object.Teleport_COME)
+                if col == "&":
+                    pl = object.Enemy(x, y, lens, lens)
+                    group_draw.add(pl)
+                    enemy.append(pl)
+                if col == "_":
+                    pass
             x += lens
         y += lens
         x = 0
@@ -133,6 +153,8 @@ def camera_level(place):
         e.kill()
     platforms.clear()
     teleports.clear()
+    enemy.clear()
+    tree.clear()
     total_level_width = len(MAP[place][0])*lens
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)
@@ -172,6 +194,8 @@ while running:
                 LEFT = True
             if event.key == pygame.K_RIGHT:
                 RIGHT = True
+            if event.key == pygame.K_e:
+                E = True
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
@@ -180,12 +204,16 @@ while running:
                 LEFT = False
             if event.key == pygame.K_RIGHT:
                 RIGHT = False
+            if event.key == pygame.K_e:
+                E = False
 
     keys = pygame.key.get_pressed()  # движения персонажей под зажим\
     if keys[pygame.K_ESCAPE]:
         running = False
 
-    HERO.update(LEFT, RIGHT, UP, platforms, teleports)
+    HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, E, screen)
+    for i in enemy:
+        i.AI(HERO, platforms)
     draw()
     pygame.display.flip()
     pygame.time.Clock().tick(60)
