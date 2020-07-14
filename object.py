@@ -21,12 +21,13 @@ class Enemy(Sprite):
         self.rect.y = y
         self.yvel = 0
         self.xvel = 0
+        self.helth = 3
         self.onGround = False
 
     def AI(self, hero, platforms):
-        if hero.rect.x <= self.rect.x + 200 and hero.rect.x > self.rect.x + self.rect.width:
+        if hero.rect.x <= self.rect.x + 200 and hero.rect.x > self.rect.x + self.rect.width-1:
             self.update(False, True, platforms)
-        elif hero.rect.x >= self.rect.x - 200 and hero.rect.x < self.rect.x - self.rect.width:
+        elif hero.rect.x >= self.rect.x - 200 and hero.rect.x < self.rect.x - self.rect.width-1:
             self.update(True, False, platforms)
         else:
             self.update(False, False, platforms)
@@ -111,13 +112,14 @@ class Player(Sprite):
         self.image.fill((0, 200, 0))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 6
+        self.level = 69
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
         self.xvel = 0
         self.onGround = False
         self.count = 0
+        self.helth = 3
         self.jump = False
         self.serf = False
         self.trees = set()
@@ -126,7 +128,7 @@ class Player(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def update(self, left, right, up, platforms, teleports, tree, use, screen):
+    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen):
 
         # лево право
         if left or right:
@@ -157,7 +159,6 @@ class Player(Sprite):
         self.serf = False
         self.rect.x += self.xvel
         self.collide(self.xvel, 0, platforms)
-        print(self.serf)
         self.rect.y += self.yvel
         self.collide(0, self.yvel, platforms)
 
@@ -165,7 +166,25 @@ class Player(Sprite):
         if not answer:
             self.teleport(0, self.yvel, teleports)
 
+        self.enemys(enemy)
+
         return self.wooden(tree, use, screen)
+
+    def respawn(self):
+        self.spawn = '@'
+        self.level = 1
+
+    def enemys(self, enemy):
+        for pl in enemy:
+            if collide_rect(self, pl):
+                self.helth -= 1
+
+                if pl.xvel >= 0:
+                    self.rect.x += SPEED * 4
+                else:
+                    self.rect.x += -(SPEED * 4)
+                    print(pl.xvel)
+                break
 
 
     def collide(self, xvel, yvel, platforms):

@@ -31,6 +31,7 @@ tree = []
 x_hero, y_hero = 0, 0
 lens = 45
 
+
 def make_level(level):
     x, y = 0, 0
 
@@ -220,9 +221,11 @@ while running:
         running = False
 
     draw()
-    take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, E, screen)
+    take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen)
     for i in enemy:
         i.AI(HERO, platforms)
+    if HERO.helth <= 0:
+        HERO.respawn()
     pygame.display.flip()
     pygame.time.Clock().tick(60)
 
