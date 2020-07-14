@@ -3,7 +3,6 @@ from pygame.draw import rect
 from pygame import Surface
 from pygame.image import load
 from pygame.transform import scale
-from pygame.font import Font
 
 
 SPEED = 20
@@ -121,6 +120,7 @@ class Player(Sprite):
         self.count = 0
         self.jump = False
         self.serf = False
+        self.trees = set()
 
     def new_coord(self, x, y):
         self.rect.x = x
@@ -130,40 +130,34 @@ class Player(Sprite):
 
         # лево право
         if left or right:
-            if self.serf:
-                if left:
-                    self.yvel = -SPEED
-                if right:
-                    self.yvel = SPEED
-            else:
-                if left:
-                    self.xvel = -SPEED
-                if right:
-                    self.xvel = SPEED
+            if left:
+                self.xvel = -SPEED
+            if right:
+                self.xvel = SPEED
         else:
-            if self.serf:
-                self.yvel = 0
-            else:
-                self.xvel = 0
+            self.xvel = 0
 
         # прыжок
         if not self.onGround:
-            if self.yvel < 50:
-                self.yvel += GRAVITY
-            if up and self.count < 1 and self.yvel > 0:
+            #if self.yvel < 50:
+            self.yvel += GRAVITY
+            '''
+            if up and self.count < 1 and self.yvel > 0 and self.onGround:
+                print(1)
                 self.count += 1
-                self.yvel += -JUMP_POWER**2
+                self.yvel += -JUMP_POWER**2'''
 
-        #реализовать лазание по крыше
-        if up and self.onGround:
+        if up and self.onGround and not self.serf:
             self.jump = True
             self.onGround = False
-            self.serf = False
             self.yvel = -JUMP_POWER**2
 
+
         self.onGround = False
+        self.serf = False
         self.rect.x += self.xvel
         self.collide(self.xvel, 0, platforms)
+        print(self.serf)
         self.rect.y += self.yvel
         self.collide(0, self.yvel, platforms)
 
@@ -171,9 +165,7 @@ class Player(Sprite):
         if not answer:
             self.teleport(0, self.yvel, teleports)
 
-        answer = self.wooden(tree, use, screen)
-
-            #
+        return self.wooden(tree, use, screen)
 
 
     def collide(self, xvel, yvel, platforms):
@@ -183,31 +175,35 @@ class Player(Sprite):
                     self.count = 0
                     #self.serf = True
                     if yvel > 0:
-                        #self.serf = False
+                        self.serf = False
                         self.onGround = True
                         self.rect.bottom = pl.rect.top
                     if yvel < 0:
-                        #self.onGround = False
-                        #self.serf = False
                         self.yvel = 0
                         self.rect.top = pl.rect.bottom
                     if xvel < 0:
-                        self.yvel = 0
+                        self.yvel = -SPEED
+                        self.onGround = True
+                        self.serf = True
+                        self.jump = False
                         self.rect.left = pl.rect.right
                     if xvel > 0:
-                        self.yvel = 0
+                        self.yvel = -SPEED
+                        self.onGround = True
+                        self.serf = True
+                        self.jump = False
                         self.rect.right = pl.rect.left
 
 
     def wooden(self, tree, use, screen):
         for pl in tree:
             if collide_rect(self, pl):  # текст не отобравжается
-                font = Font('pixle_font.ttf', 70)
-                txt = font.render('собрать ягоду', 1, (255, 255, 255))
-                screen.blit(txt, (self.rect.x, self.rect.y + 25))
                 if use:
                     pl.use()
-                    break
+                if pl.die:
+                    self.trees.add(pl)
+                    return False
+                return True
 
 
     def teleport(self, xvel, yvel, teleport):
@@ -259,9 +255,11 @@ class Tree(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.die = False
 
     def use(self):  # теперь ягоды с дерева собраны
         self.image = scale(load(self.filename_False), (int(720), int(720)))
+        self.die = True
 
 
 class Platform(Sprite):

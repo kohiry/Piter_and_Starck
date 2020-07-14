@@ -15,6 +15,7 @@ UP = False
 LEFT = False
 RIGHT = False
 E = False
+take_barries = False
 
 # map
 location = 1
@@ -107,9 +108,9 @@ def make_level(level):
 
 
 
-#size = width, height = 1080, 720
-#window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
+size = width, height = 1080, 720
+window = pygame.display.set_mode(size)
+#window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
 screen = pygame.Surface(SIZE)
 #screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
@@ -177,6 +178,13 @@ def draw():
     camera.update(HERO)
     for e in group_draw:
         screen.blit(e.image, camera.apply(e))
+    if take_barries:
+        font = pygame.font.Font('pixle_font.ttf', 20)
+        txt = font.render('нажми на E чтобы собрать плоды', 1, (0, 255, 0))
+        screen.blit(txt, (50, 50))
+    font = pygame.font.Font('pixle_font.ttf', 40)
+    txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, (0, 255, 0))
+    screen.blit(txt, (WIDTH-200, HEIGHT-50))
     window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
 
 
@@ -211,10 +219,10 @@ while running:
     if keys[pygame.K_ESCAPE]:
         running = False
 
-    HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, E, screen)
+    draw()
+    take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, E, screen)
     for i in enemy:
         i.AI(HERO, platforms)
-    draw()
     pygame.display.flip()
     pygame.time.Clock().tick(60)
 
