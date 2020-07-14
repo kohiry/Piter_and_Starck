@@ -15,6 +15,7 @@ UP = False
 LEFT = False
 RIGHT = False
 E = False
+F = False
 take_barries = False
 
 # map
@@ -28,6 +29,7 @@ platforms = []
 teleports = []
 enemy = []
 tree = []
+balls = []
 x_hero, y_hero = 0, 0
 lens = 45
 
@@ -205,6 +207,10 @@ while running:
                 RIGHT = True
             if event.key == pygame.K_e:
                 E = True
+            if event.key == pygame.K_f:
+                pl = object.Ball(HERO.rect.x, HERO.rect.y, HERO.side)
+                balls.append(pl)
+                group_draw.add(pl)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
@@ -215,6 +221,8 @@ while running:
                 RIGHT = False
             if event.key == pygame.K_e:
                 E = False
+            if event.key == pygame.K_f:
+                F = False
 
     keys = pygame.key.get_pressed()  # движения персонажей под зажим\
     if keys[pygame.K_ESCAPE]:
@@ -226,6 +234,11 @@ while running:
         i.AI(HERO, platforms)
     if HERO.helth <= 0:
         HERO.respawn()
+    for i in balls:
+        pl = i.update(platforms, enemy)
+        if pl != None:
+            pl.kill()
+
     pygame.display.flip()
     pygame.time.Clock().tick(60)
 

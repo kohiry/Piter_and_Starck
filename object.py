@@ -69,12 +69,11 @@ class Enemy(Sprite):
                     self.rect.right = pl.rect.left
 
 class Ball(Sprite):
-    def __init__(self, x, y, r=10):
-        self.image = Surface((width, width))
+    def __init__(self, x, y, side, r=10):
+        self.image = Surface((r, r))
         self.image.fill((10, 200, 136))
         self.rect = self.image.get_rect()
-        self.left = left
-        self.right = right
+        self.side = side
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
@@ -83,10 +82,10 @@ class Ball(Sprite):
 
     def update(self, platforms, enemys):
         # лево право
-        if self.left:
-            self.xvel = -SPEED * 0.5
-        if self.right:
-            self.xvel = SPEED * 0.5
+        if self.side == -1:
+            self.xvel = -SPEED * 2
+        if self.side == 1:
+            self.xvel = SPEED * 2
 
         self.rect.x += self.xvel
         self.collide(self.xvel, 0, platforms, enemys)
@@ -96,11 +95,11 @@ class Ball(Sprite):
     def collide(self, xvel, yvel, platforms, enemys):
         for pl in platforms:
             if collide_rect(self, pl):
-                return 'die'
+                return None
         for pl in enemys:
             if collide_rect(self, pl):
-                enemys.pop(pl)
-                return 'die'
+                del enemys[enemys.index(pl)]
+                return pl
 
 
 
@@ -115,6 +114,7 @@ class Player(Sprite):
         self.level = 69
         self.rect.x = x
         self.rect.y = y
+        self.side = 1
         self.yvel = 0
         self.xvel = 0
         self.onGround = False
@@ -134,8 +134,10 @@ class Player(Sprite):
         if left or right:
             if left:
                 self.xvel = -SPEED
+                self.side = -1
             if right:
                 self.xvel = SPEED
+                self.side = 1
         else:
             self.xvel = 0
 
