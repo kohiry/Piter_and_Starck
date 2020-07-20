@@ -17,6 +17,7 @@ RIGHT = False
 E = False
 F = False
 take_barries = False
+Boss_spawn = False
 
 # map
 location = 1
@@ -25,6 +26,7 @@ draw_loc = 1
 #startet_obj
 group_draw = pygame.sprite.Group()
 HERO = object.Player(10, 10)
+BOSS = object.Boss(10, 10)
 platforms = []
 teleports = []
 enemy = []
@@ -38,7 +40,10 @@ def make_level(level):
     x, y = 0, 0
 
     def platform(row, col, obj):
-        pl = obj(x, y, lens, lens)
+        if obj == object.Teleport_BOSS:
+            pl = obj(x, y, lens*10, lens)
+        else:
+            pl = obj(x, y, lens, lens)
         group_draw.add(pl)
         if object.Platform == obj:
             platforms.append(pl)
@@ -102,6 +107,9 @@ def make_level(level):
                     pl = object.Enemy(x, y, lens, lens)
                     group_draw.add(pl)
                     enemy.append(pl)
+                if col == "$":
+                    BOSS.new_coord(x, y)
+
                 if col == "_":
                     pass
             x += lens
@@ -153,6 +161,7 @@ make_level(MAP['level1'])
 group_draw.add(HERO)
 
 def camera_level(place):
+    global Boss_spawn
     for e in group_draw:
         e.kill()
     platforms.clear()
@@ -163,6 +172,10 @@ def camera_level(place):
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)
     make_level(MAP[place])
+    print(place)
+    if place == 'level69':
+        group_draw.add(BOSS)
+        Boss_spawn = True
     group_draw.add(HERO)
 
 def draw():
@@ -208,7 +221,8 @@ while running:
             if event.key == pygame.K_e:
                 E = True
             if event.key == pygame.K_f:
-                pl = object.Ball(HERO.rect.x, HERO.rect.y, HERO.side)
+                pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
+
                 balls.append(pl)
                 group_draw.add(pl)
 
@@ -221,23 +235,23 @@ while running:
                 RIGHT = False
             if event.key == pygame.K_e:
                 E = False
-            if event.key == pygame.K_f:
-                F = False
 
     keys = pygame.key.get_pressed()  # движения персонажей под зажим\
     if keys[pygame.K_ESCAPE]:
         running = False
 
     draw()
-    take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen)
+    take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS)
     for i in enemy:
         i.AI(HERO, platforms)
+    if Boss_spawn:
+        BOSS.AI(HERO, platforms)
     if HERO.helth <= 0:
         HERO.respawn()
     for i in balls:
-        pl = i.update(platforms, enemy)
-        if pl != None:
-            pl.kill()
+        pl = i.update(platforms, enemy, BOSS)
+        if i.die:
+            del balls[balls.index(i)]
 
     pygame.display.flip()
     pygame.time.Clock().tick(60)

@@ -21,6 +21,7 @@ class Enemy(Sprite):
         self.rect.y = y
         self.yvel = 0
         self.xvel = 0
+        self.isdie = False
         self.helth = 3
         self.onGround = False
 
@@ -34,12 +35,13 @@ class Enemy(Sprite):
 
     def update(self, left, right, platforms):
         # лево право
-        if left:
-            self.xvel = -SPEED * 0.5
-        if right:
-            self.xvel = SPEED * 0.5
-        if not (left or right):
-            self.xvel = 0
+        if not self.isdie:
+            if left:
+                self.xvel = -SPEED * 0.5
+            if right:
+                self.xvel = SPEED * 0.5
+            if not (left or right):
+                self.xvel = 0
 
         # прыжок
         if not self.onGround:
@@ -68,39 +70,127 @@ class Enemy(Sprite):
                     self.yvel = 0
                     self.rect.right = pl.rect.left
 
+    def die(self):
+        self.isdie = True  # включу запутанного моба
+        self.xvel = 0
+        self.yvel = 0
+
+
+class Boss(Sprite):
+    def __init__(self, x, y, width=400, height=300):
+        Sprite.__init__(self)
+        #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
+        self.image = Surface((width, height))
+        self.image.fill((0, 200, 200))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.yvel = 0
+        self.xvel = 0
+        self.isdie = False
+        self.helth = 3
+        self.onGround = False
+
+    def new_coord(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+
+    def AI(self, hero, platforms):
+        if hero.rect.x <= self.rect.x + 1000 and hero.rect.x > self.rect.x + self.rect.width-1:
+            self.update(False, True, platforms)
+        elif hero.rect.x >= self.rect.x - 1000 and hero.rect.x < self.rect.x:
+            self.update(True, False, platforms)
+        else:
+            self.update(False, False, platforms)
+
+    def update(self, left, right, platforms):
+        # лево право
+        if not self.isdie:
+            if left:
+                self.xvel = -SPEED * 0.5
+            if right:
+                self.xvel = SPEED * 0.5
+            if not (left or right):
+                self.xvel = 0
+
+        # прыжок
+        if not self.onGround:
+            self.yvel += GRAVITY
+
+        self.onGround = False
+        self.rect.x += self.xvel
+        self.collide(self.xvel, 0, platforms)
+        self.rect.y += self.yvel
+        self.collide(0, self.yvel, platforms)
+
+    def collide(self, xvel, yvel, platforms):
+        for pl in platforms:
+            if collide_rect(self, pl):
+                #self.serf = True
+                if yvel > 0:
+                    self.onGround = True
+                    self.rect.bottom = pl.rect.top
+                if yvel < 0:
+                    self.yvel = 0
+                    self.rect.top = pl.rect.bottom
+                if xvel < 0:
+                    self.yvel = 0
+                    self.rect.left = pl.rect.right
+                if xvel > 0:
+                    self.yvel = 0
+                    self.rect.right = pl.rect.left
+
+    def die(self):
+        self.isdie = True  # включу запутанного моба
+        self.xvel = 0
+        self.yvel = 0
+
+
 class Ball(Sprite):
-    def __init__(self, x, y, side, r=10):
+    def __init__(self, x, y, side, r=20):
+        Sprite.__init__(self)
         self.image = Surface((r, r))
-        self.image.fill((10, 200, 136))
+        self.image.fill((125, 125, 125))
         self.rect = self.image.get_rect()
         self.side = side
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
         self.xvel = 0
+        self.die = False
         #self.ball =
 
-    def update(self, platforms, enemys):
+    def update(self, platforms, enemys, BOSS):
         # лево право
         if self.side == -1:
-            self.xvel = -SPEED * 2
+            self.xvel = -SPEED * 4
         if self.side == 1:
-            self.xvel = SPEED * 2
+            self.xvel = SPEED * 4
 
         self.rect.x += self.xvel
-        self.collide(self.xvel, 0, platforms, enemys)
+        self.collide(platforms, enemys, BOSS)
         self.rect.y += self.yvel
-        self.collide(0, self.yvel, platforms, enemys)
 
-    def collide(self, xvel, yvel, platforms, enemys):
+    def collide(self, platforms, enemys, BOSS):
         for pl in platforms:
             if collide_rect(self, pl):
-                return None
+                self.kill()
+                self.die = True
         for pl in enemys:
             if collide_rect(self, pl):
-                del enemys[enemys.index(pl)]
-                return pl
+                pl.helth -= 1
+                if pl.helth < 0:
+                    pl.die()
+                self.die = True
+                self.kill()
+                break
+        if collide_rect(self, BOSS):
 
+            BOSS.helth -= 1
+            if BOSS.helth < 0:
+                BOSS.die()
+            self.kill()
+            self.die = True
 
 
 class Player(Sprite):
@@ -128,7 +218,7 @@ class Player(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen):
+    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS):
 
         # лево право
         if left or right:
@@ -164,17 +254,29 @@ class Player(Sprite):
         self.rect.y += self.yvel
         self.collide(0, self.yvel, platforms)
 
-        answer = self.teleport(self.xvel, 0, teleports)
+        answer = self.teleport(self.xvel, 0, teleports, BOSS)
         if not answer:
-            self.teleport(0, self.yvel, teleports)
+            self.teleport(0, self.yvel, teleports, BOSS)
 
         self.enemys(enemy)
+
+        self.Boss(BOSS)
 
         return self.wooden(tree, use, screen)
 
     def respawn(self):
         self.spawn = '@'
         self.level = 1
+
+    def Boss(self, BOSS):
+        if collide_rect(self, BOSS):
+            if BOSS.helth >= 1:
+                self.helth -= 1
+
+                if BOSS.xvel >= 0:
+                    self.rect.x += SPEED * 4
+                else:
+                    self.rect.x += -(SPEED * 4)
 
     def enemys(self, enemy):
         for pl in enemy:
@@ -227,9 +329,12 @@ class Player(Sprite):
                 return True
 
 
-    def teleport(self, xvel, yvel, teleport):
+    def teleport(self, xvel, yvel, teleport, BOSS):
         for pl in teleport:
             if collide_rect(self, pl):
+                if pl == Teleport_COME:
+                    pl.BOSS_live(BOSS)
+
                 if yvel > 0:
                     self.onGround = True
                     self.rect.bottom = pl.rect.top
@@ -256,9 +361,12 @@ class Player(Sprite):
                     return True
 
                 if pl.name == '?':  # проблема с ебаным телепортом не решена
-                    self.level = pl.move
-                    self.spawn = '%'
-                    return True
+                    if pl.boss:
+                        break
+                    else:
+                        self.level = pl.move
+                        self.spawn = '%'
+                        return True
 
 class Background(Sprite):
     def __init__(self, x, y, filename):
@@ -328,27 +436,30 @@ class Teleport_BOSS(Sprite):
         Sprite.__init__(self)
         self.name = '!'
         self.move = 69
-        self.boss = True
+
         self.image = Surface((width, height))
         self.image.fill((100, 0, 100))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
+
+
 class Teleport_COME(Sprite):
     def __init__(self, x, y, width, height):
         Sprite.__init__(self)
         self.name = '?'
         self.move = 10
+        self.boss = True
         self.image = Surface((width, height))
         self.image.fill((0, 100, 100))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
-    def teleport(self, boss):
-        if not boss:
-            return self.move
+        def BOSS_live(self, Boss):
+            if Boss.helth <= 0:
+                self.boss = False
 
 class Monster_platform(Sprite):
     def __init__(self, x, y, width, height, move=1):
