@@ -32,6 +32,7 @@ teleports = []
 enemy = []
 tree = []
 balls = []
+monster = []
 x_hero, y_hero = 0, 0
 lens = 45
 
@@ -109,6 +110,10 @@ def make_level(level):
                     enemy.append(pl)
                 if col == "$":
                     BOSS.new_coord(x, y)
+                if col == "#":  # тентаклемонстр
+                    pl = object.Monster(x, y)
+                    group_draw.add(pl)
+                    monster.append(pl)
 
                 if col == "_":
                     pass
@@ -168,6 +173,7 @@ def camera_level(place):
     teleports.clear()
     enemy.clear()
     tree.clear()
+    monster.clear()
     total_level_width = len(MAP[place][0])*lens
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)
@@ -241,7 +247,7 @@ while running:
         running = False
 
     draw()
-    take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS)
+    take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS, monster)
     for i in enemy:
         i.AI(HERO, platforms)
     if Boss_spawn:

@@ -193,6 +193,71 @@ class Ball(Sprite):
             self.die = True
 
 
+class Monster(Sprite):
+    def __init__(self, x, y, width=400, height=600):
+        Sprite.__init__(self)
+        #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
+        self.image = Surface((width, height))
+        self.image.fill((0, 200, 200))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.yvel = 0
+        self.xvel = 0
+        self.isdie = False
+        self.helth = 3
+        self.onGround = False
+
+    def new_coord(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+
+    def AI(self, hero, platforms):
+        pass
+
+    def update(self, left, right, platforms):
+        # лево право
+        if not self.isdie:
+            if left:
+                self.xvel = -SPEED * 0.5
+            if right:
+                self.xvel = SPEED * 0.5
+            if not (left or right):
+                self.xvel = 0
+
+        # прыжок
+        if not self.onGround:
+            self.yvel += GRAVITY
+
+        self.onGround = False
+        self.rect.x += self.xvel
+        self.collide(self.xvel, 0, platforms)
+        self.rect.y += self.yvel
+        self.collide(0, self.yvel, platforms)
+
+    def collide(self, xvel, yvel, platforms):
+        for pl in platforms:
+            if collide_rect(self, pl):
+                #self.serf = True
+                if yvel > 0:
+                    self.onGround = True
+                    self.rect.bottom = pl.rect.top
+                if yvel < 0:
+                    self.yvel = 0
+                    self.rect.top = pl.rect.bottom
+                if xvel < 0:
+                    self.yvel = 0
+                    self.rect.left = pl.rect.right
+                if xvel > 0:
+                    self.yvel = 0
+                    self.rect.right = pl.rect.left
+
+    def die(self):
+        self.isdie = True  # включу запутанного моба
+        self.xvel = 0
+        self.yvel = 0
+
+
 class Player(Sprite):
     def __init__(self, x, y, width=50, height=50):
         Sprite.__init__(self)
@@ -201,7 +266,7 @@ class Player(Sprite):
         self.image.fill((0, 200, 0))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 69
+        self.level = 10
         self.rect.x = x
         self.rect.y = y
         self.side = 1
@@ -218,7 +283,7 @@ class Player(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS):
+    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster):
 
         # лево право
         if left or right:
@@ -262,11 +327,25 @@ class Player(Sprite):
 
         self.Boss(BOSS)
 
+        self.monsters(monster)
+
         return self.wooden(tree, use, screen)
+
+    def monsters(self, monster):
+        for pl in monster:
+            if collide_rect(self, pl):
+                self.respawn_new()
+                break
+
+    def respawn_new(self):
+        self.spawn = '@'
+        self.level -= 1
+        self.helth -= 1
 
     def respawn(self):
         self.spawn = '@'
         self.level = 1
+        self.trees = set()
 
     def Boss(self, BOSS):
         if collide_rect(self, BOSS):
