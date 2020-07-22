@@ -3,11 +3,19 @@ from pygame.draw import rect
 from pygame import Surface
 from pygame.image import load
 from pygame.transform import scale
+import pyganim
 
 
 SPEED = 20
 GRAVITY = 2
 JUMP_POWER = 5
+
+# animation
+ANIMATION_DELAY = 1
+line_1 = 'data/паук/стоит/'
+end = '.png'
+ANIMATION_HERO_STAY_LEFT = [line_1 + 'паук_стоит_налево_1' + end, line_1 + 'паук_стоит_налево_2' + end]
+ANIMATION_HERO_STAY_RIGHT = [line_1 + 'паук_стоит_направо_1' + end, line_1 + 'паук_стоит_направо_2' + end]
 
 
 class Enemy(Sprite):
@@ -259,7 +267,7 @@ class Monster(Sprite):
 
 
 class Player(Sprite):
-    def __init__(self, x, y, width=50, height=50):
+    def __init__(self, x, y, width=342, height=342):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
@@ -279,6 +287,20 @@ class Player(Sprite):
         self.serf = False
         self.trees = set()
 
+        def Work(anim):
+            data = []
+            for i in anim:
+                data.append((i, ANIMATION_DELAY))
+            return data
+
+        self.AnimeStayLeft = pyganim.PygAnimation(Work(ANIMATION_HERO_STAY_LEFT))
+        self.AnimeStayRight = pyganim.PygAnimation(Work(ANIMATION_HERO_STAY_RIGHT))
+
+        # on
+        self.AnimeStayLeft.play()
+        self.AnimeStayRight.play()
+
+
     def new_coord(self, x, y):
         self.rect.x = x
         self.rect.y = y
@@ -295,6 +317,12 @@ class Player(Sprite):
                 self.side = 1
         else:
             self.xvel = 0
+            self.image.fill((0, 0, 0))
+            if not up:
+                if self.side == 1:
+                    self.AnimeStayRight.blit(self.image, (0, 0))
+                if self.side == -1:
+                    self.AnimeStayLeft.blit(self.image, (0, 0))
 
         # прыжок
         if not self.onGround:

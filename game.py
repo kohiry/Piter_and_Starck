@@ -37,6 +37,8 @@ x_hero, y_hero = 0, 0
 lens = 45
 
 
+
+
 def make_level(level):
     x, y = 0, 0
 
