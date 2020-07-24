@@ -11,11 +11,40 @@ GRAVITY = 2
 JUMP_POWER = 5
 
 # animation
+
 ANIMATION_DELAY = 1
 line_1 = 'data/паук/стоит/'
 end = '.png'
-ANIMATION_HERO_STAY_LEFT = [line_1 + 'паук_стоит_налево_1' + end, line_1 + 'паук_стоит_налево_2' + end]
-ANIMATION_HERO_STAY_RIGHT = [line_1 + 'паук_стоит_направо_1' + end, line_1 + 'паук_стоит_направо_2' + end]
+
+
+def add_sprite(name, lens):
+    sprites = []
+    for i in range(1, lens):
+        sprites.append(name + str(i) + end)
+    return sprites
+
+#hero
+ANIMATION_HERO_STAY_LEFT = add_sprite('data/паук/стоит/паук_стоит_налево_', 3)
+ANIMATION_HERO_STAY_RIGHT = add_sprite('data/паук/стоит/паук_стоит_направо_', 3)
+ANIMATION_HERO_JUMP_RIGHT = add_sprite('data\паук\прыжок\прыжок_направо_', 7)
+ANIMATION_HERO_JUMP_LEFT = add_sprite('data\паук\прыжок\прыжок_налево_', 7)
+ANIMATION_HERO_BIGJUMP_LEFT = add_sprite('data\паук\прыжок над пропастью\большой_прыжок_налево_', 9)
+ANIMATION_HERO_BIGJUMP_RIGHT = add_sprite('data\паук\прыжок над пропастью\большой_прыжок_направо_', 9)
+ANIMATION_HERO_LOSE_RIGHT = add_sprite('data\паук\проиграл\направо\проигрыш_направо_', 24)
+ANIMATION_HERO_LOSE_LEFT = add_sprite('data\паук\проиграл\налево\проигрыш_налево_', 24)
+ANIMATION_HERO_CLIMP_LEFT = add_sprite('data\паук\по стене\карабкается_по_стене_налево_', 4)
+ANIMATION_HERO_CLIMP_RIGHT = add_sprite('data\паук\по стене\карабкается_по_стене_направо_', 4)
+ANIMATION_HERO_TAKE_LEFT = add_sprite('data\паук\бросок\бросок_налево_', 3)
+ANIMATION_HERO_GO_LEFT = add_sprite('data\паук\бежит\паук_бежит_налево_', 5)
+ANIMATION_HERO_GO_RIGHT = add_sprite('data\паук\бежит\паук_бежит_направо_', 5)
+
+#enemy
+ANIMATION_ENEMY1_STAY_RIGHT = add_sprite('data\враги\грибной паук\паук_стоит_направо_', 3)
+ANIMATION_ENEMY1_STAY_LEFT = add_sprite('data\враги\грибной паук\паук_стоит_налево_', 3)
+ANIMATION_ENEMY1_GO_LEFT = add_sprite('data\враги\грибной паук\паук_идет_налево_', 4)
+ANIMATION_ENEMY1_GO_RIGHT = add_sprite('data\враги\грибной паук\паук_идет_направо_', 4)
+ANIMATION_ENEMY1_DIE_RIGHT = add_sprite('data\враги\грибной паук\паук_связан_направо_', 3)
+ANIMATION_ENEMY1_DIE_LEFT = add_sprite('data\враги\грибной паук\паук_связан_налево_', 3)
 
 
 class Enemy(Sprite):
@@ -267,11 +296,10 @@ class Monster(Sprite):
 
 
 class Player(Sprite):
-    def __init__(self, x, y, width=342, height=342):
+    def __init__(self, x, y, width=140, height=200):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
-        self.image.fill((0, 200, 0))
         self.rect = self.image.get_rect()
         self.spawn = '@'
         self.level = 10
@@ -286,6 +314,7 @@ class Player(Sprite):
         self.jump = False
         self.serf = False
         self.trees = set()
+        self.image.set_colorkey((0, 0, 0))
 
         def Work(anim):
             data = []
@@ -320,9 +349,9 @@ class Player(Sprite):
             self.image.fill((0, 0, 0))
             if not up:
                 if self.side == 1:
-                    self.AnimeStayRight.blit(self.image, (0, 0))
+                    self.AnimeStayRight.blit(self.image, (-90, -90))
                 if self.side == -1:
-                    self.AnimeStayLeft.blit(self.image, (0, 0))
+                    self.AnimeStayLeft.blit(self.image, (-90, -90))
 
         # прыжок
         if not self.onGround:
