@@ -23,11 +23,12 @@ def add_sprite(name, lens):
         sprites.append(name + str(i) + end)
     return sprites
 
+
 #hero
 ANIMATION_HERO_STAY_LEFT = add_sprite('data/паук/стоит/паук_стоит_налево_', 3)
 ANIMATION_HERO_STAY_RIGHT = add_sprite('data/паук/стоит/паук_стоит_направо_', 3)
-ANIMATION_HERO_JUMP_RIGHT = add_sprite('data\паук\прыжок\прыжок_направо_', 7)
-ANIMATION_HERO_JUMP_LEFT = add_sprite('data\паук\прыжок\прыжок_налево_', 7)
+ANIMATION_HERO_JUMP_RIGHT = add_sprite('data\паук\прыжок\прыжок_направо_', 6)
+ANIMATION_HERO_JUMP_LEFT = add_sprite('data\паук\прыжок\прыжок_налево_', 6)
 ANIMATION_HERO_BIGJUMP_LEFT = add_sprite('data\паук\прыжок над пропастью\большой_прыжок_налево_', 9)
 ANIMATION_HERO_BIGJUMP_RIGHT = add_sprite('data\паук\прыжок над пропастью\большой_прыжок_направо_', 9)
 ANIMATION_HERO_LOSE_RIGHT = add_sprite('data\паук\проиграл\направо\проигрыш_направо_', 24)
@@ -38,13 +39,28 @@ ANIMATION_HERO_TAKE_LEFT = add_sprite('data\паук\бросок\бросок_�
 ANIMATION_HERO_GO_LEFT = add_sprite('data\паук\бежит\паук_бежит_налево_', 5)
 ANIMATION_HERO_GO_RIGHT = add_sprite('data\паук\бежит\паук_бежит_направо_', 5)
 
-#enemy
+#enemy1
 ANIMATION_ENEMY1_STAY_RIGHT = add_sprite('data\враги\грибной паук\паук_стоит_направо_', 3)
 ANIMATION_ENEMY1_STAY_LEFT = add_sprite('data\враги\грибной паук\паук_стоит_налево_', 3)
 ANIMATION_ENEMY1_GO_LEFT = add_sprite('data\враги\грибной паук\паук_идет_налево_', 4)
 ANIMATION_ENEMY1_GO_RIGHT = add_sprite('data\враги\грибной паук\паук_идет_направо_', 4)
 ANIMATION_ENEMY1_DIE_RIGHT = add_sprite('data\враги\грибной паук\паук_связан_направо_', 3)
 ANIMATION_ENEMY1_DIE_LEFT = add_sprite('data\враги\грибной паук\паук_связан_налево_', 3)
+
+#enemy2
+ANIMATION_ENEMY2_STAY = add_sprite('data\враги\ёж\ёж_', 3)
+
+#Tony Stark
+ANIMATION_TONY = add_sprite('data\Тони\тони_', 3)
+
+#BOSS
+ANIMATION_BOSS_STAY_LEFT = add_sprite('data\враги\королева\королева_стоит_налево_', 3)
+ANIMATION_BOSS_STAY_RIGHT = add_sprite('data\враги\королева\королева_стоит_направо_', 3)
+ANIMATION_BOSS_GO_LEFT = add_sprite('data\враги\королева\королева_идет_налево_', 5)
+ANIMATION_BOSS_GO_RIGHT = add_sprite('data\враги\королева\королева_идет_направо_', 5)
+ANIMATION_BOSS_DIE_LEFT = add_sprite('data\враги\королева\королева_связана_налево_', 3)
+ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\королева_связана_направо_', 3)
+
 
 
 class Enemy(Sprite):
@@ -324,17 +340,52 @@ class Player(Sprite):
 
         self.AnimeStayLeft = pyganim.PygAnimation(Work(ANIMATION_HERO_STAY_LEFT))
         self.AnimeStayRight = pyganim.PygAnimation(Work(ANIMATION_HERO_STAY_RIGHT))
+        self.AnimeGoRight = pyganim.PygAnimation(Work(ANIMATION_HERO_GO_RIGHT))
+        self.AnimeGoLeft = pyganim.PygAnimation(Work(ANIMATION_HERO_GO_LEFT))
+        self.AnimeJumpRight = pyganim.PygAnimation(Work(ANIMATION_HERO_JUMP_RIGHT))
+        self.AnimeJumpLeft = pyganim.PygAnimation(Work(ANIMATION_HERO_JUMP_LEFT))
 
         # on
         self.AnimeStayLeft.play()
         self.AnimeStayRight.play()
-
+        self.AnimeGoRight.play()
+        self.AnimeGoLeft.play()
+        self.AnimeJumpRight.play()
+        self.AnimeJumpLeft.play()
 
     def new_coord(self, x, y):
         self.rect.x = x
         self.rect.y = y
 
+    def new_anime(self):
+        self.AnimeStayLeft.stop()
+        self.AnimeStayRight.stop()
+        self.AnimeGoRight.stop()
+        self.AnimeGoLeft.stop()
+        self.AnimeJumpRight.stop()
+        self.AnimeJumpLeft.stop()
+
     def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster):
+        # animation
+        self.image.set_colorkey((0, 0, 0))
+        #self.AnimeJumpRight.blit(self.image, (-90, -90))
+        if self.side == 1:
+            if self.onGround and not up:
+                if right:
+                    self.AnimeGoRight.blit(self.image, (-90, -90))
+                else:
+                    self.AnimeStayRight.blit(self.image, (-90, -90))
+            if not self.onGround:
+                self.AnimeStayRight.blit(self.image, (-90, -90))
+        if self.side == -1:
+            if self.onGround and not up:
+                if left:
+                    self.AnimeGoLeft.blit(self.image, (-90, -90))
+                else:
+                    self.AnimeStayLeft.blit(self.image, (-90, -90))
+            if not self.onGround:
+                self.AnimeStayLeft.blit(self.image, (-90, -90))
+
 
         # лево право
         if left or right:
@@ -347,11 +398,6 @@ class Player(Sprite):
         else:
             self.xvel = 0
             self.image.fill((0, 0, 0))
-            if not up:
-                if self.side == 1:
-                    self.AnimeStayRight.blit(self.image, (-90, -90))
-                if self.side == -1:
-                    self.AnimeStayLeft.blit(self.image, (-90, -90))
 
         # прыжок
         if not self.onGround:
