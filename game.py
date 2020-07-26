@@ -111,11 +111,11 @@ def make_level(level):
                     group_draw.add(pl)
                     enemy.append(pl)
                 if col == "$":
-                    BOSS.new_coord(x, y)'''
-                if col == "#":  # тентаклемонстр
+                    BOSS.new_coord(x, y)
+                if col == "*":  # тентаклемонстр
                     pl = object.Monster(x, y)
                     group_draw.add(pl)
-                    monster.append(pl)'''
+                    monster.append(pl)
 
                 if col == "_":
                     pass
