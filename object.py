@@ -12,7 +12,7 @@ JUMP_POWER = 5
 
 # animation
 
-ANIMATION_DELAY = 1
+ANIMATION_DELAY = 10
 line_1 = 'data/паук/стоит/'
 end = '.png'
 
@@ -23,6 +23,12 @@ def add_sprite(name, lens):
         sprites.append(name + str(i) + end)
     return sprites
 
+
+def Work(anim, speed=ANIMATION_DELAY):
+    data = []
+    for i in anim:
+        data.append((i, speed))
+    return data
 
 #hero
 ANIMATION_HERO_STAY_LEFT = add_sprite('data/паук/стоит/паук_стоит_налево_', 3)
@@ -64,37 +70,70 @@ ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\коро
 
 
 class Enemy(Sprite):
-    def __init__(self, x, y, width=50, height=50):
+    def __init__(self, x, y, width=216, height=220):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
-        self.image.fill((0, 200, 200))
+        self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
         self.xvel = 0
+        self.side = 1
         self.isdie = False
         self.helth = 3
         self.onGround = False
 
+        #animation
+        self.AnimeEnemyStayLeft = pyganim.PygAnimation(Work(ANIMATION_ENEMY1_STAY_LEFT))
+        self.AnimeEnemyStayRight = pyganim.PygAnimation(Work(ANIMATION_ENEMY1_STAY_RIGHT))
+        self.AnimeEnemyGoLeft = pyganim.PygAnimation(Work(ANIMATION_ENEMY1_GO_LEFT))
+        self.AnimeEnemyGoRight = pyganim.PygAnimation(Work(ANIMATION_ENEMY1_GO_RIGHT))
+        self.AnimeEnemyDieLeft = pyganim.PygAnimation(Work(ANIMATION_ENEMY1_DIE_LEFT))
+        self.AnimeEnemyDieRight = pyganim.PygAnimation(Work(ANIMATION_ENEMY1_DIE_RIGHT))
+
+
+        # on
+        self.AnimeEnemyStayLeft.play()
+        self.AnimeEnemyStayRight.play()
+        self.AnimeEnemyGoLeft.play()
+        self.AnimeEnemyGoRight.play()
+        self.AnimeEnemyDieLeft.play()
+        self.AnimeEnemyDieRight.play()
+
     def AI(self, hero, platforms):
-        if hero.rect.x <= self.rect.x + 200 and hero.rect.x > self.rect.x + self.rect.width-1:
+        if hero.rect.x <= self.rect.x + 1000 and hero.rect.x > self.rect.x + self.rect.width-1:
             self.update(False, True, platforms)
-        elif hero.rect.x >= self.rect.x - 200 and hero.rect.x < self.rect.x - self.rect.width-1:
+        elif hero.rect.x >= self.rect.x - 1000 and hero.rect.x < self.rect.x - self.rect.width-1:
             self.update(True, False, platforms)
         else:
             self.update(False, False, platforms)
 
     def update(self, left, right, platforms):
         # лево право
+        self.image.set_colorkey((0, 255, 0))
+        self.image.fill((0, 255, 0))
         if not self.isdie:
             if left:
                 self.xvel = -SPEED * 0.5
+                self.side = -1
+                self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
             if right:
                 self.xvel = SPEED * 0.5
+                self.side = 1
+                self.AnimeEnemyGoRight.blit(self.image, (0, 0))
             if not (left or right):
                 self.xvel = 0
+                if self.side == 1:
+                    self.AnimeEnemyStayRight.blit(self.image, (0, 0))
+                elif self.side == -1:
+                    self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+        else:
+            if self.side == 1:
+                self.AnimeEnemyDieRight.blit(self.image, (0, 0))
+            elif self.side == -1:
+                self.AnimeEnemyDieLeft.blit(self.image, (0, 0))
 
         # прыжок
         if not self.onGround:
@@ -332,18 +371,12 @@ class Player(Sprite):
         self.trees = set()
         self.image.set_colorkey((0, 0, 0))
 
-        def Work(anim):
-            data = []
-            for i in anim:
-                data.append((i, ANIMATION_DELAY))
-            return data
-
         self.AnimeStayLeft = pyganim.PygAnimation(Work(ANIMATION_HERO_STAY_LEFT))
         self.AnimeStayRight = pyganim.PygAnimation(Work(ANIMATION_HERO_STAY_RIGHT))
         self.AnimeGoRight = pyganim.PygAnimation(Work(ANIMATION_HERO_GO_RIGHT))
         self.AnimeGoLeft = pyganim.PygAnimation(Work(ANIMATION_HERO_GO_LEFT))
-        self.AnimeJumpRight = pyganim.PygAnimation(Work(ANIMATION_HERO_JUMP_RIGHT))
-        self.AnimeJumpLeft = pyganim.PygAnimation(Work(ANIMATION_HERO_JUMP_LEFT))
+        self.AnimeJumpRight = pyganim.PygAnimation(Work(ANIMATION_HERO_JUMP_RIGHT, 15))
+        self.AnimeJumpLeft = pyganim.PygAnimation(Work(ANIMATION_HERO_JUMP_LEFT, 15))
 
         # on
         self.AnimeStayLeft.play()
@@ -357,36 +390,10 @@ class Player(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def new_anime(self):
-        self.AnimeStayLeft.stop()
-        self.AnimeStayRight.stop()
-        self.AnimeGoRight.stop()
-        self.AnimeGoLeft.stop()
-        self.AnimeJumpRight.stop()
-        self.AnimeJumpLeft.stop()
-
     def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster):
         # animation
-        self.image.set_colorkey((0, 0, 0))
-        #self.AnimeJumpRight.blit(self.image, (-90, -90))
-        if self.side == 1:
-            if self.onGround and not up:
-                if right:
-                    self.AnimeGoRight.blit(self.image, (-90, -90))
-                else:
-                    self.AnimeStayRight.blit(self.image, (-90, -90))
-            if not self.onGround:
-                self.AnimeStayRight.blit(self.image, (-90, -90))
-        if self.side == -1:
-            if self.onGround and not up:
-                if left:
-                    self.AnimeGoLeft.blit(self.image, (-90, -90))
-                else:
-                    self.AnimeStayLeft.blit(self.image, (-90, -90))
-            if not self.onGround:
-                self.AnimeStayLeft.blit(self.image, (-90, -90))
-
-
+        self.image.set_colorkey((0, 255, 0))
+        self.image.fill((0, 255, 0))
         # лево право
         if left or right:
             if left:
@@ -395,10 +402,29 @@ class Player(Sprite):
             if right:
                 self.xvel = SPEED
                 self.side = 1
+            if up:
+                if self.side == 1:
+                    self.AnimeJumpRight.blit(self.image, (-90, -90))
+                elif self.side == -1:
+                    self.AnimeJumpLeft.blit(self.image, (-90, -90))
+            else:
+                if left:
+                    self.AnimeGoLeft.blit(self.image, (-90, -90))
+                if right:
+                    self.AnimeGoRight.blit(self.image, (-90, -90))
+
         else:
             self.xvel = 0
-            self.image.fill((0, 0, 0))
-
+            if up:
+                if self.side == 1:
+                    self.AnimeJumpRight.blit(self.image, (-90, -90))
+                elif self.side == -1:
+                    self.AnimeJumpLeft.blit(self.image, (-90, -90))
+            else:
+                if self.side == 1:
+                    self.AnimeStayRight.blit(self.image, (-90, -90))
+                else:
+                    self.AnimeStayLeft.blit(self.image, (-90, -90))
         # прыжок
         if not self.onGround:
             #if self.yvel < 50:
@@ -463,14 +489,14 @@ class Player(Sprite):
     def enemys(self, enemy):
         for pl in enemy:
             if collide_rect(self, pl):
-                self.helth -= 1
-
-                if pl.xvel >= 0:
-                    self.rect.x += SPEED * 4
-                else:
-                    self.rect.x += -(SPEED * 4)
-                    print(pl.xvel)
-                break
+                if not pl.isdie:
+                    self.helth -= 1
+                    if pl.xvel >= 0:
+                        self.rect.x += SPEED * 4
+                    else:
+                        self.rect.x += -(SPEED * 4)
+                        print(pl.xvel)
+                    break
 
 
     def collide(self, xvel, yvel, platforms):

@@ -107,15 +107,15 @@ def make_level(level):
                 if col == "?":
                     platform(row, col, object.Teleport_COME)
                 if col == "&":
-                    pl = object.Enemy(x, y, lens, lens)
+                    pl = object.Enemy(x, y)
                     group_draw.add(pl)
                     enemy.append(pl)
                 if col == "$":
-                    BOSS.new_coord(x, y)
+                    BOSS.new_coord(x, y)'''
                 if col == "#":  # тентаклемонстр
                     pl = object.Monster(x, y)
                     group_draw.add(pl)
-                    monster.append(pl)
+                    monster.append(pl)'''
 
                 if col == "_":
                     pass
