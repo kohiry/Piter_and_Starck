@@ -12,7 +12,7 @@ JUMP_POWER = 5
 
 # animation
 
-ANIMATION_DELAY = 10
+ANIMATION_DELAY = 1
 line_1 = 'data/паук/стоит/'
 end = '.png'
 
@@ -44,6 +44,8 @@ ANIMATION_HERO_CLIMP_RIGHT = add_sprite('data\паук\по стене\кара�
 ANIMATION_HERO_TAKE_LEFT = add_sprite('data\паук\бросок\бросок_налево_', 3)
 ANIMATION_HERO_GO_LEFT = add_sprite('data\паук\бежит\паук_бежит_налево_', 5)
 ANIMATION_HERO_GO_RIGHT = add_sprite('data\паук\бежит\паук_бежит_направо_', 5)
+ANIMATION_HERO_FALL_RIGHT = ['data\паук\прыжок\прыжок_направо_3.png']
+ANIMATION_HERO_FALL_LEFT = ['data\паук\прыжок\прыжок_налево_3.png']
 
 #enemy1
 ANIMATION_ENEMY1_STAY_RIGHT = add_sprite('data\враги\грибной паук\паук_стоит_направо_', 3)
@@ -177,7 +179,7 @@ class Enemy(Sprite):
 
 
 class Boss(Sprite):
-    def __init__(self, x, y, width=400, height=300):
+    def __init__(self, x, y, width=400, height=400):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
@@ -190,6 +192,24 @@ class Boss(Sprite):
         self.isdie = False
         self.helth = 3
         self.onGround = False
+
+        #animation
+        self.AnimeEnemyStayLeft = PygAnimation(Work(ANIMATION_BOSS_STAY_LEFT))
+        self.AnimeEnemyStayRight = PygAnimation(Work(ANIMATION_BOSS_STAY_RIGHT))
+        self.AnimeEnemyGoLeft = PygAnimation(Work(ANIMATION_BOSS_GO_LEFT))
+        self.AnimeEnemyGoRight = PygAnimation(Work(ANIMATION_BOSS_GO_RIGHT))
+        self.AnimeEnemyDieLeft = PygAnimation(Work(ANIMATION_BOSS_DIE_LEFT))
+        self.AnimeEnemyDieRight = PygAnimation(Work(ANIMATION_BOSS_DIE_RIGHT))
+
+
+        # on
+        self.AnimeEnemyStayLeft.play()
+        self.AnimeEnemyStayRight.play()
+        self.AnimeEnemyGoLeft.play()
+        self.AnimeEnemyGoRight.play()
+        self.AnimeEnemyDieLeft.play()
+        self.AnimeEnemyDieRight.play()
+
 
     def new_coord(self, x, y):
         self.rect.x = x
@@ -204,14 +224,29 @@ class Boss(Sprite):
             self.update(False, False, platforms)
 
     def update(self, left, right, platforms):
-        # лево право
+
+        self.image.set_colorkey((0, 255, 0))
+        self.image.fill((0, 255, 0))
         if not self.isdie:
             if left:
                 self.xvel = -SPEED * 0.5
+                self.side = -1
+                self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
             if right:
                 self.xvel = SPEED * 0.5
+                self.side = 1
+                self.AnimeEnemyGoRight.blit(self.image, (0, 0))
             if not (left or right):
                 self.xvel = 0
+                if self.side == 1:
+                    self.AnimeEnemyStayRight.blit(self.image, (0, 0))
+                elif self.side == -1:
+                    self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+        else:
+            if self.side == 1:
+                self.AnimeEnemyDieRight.blit(self.image, (0, 0))
+            elif self.side == -1:
+                self.AnimeEnemyDieLeft.blit(self.image, (0, 0))
 
         # прыжок
         if not self.onGround:
@@ -305,7 +340,8 @@ class Monster(Sprite):
         self.yvel = 0
         self.xvel = 0
         self.isdie = False
-        self.helth = 3
+        self.eat = 0
+
         self.onGround = False
 
         ANIMATION_ENEMY3_STAY_LEFT = add_sprite('data\враги\тентаклемонстр\тентакли_налево_', 5)
@@ -355,7 +391,7 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 6
+        self.level = 69
         self.rect.x = x
         self.rect.y = y
         self.side = 1
@@ -373,8 +409,10 @@ class Player(Sprite):
         self.AnimeStayRight = PygAnimation(Work(ANIMATION_HERO_STAY_RIGHT))
         self.AnimeGoRight = PygAnimation(Work(ANIMATION_HERO_GO_RIGHT))
         self.AnimeGoLeft = PygAnimation(Work(ANIMATION_HERO_GO_LEFT))
-        self.AnimeJumpRight = PygAnimation(Work(ANIMATION_HERO_JUMP_RIGHT, 15))
-        self.AnimeJumpLeft = PygAnimation(Work(ANIMATION_HERO_JUMP_LEFT, 15))
+        self.AnimeJumpRight = PygAnimation(Work(ANIMATION_HERO_JUMP_RIGHT))
+        self.AnimeJumpLeft = PygAnimation(Work(ANIMATION_HERO_JUMP_LEFT))
+        self.AnimeFallLeft = PygAnimation(Work(ANIMATION_HERO_FALL_RIGHT))
+        self.AnimeFallRight = PygAnimation(Work(ANIMATION_HERO_FALL_RIGHT))
 
         # on
         self.AnimeStayLeft.play()
@@ -383,6 +421,8 @@ class Player(Sprite):
         self.AnimeGoLeft.play()
         self.AnimeJumpRight.play()
         self.AnimeJumpLeft.play()
+        self.AnimeFallLeft.play()
+        self.AnimeFallRight.play()
 
     def new_coord(self, x, y):
         self.rect.x = x
@@ -419,14 +459,21 @@ class Player(Sprite):
                 elif self.side == -1:
                     self.AnimeJumpLeft.blit(self.image, (-90, -90))
             else:
-                if self.side == 1:
-                    self.AnimeStayRight.blit(self.image, (-90, -90))
+                if not self.onGround:
+                    if self.side == 1:
+                        self.AnimeFallRight.blit(self.image, (-90, -90))
+                    elif self.side == -1:
+                        self.AnimeFallLeft.blit(self.image, (-90, -90))
                 else:
-                    self.AnimeStayLeft.blit(self.image, (-90, -90))
+                    if self.side == 1:
+                        self.AnimeStayRight.blit(self.image, (-90, -90))
+                    else:
+                        self.AnimeStayLeft.blit(self.image, (-90, -90))
         # прыжок
         if not self.onGround:
             #if self.yvel < 50:
             self.yvel += GRAVITY
+
             '''
             if up and self.count < 1 and self.yvel > 0 and self.onGround:
                 print(1)
