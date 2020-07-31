@@ -12,7 +12,7 @@ JUMP_POWER = 5
 
 # animation
 
-ANIMATION_DELAY = 1
+ANIMATION_DELAY = 200
 line_1 = 'data/паук/стоит/'
 end = '.png'
 
