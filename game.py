@@ -112,6 +112,7 @@ def make_level(level):
                     enemy.append(pl)
                 if col == "$":
                     BOSS.new_coord(x, y)
+                    BOSS.isdie = False
                 if col == "*":  # тентаклемонстр
                     pl = object.Monster(x, y)
                     group_draw.add(pl)
@@ -176,6 +177,8 @@ def camera_level(place):
     enemy.clear()
     tree.clear()
     monster.clear()
+    BOSS.isdie = True
+    Boss_spawn = False
     total_level_width = len(MAP[place][0])*lens
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)

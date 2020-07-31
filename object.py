@@ -122,28 +122,28 @@ class Enemy(Sprite):
 
     def update(self, left, right, platforms):
         # лево право
-        self.image.set_colorkey((0, 255, 0))
+        #self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         if not self.isdie:
             if left:
                 self.xvel = -SPEED * 0.5
                 self.side = -1
-                self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
+                #self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
             if right:
                 self.xvel = SPEED * 0.5
                 self.side = 1
-                self.AnimeEnemyGoRight.blit(self.image, (0, 0))
+                #self.AnimeEnemyGoRight.blit(self.image, (0, 0))
             if not (left or right):
                 self.xvel = 0
-                if self.side == 1:
-                    self.AnimeEnemyStayRight.blit(self.image, (0, 0))
-                elif self.side == -1:
-                    self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
-        else:
-            if self.side == 1:
-                self.AnimeEnemyDieRight.blit(self.image, (0, 0))
-            elif self.side == -1:
-                self.AnimeEnemyDieLeft.blit(self.image, (0, 0))
+                #if self.side == 1:
+                    #self.AnimeEnemyStayRight.blit(self.image, (0, 0))
+                #elif self.side == -1:
+                    #self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+        #else:
+            #if self.side == 1:
+                #self.AnimeEnemyDieRight.blit(self.image, (0, 0))
+            #elif self.side == -1:
+                #self.AnimeEnemyDieLeft.blit(self.image, (0, 0))
 
         # прыжок
         if not self.onGround:
@@ -181,7 +181,6 @@ class Enemy(Sprite):
 class Boss(Sprite):
     def __init__(self, x, y, width=400, height=400):
         Sprite.__init__(self)
-        #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
         self.image.fill((0, 200, 200))
         self.rect = self.image.get_rect()
@@ -225,28 +224,28 @@ class Boss(Sprite):
 
     def update(self, left, right, platforms):
 
-        self.image.set_colorkey((0, 255, 0))
+        #self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         if not self.isdie:
             if left:
                 self.xvel = -SPEED * 0.5
                 self.side = -1
-                self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
+                #self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
             if right:
                 self.xvel = SPEED * 0.5
                 self.side = 1
-                self.AnimeEnemyGoRight.blit(self.image, (0, 0))
+                #self.AnimeEnemyGoRight.blit(self.image, (0, 0))
             if not (left or right):
                 self.xvel = 0
-                if self.side == 1:
-                    self.AnimeEnemyStayRight.blit(self.image, (0, 0))
-                elif self.side == -1:
-                    self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
-        else:
-            if self.side == 1:
-                self.AnimeEnemyDieRight.blit(self.image, (0, 0))
-            elif self.side == -1:
-                self.AnimeEnemyDieLeft.blit(self.image, (0, 0))
+                #if self.side == 1:
+                    #self.AnimeEnemyStayRight.blit(self.image, (0, 0))
+                #elif self.side == -1:
+                    #self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+        #else:
+            #if self.side == 1:
+                #self.AnimeEnemyDieRight.blit(self.image, (0, 0))
+            #elif self.side == -1:
+                #self.AnimeEnemyDieLeft.blit(self.image, (0, 0))
 
         # прыжок
         if not self.onGround:
@@ -391,7 +390,7 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 69
+        self.level = 9
         self.rect.x = x
         self.rect.y = y
         self.side = 1
@@ -434,10 +433,12 @@ class Player(Sprite):
         self.image.fill((0, 255, 0))
         # лево право
         if left or right:
-            if left:
+            if left and right:
+                self.xvel = 0
+            elif left:
                 self.xvel = -SPEED
                 self.side = -1
-            if right:
+            elif right:
                 self.xvel = SPEED
                 self.side = 1
             if up:
@@ -446,9 +447,11 @@ class Player(Sprite):
                 elif self.side == -1:
                     self.AnimeJumpLeft.blit(self.image, (-90, -90))
             else:
-                if left:
+                if left and right:
+                    self.AnimeStayRight.blit(self.image, (-90, -90))
+                elif left:
                     self.AnimeGoLeft.blit(self.image, (-90, -90))
-                if right:
+                elif right:
                     self.AnimeGoRight.blit(self.image, (-90, -90))
 
         else:
@@ -523,13 +526,14 @@ class Player(Sprite):
 
     def Boss(self, BOSS):
         if collide_rect(self, BOSS):
-            if BOSS.helth >= 1:
-                self.helth -= 1
+            if self.level == 69:
+                if BOSS.helth >= 1:
+                    self.helth -= 1
 
-                if BOSS.xvel >= 0:
-                    self.rect.x += SPEED * 4
-                else:
-                    self.rect.x += -(SPEED * 4)
+                    if BOSS.xvel >= 0:
+                        self.rect.x += SPEED * 4
+                    else:
+                        self.rect.x += -(SPEED * 4)
 
     def enemys(self, enemy):
         for pl in enemy:
