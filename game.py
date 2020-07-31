@@ -3,6 +3,13 @@ pygame.init()
 from screeninfo import get_monitors
 from level import map as MAP
 import object
+from pygame import mixer
+mixer.init()
+
+# audio
+BACK_AUDIO = mixer.Sound('audio\\обычный_фон.ogg')
+
+
 
 #setting
 SIZE = WIDTH, HEIGHT = 1080, 700
@@ -215,6 +222,7 @@ def draw():
     window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
 
 
+BACK_AUDIO.play()
 running = True
 while running:
     pygame.mouse.set_visible(False)  # скрывает мышь
@@ -231,6 +239,8 @@ while running:
                 RIGHT = True
             if event.key == pygame.K_e:
                 E = True
+            if event.key == pygame.K_q:
+                BACK_AUDIO.stop()
             if event.key == pygame.K_f:
                 pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
 
