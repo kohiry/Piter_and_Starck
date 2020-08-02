@@ -4,11 +4,11 @@ from pygame import Surface
 from pygame.image import load
 from pygame.transform import scale
 from pyganim import PygAnimation
-
+from random import choice
 
 SPEED = 20
 GRAVITY = 2
-JUMP_POWER = 5
+JUMP_POWER = 6
 
 # animation
 
@@ -80,12 +80,13 @@ ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\коро
 
 
 class Enemy(Sprite):
-    def __init__(self, x, y, width=216, height=220):
+    def __init__(self, x, y, SPIDER_AUDIO, width=216, height=220):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
+        self.SPIDER_AUDIO = SPIDER_AUDIO
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
@@ -154,6 +155,9 @@ class Enemy(Sprite):
         self.collide(self.xvel, 0, platforms)
         self.rect.y += self.yvel
         self.collide(0, self.yvel, platforms)
+
+    def hit(self):
+        choice(self.SPIDER_AUDIO).play()
 
     def collide(self, xvel, yvel, platforms):
         for pl in platforms:
@@ -281,8 +285,9 @@ class Boss(Sprite):
 
 
 class Ball(Sprite):
-    def __init__(self, x, y, side, r=20):
+    def __init__(self, x, y, side, damage_audio, r=20):
         Sprite.__init__(self)
+        self.damage_audio = damage_audio
         self.image = Surface((r, r))
         self.image.fill((125, 125, 125))
         self.rect = self.image.get_rect()
@@ -312,7 +317,9 @@ class Ball(Sprite):
                 self.die = True
         for pl in enemys:
             if collide_rect(self, pl):
+                self.damage_audio.play()
                 pl.helth -= 1
+                pl.hit()
                 if pl.helth < 0:
                     pl.die()
                 self.die = True
@@ -384,21 +391,26 @@ class Monster(Sprite):
 
 
 class Player(Sprite):
-    def __init__(self, x, y, width=140, height=200):
+    def __init__(self, x, y, TAKE_AUDIO, STEP_AUDIO, STEP2_AUDIO, width=140, height=200):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
+        self.TAKE_AUDIO = TAKE_AUDIO
+        self.STEP_AUDIO = STEP_AUDIO
+        self.STEP2_AUDIO = STEP2_AUDIO
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 9
+        self.level = 1
         self.rect.x = x
         self.rect.y = y
         self.side = 1
         self.yvel = 0
+        self.audio_step_count = 0
         self.xvel = 0
         self.onGround = False
         self.count = 0
         self.helth = 3
+        self.fight = False
         self.jump = False
         self.serf = False
         self.trees = set()
@@ -433,6 +445,14 @@ class Player(Sprite):
         self.image.fill((0, 255, 0))
         # лево право
         if left or right:
+            if self.audio_step_count != 1 and self.onGround:
+                self.audio_step_count = 1
+                self.STEP_AUDIO.play(-1)
+                self.STEP2_AUDIO.play(-1)
+            elif not self.onGround:
+                self.audio_step_count = 0
+                self.STEP_AUDIO.stop()
+                self.STEP2_AUDIO.stop()
             if left and right:
                 self.xvel = 0
             elif left:
@@ -456,6 +476,9 @@ class Player(Sprite):
 
         else:
             self.xvel = 0
+            self.audio_step_count = 0
+            self.STEP_AUDIO.stop()
+            self.STEP2_AUDIO.stop()
             if up:
                 if self.side == 1:
                     self.AnimeJumpRight.blit(self.image, (-90, -90))
@@ -477,11 +500,9 @@ class Player(Sprite):
             #if self.yvel < 50:
             self.yvel += GRAVITY
 
-            '''
-            if up and self.count < 1 and self.yvel > 0 and self.onGround:
-                print(1)
+            if up and self.count < 1 and self.yvel > 0 and not self.onGround:
                 self.count += 1
-                self.yvel += -JUMP_POWER**2'''
+                self.yvel += -JUMP_POWER**2
 
         if up and self.onGround and not self.serf:
             self.jump = True
@@ -506,13 +527,33 @@ class Player(Sprite):
 
         self.monsters(monster)
 
+        self.fight_find(enemy)
+
         return self.wooden(tree, use, screen)
 
     def monsters(self, monster):
         for pl in monster:
             if collide_rect(self, pl):
-                self.respawn_new()
+                #self.respawn_new()
                 break
+
+    def fight_find(self, enemy):
+        for i in enemy:
+            if not i.isdie:
+                if (i.rect.x <= self.rect.x and self.rect.x - i.rect.x <= 1200) or (i.rect.x >= self.rect.x and i.rect.x - self.rect.x <= 1200):
+                    if (i.rect.y <= self.rect.y and self.rect.y - i.rect.y <= 200) or (i.rect.y >= self.rect.y and i.rect.y - self.rect.y <= 200):
+                        self.fight = True
+                        break
+                    else:
+                        self.fight = False
+                else:
+                    self.fight = False
+            else:
+                self.fight = False
+        else:
+            self.fight = False
+
+
 
     def respawn_new(self):
         self.spawn = '@'
@@ -544,7 +585,6 @@ class Player(Sprite):
                         self.rect.x += SPEED * 4
                     else:
                         self.rect.x += -(SPEED * 4)
-                        print(pl.xvel)
                     break
 
 
@@ -552,14 +592,15 @@ class Player(Sprite):
         for pl in platforms:
             if collide_rect(self, pl):
                 if pl.name == '-':
-                    self.count = 0
                     #self.serf = True
                     if yvel > 0:
                         self.serf = False
                         self.onGround = True
+                        self.count = 0
                         self.rect.bottom = pl.rect.top
                     if yvel < 0:
                         self.yvel = 0
+                        self.onGround = False
                         self.rect.top = pl.rect.bottom
                     if xvel < 0:
                         self.yvel = -SPEED
@@ -580,6 +621,7 @@ class Player(Sprite):
             if collide_rect(self, pl):  # текст не отобравжается
                 if use:
                     pl.use()
+                    self.TAKE_AUDIO.play()
                 if pl.die:
                     self.trees.add(pl)
                     return False
@@ -604,6 +646,7 @@ class Player(Sprite):
 
                 if pl.name == '^':
                     self.level += pl.move
+                    print(self.level)
                     self.spawn = '@'
                     return True
 

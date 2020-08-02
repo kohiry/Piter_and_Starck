@@ -7,11 +7,30 @@ from pygame import mixer
 mixer.init()
 
 # audio
-BACK_AUDIO = mixer.Sound('audio\\обычный_фон.ogg')
+BACK_AUDIO = mixer.Sound('audio\\basic_back.ogg')
+FIGHT_AUDIO = mixer.Sound('audio\\fight.ogg')
+DAMAGE_AUDIO = mixer.Sound('audio\\hock.ogg')
+STRIKE_AUDIO = mixer.Sound('audio\\strike.ogg')
+TAKE_AUDIO = mixer.Sound('audio\\take_barries.ogg')
+BACK2_AUDIO = mixer.Sound('audio\\back_water.ogg')
+STEP_AUDIO = mixer.Sound('audio\\step.ogg')
+STEP2_AUDIO = mixer.Sound('audio\\step2.ogg')
+SPIDER_AUDIO = [
+    mixer.Sound('audio\\spider_01.ogg'),
+    mixer.Sound('audio\\spider_02.ogg'),
+    mixer.Sound('audio\\spider_03.ogg'),
+    mixer.Sound('audio\\spider_04.ogg'),
+    mixer.Sound('audio\\spider_05.ogg'),
+    mixer.Sound('audio\\spider_06.ogg')
+]
 
 
+DAMAGE_AUDIO.set_volume(0.2)
+STRIKE_AUDIO.set_volume(0.1)
+TAKE_AUDIO.set_volume(0.5)
 
 #setting
+fight = False
 SIZE = WIDTH, HEIGHT = 1080, 700
 BACK_SIZE = int(1080/1.5)
 WHITE = (255, 255, 255)
@@ -32,7 +51,7 @@ draw_loc = 1
 
 #startet_obj
 group_draw = pygame.sprite.Group()
-HERO = object.Player(10, 10)
+HERO = object.Player(10, 10, TAKE_AUDIO, STEP_AUDIO, STEP2_AUDIO)
 BOSS = object.Boss(10, 10)
 platforms = []
 teleports = []
@@ -54,7 +73,7 @@ def make_level(level):
             pl = obj(x, y, lens*10, lens)
         else:
             pl = obj(x, y, lens, lens)
-        group_draw.add(pl)
+        #group_draw.add(pl)
         if object.Platform == obj:
             platforms.append(pl)
         else:
@@ -114,7 +133,7 @@ def make_level(level):
                 if col == "?":
                     platform(row, col, object.Teleport_COME)
                 if col == "&":
-                    pl = object.Enemy(x, y)
+                    pl = object.Enemy(x, y, SPIDER_AUDIO)
                     group_draw.add(pl)
                     enemy.append(pl)
                 if col == "$":
@@ -190,7 +209,6 @@ def camera_level(place):
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)
     make_level(MAP[place])
-    print(place)
     if place == 'level69':
         group_draw.add(BOSS)
         Boss_spawn = True
@@ -222,7 +240,8 @@ def draw():
     window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
 
 
-BACK_AUDIO.play()
+BACK_AUDIO.play(-1)
+BACK2_AUDIO.play()
 running = True
 while running:
     pygame.mouse.set_visible(False)  # скрывает мышь
@@ -239,10 +258,9 @@ while running:
                 RIGHT = True
             if event.key == pygame.K_e:
                 E = True
-            if event.key == pygame.K_q:
-                BACK_AUDIO.stop()
             if event.key == pygame.K_f:
-                pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
+                STRIKE_AUDIO.play()
+                pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side, DAMAGE_AUDIO)
 
                 balls.append(pl)
                 group_draw.add(pl)
@@ -273,6 +291,17 @@ while running:
         pl = i.update(platforms, enemy, BOSS)
         if i.die:
             del balls[balls.index(i)]
+    if HERO.fight and not fight:
+        fight = True
+        BACK_AUDIO.stop()
+        FIGHT_AUDIO.play(-1)
+        BACK2_AUDIO.stop()
+    elif not HERO.fight and fight:
+        fight = False
+        BACK2_AUDIO.play()
+        BACK_AUDIO.play(-1)
+        FIGHT_AUDIO.stop()
+
 
     pygame.display.flip()
     pygame.time.Clock().tick(60)
