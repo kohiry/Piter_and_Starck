@@ -5,6 +5,9 @@ from pygame.image import load
 from pygame.transform import scale
 from pyganim import PygAnimation
 from random import choice
+from pygame.font import Font
+from pygame.draw import rect
+
 
 SPEED = 20
 GRAVITY = 2
@@ -123,28 +126,28 @@ class Enemy(Sprite):
 
     def update(self, left, right, platforms):
         # лево право
-        #self.image.set_colorkey((0, 255, 0))
+        self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         if not self.isdie:
             if left:
                 self.xvel = -SPEED * 0.5
                 self.side = -1
-                #self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
+                self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
             if right:
                 self.xvel = SPEED * 0.5
                 self.side = 1
-                #self.AnimeEnemyGoRight.blit(self.image, (0, 0))
+                self.AnimeEnemyGoRight.blit(self.image, (0, 0))
             if not (left or right):
                 self.xvel = 0
-                #if self.side == 1:
-                    #self.AnimeEnemyStayRight.blit(self.image, (0, 0))
-                #elif self.side == -1:
-                    #self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
-        #else:
-            #if self.side == 1:
-                #self.AnimeEnemyDieRight.blit(self.image, (0, 0))
-            #elif self.side == -1:
-                #self.AnimeEnemyDieLeft.blit(self.image, (0, 0))
+                if self.side == 1:
+                    self.AnimeEnemyStayRight.blit(self.image, (0, 0))
+                elif self.side == -1:
+                    self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+        else:
+            if self.side == 1:
+                self.AnimeEnemyDieRight.blit(self.image, (0, 0))
+            elif self.side == -1:
+                self.AnimeEnemyDieLeft.blit(self.image, (0, 0))
 
         # прыжок
         if not self.onGround:
@@ -183,13 +186,14 @@ class Enemy(Sprite):
 
 
 class Boss(Sprite):
-    def __init__(self, x, y, width=400, height=400):
+    def __init__(self, x, y, SPIDER_AUDIO, width=400, height=400):
         Sprite.__init__(self)
         self.image = Surface((width, height))
         self.image.fill((0, 200, 200))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.SPIDER_AUDIO = SPIDER_AUDIO
         self.yvel = 0
         self.xvel = 0
         self.isdie = False
@@ -213,6 +217,8 @@ class Boss(Sprite):
         self.AnimeEnemyDieLeft.play()
         self.AnimeEnemyDieRight.play()
 
+    def hit(self):
+        choice(self.SPIDER_AUDIO).play()
 
     def new_coord(self, x, y):
         self.rect.x = x
@@ -326,7 +332,7 @@ class Ball(Sprite):
                 self.kill()
                 break
         if collide_rect(self, BOSS):
-
+            pl.hit()
             BOSS.helth -= 1
             if BOSS.helth < 0:
                 BOSS.die()
@@ -335,7 +341,7 @@ class Ball(Sprite):
 
 
 class Monster(Sprite):
-    def __init__(self, x, y, width=400, height=600):
+    def __init__(self, x, y, width=800, height=600):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
@@ -349,13 +355,6 @@ class Monster(Sprite):
         self.eat = 0
 
         self.onGround = False
-
-        ANIMATION_ENEMY3_STAY_LEFT = add_sprite('data\враги\тентаклемонстр\тентакли_налево_', 5)
-        ANIMATION_ENEMY3_STAY_RIGHT = add_sprite('data\враги\тентаклемонстр\тентакли_направо_', 5)
-        ANIMATION_ENEMY3_GO_RIGHT = add_sprite('data\враги\тентаклемонстр\схвачен_тентаклями_направо_', 9)
-        ANIMATION_ENEMY3_GO_LEFT = add_sprite('data\враги\тентаклемонстр\схвачен_тентаклями_налево_', 9)
-        ANIMATION_ENEMY3_DIE_LEFT = add_sprite('data\враги\тентаклемонстр\тентакли_спрятались_налево_', 4)
-        ANIMATION_ENEMY3_DIE_RIGHT = add_sprite('data\враги\тентаклемонстр\тентакли_спрятались_направо_', 4)
 
         #animation
         self.AnimeEnemyStayLeft = PygAnimation(Work(ANIMATION_ENEMY3_STAY_LEFT))
@@ -378,11 +377,20 @@ class Monster(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def AI(self, hero, platforms):
-        pass  # тут будет катсцена
-
-    def update(self, left, right):
-        pass
+    def AI(self, hero):
+        self.image.set_colorkey((0, 255, 0))
+        self.image.fill((0, 255, 0))
+        if collide_rect(self, hero):
+            hero.films()
+            if hero.side == 1:
+                self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
+            elif hero.side == -1:
+                self.AnimeEnemyGoRight.blit(self.image, (0, 0))
+            else:
+                self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+        else:
+            hero.film = False
+            self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
 
     def die(self):
         self.isdie = True  # включу запутанного моба
@@ -400,11 +408,13 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 1
+        self.level = 6
         self.rect.x = x
         self.rect.y = y
+        self.film = False
         self.side = 1
         self.yvel = 0
+        self.gift = False
         self.audio_step_count = 0
         self.xvel = 0
         self.onGround = False
@@ -424,8 +434,12 @@ class Player(Sprite):
         self.AnimeJumpLeft = PygAnimation(Work(ANIMATION_HERO_JUMP_LEFT))
         self.AnimeFallLeft = PygAnimation(Work(ANIMATION_HERO_FALL_RIGHT))
         self.AnimeFallRight = PygAnimation(Work(ANIMATION_HERO_FALL_RIGHT))
+        self.AnimeClimbRight = PygAnimation(Work(ANIMATION_HERO_CLIMP_RIGHT))
+        self.AnimeClimbLeft = PygAnimation(Work(ANIMATION_HERO_CLIMP_LEFT))
 
         # on
+        self.AnimeClimbRight.play()
+        self.AnimeClimbLeft.play()
         self.AnimeStayLeft.play()
         self.AnimeStayRight.play()
         self.AnimeGoRight.play()
@@ -439,72 +453,90 @@ class Player(Sprite):
         self.rect.x = x
         self.rect.y = y
 
+    def films(self):
+        self.film = True
+        self.xvel = 0
+        self.yvel = 0
+
+
     def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster):
+
         # animation
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         # лево право
-        if left or right:
-            if self.audio_step_count != 1 and self.onGround:
-                self.audio_step_count = 1
-                self.STEP_AUDIO.play(-1)
-                self.STEP2_AUDIO.play(-1)
-            elif not self.onGround:
+        if not self.film:
+            if left or right:
+                if self.audio_step_count != 1 and self.onGround:
+                    self.audio_step_count = 1
+                    self.STEP_AUDIO.play(-1)
+                    self.STEP2_AUDIO.play(-1)
+                elif not self.onGround:
+                    self.audio_step_count = 0
+                    self.STEP_AUDIO.stop()
+                    self.STEP2_AUDIO.stop()
+                if left and right:
+                    self.xvel = 0
+                elif left:
+                    self.xvel = -SPEED
+                    self.side = -1
+                elif right:
+                    self.xvel = SPEED
+                    self.side = 1
+                if up:
+                    if self.side == 1:
+                        self.AnimeJumpRight.blit(self.image, (-90, -90))
+                    elif self.side == -1:
+                        self.AnimeJumpLeft.blit(self.image, (-90, -90))
+                elif self.serf:
+                    if left and right:
+                        if self.side == 1:
+                            self.AnimeFallRight.blit(self.image, (-90, -90))
+                        elif self.side == -1:
+                            self.AnimeFallLeft.blit(self.image, (-90, -90))
+                    elif left:
+                        self.AnimeClimbLeft.blit(self.image, (-90, -90))
+                    elif right:
+                        self.AnimeClimbRight.blit(self.image, (-90, -90))
+                else:
+                    if left and right:
+                        self.AnimeStayRight.blit(self.image, (-90, -90))
+                    elif left:
+                        self.AnimeGoLeft.blit(self.image, (-90, -90))
+                    elif right:
+                        self.AnimeGoRight.blit(self.image, (-90, -90))
+
+            else:
+                self.xvel = 0
                 self.audio_step_count = 0
                 self.STEP_AUDIO.stop()
                 self.STEP2_AUDIO.stop()
-            if left and right:
-                self.xvel = 0
-            elif left:
-                self.xvel = -SPEED
-                self.side = -1
-            elif right:
-                self.xvel = SPEED
-                self.side = 1
-            if up:
-                if self.side == 1:
-                    self.AnimeJumpRight.blit(self.image, (-90, -90))
-                elif self.side == -1:
-                    self.AnimeJumpLeft.blit(self.image, (-90, -90))
-            else:
-                if left and right:
-                    self.AnimeStayRight.blit(self.image, (-90, -90))
-                elif left:
-                    self.AnimeGoLeft.blit(self.image, (-90, -90))
-                elif right:
-                    self.AnimeGoRight.blit(self.image, (-90, -90))
-
-        else:
-            self.xvel = 0
-            self.audio_step_count = 0
-            self.STEP_AUDIO.stop()
-            self.STEP2_AUDIO.stop()
-            if up:
-                if self.side == 1:
-                    self.AnimeJumpRight.blit(self.image, (-90, -90))
-                elif self.side == -1:
-                    self.AnimeJumpLeft.blit(self.image, (-90, -90))
-            else:
-                if not self.onGround:
+                if up:
                     if self.side == 1:
-                        self.AnimeFallRight.blit(self.image, (-90, -90))
+                        self.AnimeJumpRight.blit(self.image, (-90, -90))
                     elif self.side == -1:
-                        self.AnimeFallLeft.blit(self.image, (-90, -90))
+                        self.AnimeJumpLeft.blit(self.image, (-90, -90))
                 else:
-                    if self.side == 1:
-                        self.AnimeStayRight.blit(self.image, (-90, -90))
+                    if not self.onGround:
+                        if self.side == 1:
+                            self.AnimeFallRight.blit(self.image, (-90, -90))
+                        elif self.side == -1:
+                            self.AnimeFallLeft.blit(self.image, (-90, -90))
                     else:
-                        self.AnimeStayLeft.blit(self.image, (-90, -90))
+                        if self.side == 1:
+                            self.AnimeStayRight.blit(self.image, (-90, -90))
+                        else:
+                            self.AnimeStayLeft.blit(self.image, (-90, -90))
         # прыжок
         if not self.onGround:
             #if self.yvel < 50:
             self.yvel += GRAVITY
 
-            if up and self.count < 1 and self.yvel > 0 and not self.onGround:
+            if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film:
                 self.count += 1
                 self.yvel += -JUMP_POWER**2
 
-        if up and self.onGround and not self.serf:
+        if up and self.onGround and not self.serf and not self.film:
             self.jump = True
             self.onGround = False
             self.yvel = -JUMP_POWER**2
@@ -645,9 +677,10 @@ class Player(Sprite):
                     self.rect.right = pl.rect.left
 
                 if pl.name == '^':
+                    print(self.level, 1)
                     self.level += pl.move
-                    print(self.level)
                     self.spawn = '@'
+                    print(self.level, 2)
                     return True
 
                 if pl.name == 'v':  # проблема с ебаным телепортом не решена
@@ -774,3 +807,55 @@ class Monster_platform(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+
+class Button(Sprite):
+    def __init__(self, x, y, width, height, name):
+        Sprite.__init__(self)
+        self.name = name
+        self.WHITE = (255, 255, 255)
+        self.BLACK = (0, 0, 0)
+        self.image = Surface((width, height))
+        self.image.fill((255, 255, 255))
+        self.rect = self.image.get_rect()
+
+        font = Font('pixle_font.ttf', 72)
+        txt = font.render(self.name, 1, (0, 0, 0))
+        text_x = width // 2 - txt.get_width() // 2
+        text_y = height // 2 - txt.get_height() // 2
+        text_w = txt.get_width()
+        text_h = txt.get_height()
+        self.image.blit(txt, (text_x, text_y))
+        rect(self.image, (0, 0, 0), (text_x - 10, text_y - 10, text_w + 20, text_h + 20), 1)
+
+        self.rect.x = x
+        self.rect.y = y
+
+    def push(self, pos):
+        if collide_rect(self, pos):
+            return True
+        else:
+            return False
+
+
+    def mouse(self, around):
+        if around:
+            self.image.fill(self.BLACK)
+            font = Font('pixle_font.ttf', 72)
+            txt = font.render(self.name, 1, self.WHITE)
+            text_x = width // 2 - txt.get_width() // 2
+            text_y = height // 2 - txt.get_height() // 2
+            text_w = txt.get_width()
+            text_h = txt.get_height()
+            self.image.blit(txt, (text_x, text_y))
+            rect(self.image, self.WHITE, (text_x - 10, text_y - 10, text_w + 20, text_h + 20), 1)
+        else:
+            self.image.fill(self.WHITE)
+            font = Font('pixle_font.ttf', 72)
+            txt = font.render(self.name, 1, self.BLACK)
+            text_x = width // 2 - txt.get_width() // 2
+            text_y = height // 2 - txt.get_height() // 2
+            text_w = txt.get_width()
+            text_h = txt.get_height()
+            self.image.blit(txt, (text_x, text_y))
+            rect(self.image, self.BLACK, (text_x - 10, text_y - 10, text_w + 20, text_h + 20), 1)
