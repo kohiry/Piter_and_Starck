@@ -248,10 +248,10 @@ def draw():
 def create_button():
     for e in group_draw:
         e.kill()
-    w, h = 200, 100
-    button.append(object.Button(WIDTH//2, 200, w, h, 'Play'))
-    button.append(object.Button(WIDTH//2, 500, w, h, 'Settings'))
-    button.append(object.Button(WIDTH//2, 800, w, h, 'Exit'))
+    w, h = 300, 100
+    button.append(object.Button(WIDTH//2-160, 200, w, h, 'Play'))
+    button.append(object.Button(WIDTH//2-160, 350, w, h, 'Settings'))
+    button.append(object.Button(WIDTH//2-160, 500, w, h, 'Exit'))
     for i in button:
         group_draw.add(i)
 
@@ -274,13 +274,21 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+            if event.type == pygame.MOUSEMOTION:
+                for i in button:
+                    if i.rect.collidepoint(event.pos):
+                        i.mouse(True)
+                    else:
+                        i.mouse(False)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 or event.button == 2:
+                    pass
 
         screen.fill((255, 255, 255))
         font = pygame.font.Font('pixle_font.ttf', 72)
         txt = font.render('Spider Gay', 1, (0, 0, 0))
         screen.blit(txt, (WIDTH//3, 100))
         group_draw.draw(screen)
-        print(button)
         window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
         pygame.display.flip()
 

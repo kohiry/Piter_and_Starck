@@ -818,6 +818,8 @@ class Button(Sprite):
         self.image = Surface((width, height))
         self.image.fill((255, 255, 255))
         self.rect = self.image.get_rect()
+        self.width = width
+        self.height = height
 
         font = Font('pixle_font.ttf', 72)
         txt = font.render(self.name, 1, (0, 0, 0))
@@ -826,7 +828,7 @@ class Button(Sprite):
         text_w = txt.get_width()
         text_h = txt.get_height()
         self.image.blit(txt, (text_x, text_y))
-        rect(self.image, (0, 0, 0), (text_x - 10, text_y - 10, text_w + 20, text_h + 20), 1)
+        rect(self.image, self.BLACK, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
 
         self.rect.x = x
         self.rect.y = y
@@ -843,19 +845,19 @@ class Button(Sprite):
             self.image.fill(self.BLACK)
             font = Font('pixle_font.ttf', 72)
             txt = font.render(self.name, 1, self.WHITE)
-            text_x = width // 2 - txt.get_width() // 2
-            text_y = height // 2 - txt.get_height() // 2
+            text_x = self.width // 2 - txt.get_width() // 2
+            text_y = self.height // 2 - txt.get_height() // 2
             text_w = txt.get_width()
             text_h = txt.get_height()
             self.image.blit(txt, (text_x, text_y))
-            rect(self.image, self.WHITE, (text_x - 10, text_y - 10, text_w + 20, text_h + 20), 1)
+            rect(self.image, self.WHITE, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
         else:
             self.image.fill(self.WHITE)
             font = Font('pixle_font.ttf', 72)
             txt = font.render(self.name, 1, self.BLACK)
-            text_x = width // 2 - txt.get_width() // 2
-            text_y = height // 2 - txt.get_height() // 2
+            text_x = self.width // 2 - txt.get_width() // 2
+            text_y = self.height // 2 - txt.get_height() // 2
             text_w = txt.get_width()
             text_h = txt.get_height()
             self.image.blit(txt, (text_x, text_y))
-            rect(self.image, self.BLACK, (text_x - 10, text_y - 10, text_w + 20, text_h + 20), 1)
+            rect(self.image, self.BLACK, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
