@@ -7,7 +7,8 @@ from pyganim import PygAnimation
 from random import choice
 from pygame.font import Font
 from pygame.draw import rect
-
+from pygame import mixer
+mixer.init()
 
 SPEED = 20
 GRAVITY = 2
@@ -81,15 +82,39 @@ ANIMATION_BOSS_DIE_LEFT = add_sprite('data\враги\королева\коро�
 ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\королева_связана_направо_', 3)
 
 
+class Sound:
+    def __init__(self):
+        # audio
+        self.BACK_AUDIO = mixer.Sound(r'audio\basic_back.ogg')
+        self.FIGHT_AUDIO = mixer.Sound(r'audio\fight.ogg')
+        self.DAMAGE_AUDIO = mixer.Sound(r'audio\hock.ogg')
+        self.STRIKE_AUDIO = mixer.Sound(r'audio\strike.ogg')
+        self.TAKE_AUDIO = mixer.Sound(r'audio\take_barries.ogg')
+        self.BACK2_AUDIO = mixer.Sound(r'audio\back_water.ogg')
+        self.STEP_AUDIO = mixer.Sound(r'audio\step.ogg')
+        self.STEP2_AUDIO = mixer.Sound(r'audio\step2.ogg')
+        self.SPIDER_AUDIO = [
+            mixer.Sound(r'audio\spider_01.ogg'),
+            mixer.Sound(r'audio\spider_02.ogg'),
+            mixer.Sound(r'audio\spider_03.ogg'),
+            mixer.Sound(r'audio\spider_04.ogg'),
+            mixer.Sound(r'audio\spider_05.ogg'),
+            mixer.Sound(r'audio\spider_06.ogg')
+        ]
+
+        self.DAMAGE_AUDIO.set_volume(0.2)
+        self.STRIKE_AUDIO.set_volume(0.1)
+        self.TAKE_AUDIO.set_volume(0.5)
+
 
 class Enemy(Sprite):
-    def __init__(self, x, y, SPIDER_AUDIO, width=216, height=220):
+    def __init__(self, x, y, width=216, height=220):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
-        self.SPIDER_AUDIO = SPIDER_AUDIO
+        self.SPIDER_AUDIO = Sound().SPIDER_AUDIO
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
@@ -186,14 +211,14 @@ class Enemy(Sprite):
 
 
 class Boss(Sprite):
-    def __init__(self, x, y, SPIDER_AUDIO, width=400, height=400):
+    def __init__(self, x, y, width=400, height=400):
         Sprite.__init__(self)
         self.image = Surface((width, height))
         self.image.fill((0, 200, 200))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.SPIDER_AUDIO = SPIDER_AUDIO
+        self.SPIDER_AUDIO = Sound().SPIDER_AUDIO
         self.yvel = 0
         self.xvel = 0
         self.isdie = False
@@ -291,9 +316,9 @@ class Boss(Sprite):
 
 
 class Ball(Sprite):
-    def __init__(self, x, y, side, damage_audio, r=20):
+    def __init__(self, x, y, side, r=20):
         Sprite.__init__(self)
-        self.damage_audio = damage_audio
+        self.damage_audio = Sound().DAMAGE_AUDIO
         self.image = Surface((r, r))
         self.image.fill((125, 125, 125))
         self.rect = self.image.get_rect()
@@ -399,12 +424,12 @@ class Monster(Sprite):
 
 
 class Player(Sprite):
-    def __init__(self, x, y, TAKE_AUDIO, STEP_AUDIO, STEP2_AUDIO, width=140, height=200):
+    def __init__(self, x, y, width=140, height=200):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
-        self.TAKE_AUDIO = TAKE_AUDIO
-        self.STEP_AUDIO = STEP_AUDIO
-        self.STEP2_AUDIO = STEP2_AUDIO
+        self.TAKE_AUDIO = Sound().TAKE_AUDIO
+        self.STEP_AUDIO = Sound().STEP_AUDIO
+        self.STEP2_AUDIO = Sound().STEP2_AUDIO
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'

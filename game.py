@@ -2,34 +2,15 @@ import pygame, sys
 from screeninfo import get_monitors
 from level import map as MAP
 import object
-from pygame import mixer
+
 pygame.init()
-mixer.init()
+
 
 
 
 # audio
-BACK_AUDIO = mixer.music.load('audio\\basic_back.ogg')
-FIGHT_AUDIO = mixer.music.load('audio\\fight.ogg')
-DAMAGE_AUDIO = mixer.music.load('audio\\hock.ogg')
-STRIKE_AUDIO = mixer.music.load('audio\\strike.ogg')
-TAKE_AUDIO = mixer.music.load('audio\\take_barries.ogg')
-BACK2_AUDIO = mixer.music.load('audio\\back_water.ogg')
-STEP_AUDIO = mixer.music.load('audio\\step.ogg')
-STEP2_AUDIO = mixer.music.load('audio\\step2.ogg')
-SPIDER_AUDIO = [
-    mixer.music.load('audio\\spider_01.ogg'),
-    mixer.music.load('audio\\spider_02.ogg'),
-    mixer.music.load('audio\\spider_03.ogg'),
-    mixer.music.load('audio\\spider_04.ogg'),
-    mixer.music.load('audio\\spider_05.ogg'),
-    mixer.music.load('audio\\spider_06.ogg')
-]
+sound = object.Sound()
 
-
-DAMAGE_AUDIO.set_volume(0.2)
-STRIKE_AUDIO.set_volume(0.1)
-TAKE_AUDIO.set_volume(0.5)
 
 #setting
 fight = False
@@ -55,8 +36,8 @@ draw_loc = 1
 
 #startet_obj
 group_draw = pygame.sprite.Group()
-HERO = object.Player(10, 10, TAKE_AUDIO, STEP_AUDIO, STEP2_AUDIO)
-BOSS = object.Boss(10, 10, SPIDER_AUDIO)
+HERO = object.Player(10, 10)
+BOSS = object.Boss(10, 10)
 platforms = []
 teleports = []
 enemy = []
@@ -138,7 +119,7 @@ def make_level(level):
                 if col == "?":
                     platform(row, col, object.Teleport_COME)
                 if col == "&":
-                    pl = object.Enemy(x, y, SPIDER_AUDIO)
+                    pl = object.Enemy(x, y)
                     group_draw.add(pl)
                     enemy.append(pl)
                 if col == "$":
@@ -307,8 +288,8 @@ while running:
 
     else:
         if First_on_audio == 0:
-            BACK_AUDIO.play(-1)
-            BACK2_AUDIO.play()
+            sound.BACK_AUDIO.play(-1)
+            sound.BACK2_AUDIO.play()
             First_on_audio += 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -323,8 +304,8 @@ while running:
                 if event.key == pygame.K_e:
                     E = True
                 if event.key == pygame.K_f:
-                    STRIKE_AUDIO.play()
-                    pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side, DAMAGE_AUDIO)
+                    sound.STRIKE_AUDIO.play()
+                    pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
 
                     balls.append(pl)
                     group_draw.add(pl)
@@ -359,14 +340,14 @@ while running:
                 del balls[balls.index(i)]
         if HERO.fight and not fight:
             fight = True
-            BACK_AUDIO.stop()
-            FIGHT_AUDIO.play(-1)
-            BACK2_AUDIO.stop()
+            sound.BACK_AUDIO.stop()
+            sound.FIGHT_AUDIO.play(-1)
+            sound.BACK2_AUDIO.stop()
         elif not HERO.fight and fight:
             fight = False
-            BACK2_AUDIO.play()
-            BACK_AUDIO.play(-1)
-            FIGHT_AUDIO.stop()
+            sound.BACK2_AUDIO.play()
+            sound.BACK_AUDIO.play(-1)
+        sound.    FIGHT_AUDIO.stop()
 
         pygame.display.flip()
         pygame.time.Clock().tick(60)
