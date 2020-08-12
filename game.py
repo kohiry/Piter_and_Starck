@@ -9,21 +9,21 @@ mixer.init()
 
 
 # audio
-BACK_AUDIO = mixer.Sound('audio\\basic_back.ogg')
-FIGHT_AUDIO = mixer.Sound('audio\\fight.ogg')
-DAMAGE_AUDIO = mixer.Sound('audio\\hock.ogg')
-STRIKE_AUDIO = mixer.Sound('audio\\strike.ogg')
-TAKE_AUDIO = mixer.Sound('audio\\take_barries.ogg')
-BACK2_AUDIO = mixer.Sound('audio\\back_water.ogg')
-STEP_AUDIO = mixer.Sound('audio\\step.ogg')
-STEP2_AUDIO = mixer.Sound('audio\\step2.ogg')
+BACK_AUDIO = mixer.music.load('audio\\basic_back.ogg')
+FIGHT_AUDIO = mixer.music.load('audio\\fight.ogg')
+DAMAGE_AUDIO = mixer.music.load('audio\\hock.ogg')
+STRIKE_AUDIO = mixer.music.load('audio\\strike.ogg')
+TAKE_AUDIO = mixer.music.load('audio\\take_barries.ogg')
+BACK2_AUDIO = mixer.music.load('audio\\back_water.ogg')
+STEP_AUDIO = mixer.music.load('audio\\step.ogg')
+STEP2_AUDIO = mixer.music.load('audio\\step2.ogg')
 SPIDER_AUDIO = [
-    mixer.Sound('audio\\spider_01.ogg'),
-    mixer.Sound('audio\\spider_02.ogg'),
-    mixer.Sound('audio\\spider_03.ogg'),
-    mixer.Sound('audio\\spider_04.ogg'),
-    mixer.Sound('audio\\spider_05.ogg'),
-    mixer.Sound('audio\\spider_06.ogg')
+    mixer.music.load('audio\\spider_01.ogg'),
+    mixer.music.load('audio\\spider_02.ogg'),
+    mixer.music.load('audio\\spider_03.ogg'),
+    mixer.music.load('audio\\spider_04.ogg'),
+    mixer.music.load('audio\\spider_05.ogg'),
+    mixer.music.load('audio\\spider_06.ogg')
 ]
 
 
@@ -248,10 +248,10 @@ def draw():
 def create_button():
     for e in group_draw:
         e.kill()
-    w, h = 300, 100
-    button.append(object.Button(WIDTH//2-160, 200, w, h, 'Play'))
-    button.append(object.Button(WIDTH//2-160, 350, w, h, 'Settings'))
-    button.append(object.Button(WIDTH//2-160, 500, w, h, 'Exit'))
+    w, h = 400, 100
+    button.append(object.Button(320, 200, w, h, 'Play'))
+    button.append(object.Button(320, 350, w, h, 'Settings'))
+    button.append(object.Button(320, 500, w, h, 'Exit'))
     for i in button:
         group_draw.add(i)
 
@@ -266,8 +266,7 @@ while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
 
     if menu:
-
-
+        First_on_audio = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -276,13 +275,25 @@ while running:
                     running = False
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
-                    if i.rect.collidepoint(event.pos):
-                        i.mouse(True)
-                    else:
+                    jump_x = ((int(get_monitors()[0].width) - WIDTH) // 2)
+                    jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
+                    if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
                         i.mouse(False)
+                    else:
+                        i.mouse(True)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 or event.button == 2:
-                    pass
+                    for i in button:
+                        if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                            if i.name == 'Play':
+                                screen.fill((0, 0, 0))
+                                menu = False
+                                button.clear()
+                            if i.name == 'Settings':
+                                pass
+                            if i.name == 'Exit':
+                                screen.fill((0, 0, 0))
+                                running = False
 
         screen.fill((255, 255, 255))
         font = pygame.font.Font('pixle_font.ttf', 72)
@@ -291,12 +302,14 @@ while running:
         group_draw.draw(screen)
         window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
         pygame.display.flip()
+        pygame.time.Clock().tick(60)
 
 
     else:
         if First_on_audio == 0:
             BACK_AUDIO.play(-1)
             BACK2_AUDIO.play()
+            First_on_audio += 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False

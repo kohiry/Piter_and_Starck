@@ -833,12 +833,6 @@ class Button(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def push(self, pos):
-        if collide_rect(self, pos):
-            return True
-        else:
-            return False
-
 
     def mouse(self, around):
         if around:
