@@ -85,21 +85,21 @@ ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\коро
 class Sound:
     def __init__(self):
         # audio
-        self.BACK_AUDIO = mixer.Sound(r'audio\basic_back.ogg')
-        self.FIGHT_AUDIO = mixer.Sound(r'audio\fight.ogg')
-        self.DAMAGE_AUDIO = mixer.Sound(r'audio\hock.ogg')
-        self.STRIKE_AUDIO = mixer.Sound(r'audio\strike.ogg')
-        self.TAKE_AUDIO = mixer.Sound(r'audio\take_barries.ogg')
-        self.BACK2_AUDIO = mixer.Sound(r'audio\back_water.ogg')
-        self.STEP_AUDIO = mixer.Sound(r'audio\step.ogg')
-        self.STEP2_AUDIO = mixer.Sound(r'audio\step2.ogg')
+        self.BACK_AUDIO = mixer.Sound(file=r'audio/basic_back.ogg')
+        self.FIGHT_AUDIO = mixer.Sound(file=r'audio/fight.ogg')
+        self.DAMAGE_AUDIO = mixer.Sound(file=r'audio/hock.ogg')
+        self.STRIKE_AUDIO = mixer.Sound(file=r'audio/strike.ogg')
+        self.TAKE_AUDIO = mixer.Sound(file=r'audio/take_barries.ogg')
+        self.BACK2_AUDIO = mixer.Sound(file=r'audio/back_water.ogg')
+        self.STEP_AUDIO = mixer.Sound(file=r'audio/step.ogg')
+        self.STEP2_AUDIO = mixer.Sound(file=r'audio/step2.ogg')
         self.SPIDER_AUDIO = [
-            mixer.Sound(r'audio\spider_01.ogg'),
-            mixer.Sound(r'audio\spider_02.ogg'),
-            mixer.Sound(r'audio\spider_03.ogg'),
-            mixer.Sound(r'audio\spider_04.ogg'),
-            mixer.Sound(r'audio\spider_05.ogg'),
-            mixer.Sound(r'audio\spider_06.ogg')
+            mixer.Sound(file=r'audio/spider_01.ogg'),
+            mixer.Sound(file=r'audio/spider_02.ogg'),
+            mixer.Sound(file=r'audio/spider_03.ogg'),
+            mixer.Sound(file=r'audio/spider_04.ogg'),
+            mixer.Sound(file=r'audio/spider_05.ogg'),
+            mixer.Sound(file=r'audio/spider_06.ogg')
         ]
 
         self.DAMAGE_AUDIO.set_volume(0.2)
