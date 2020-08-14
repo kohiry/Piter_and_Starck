@@ -103,10 +103,12 @@ class Sound:
             mixer.Sound(file=r'Sound/spider_05.wav'),
             mixer.Sound(file=r'Sound/spider_06.wav')
         ]
+        self.BUTTON = mixer.Sound(file=r'Sound/button.wav')
 
         self.DAMAGE_AUDIO.set_volume(0.2)
         self.STRIKE_AUDIO.set_volume(0.1)
         self.TAKE_AUDIO.set_volume(0.5)
+
 
 
 class Enemy(Sprite):
@@ -435,7 +437,7 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 6
+        self.level = 0
         self.rect.x = x
         self.rect.y = y
         self.film = False

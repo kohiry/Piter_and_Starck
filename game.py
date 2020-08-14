@@ -2,6 +2,7 @@ import pygame, sys
 from screeninfo import get_monitors
 from level import map as MAP
 import object
+from time import sleep
 
 pygame.init()
 
@@ -268,14 +269,16 @@ while running:
                     for i in button:
                         if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
                             if i.name == 'Play':
-                                screen.fill((0, 0, 0))
                                 menu = False
                                 button.clear()
                             if i.name == 'Settings':
                                 pass
                             if i.name == 'Exit':
-                                screen.fill((0, 0, 0))
                                 running = False
+                            screen.fill((0, 0, 0))
+                            pygame.display.flip()
+                            sound.BUTTON.play()
+                            sleep(2)
 
         screen.fill((255, 255, 255))
         font = pygame.font.Font('pixle_font.ttf', 72)
@@ -339,6 +342,7 @@ while running:
             pl = i.update(platforms, enemy, BOSS)
             if i.die:
                 del balls[balls.index(i)]
+        print(HERO.fight, fight)
         if HERO.fight and not fight:
             fight = True
             sound.BACK_AUDIO.stop()
@@ -348,7 +352,7 @@ while running:
             fight = False
             sound.BACK2_AUDIO.play()
             sound.BACK_AUDIO.play(-1)
-        sound.    FIGHT_AUDIO.stop()
+            sound.FIGHT_AUDIO.stop()
 
         pygame.display.flip()
         pygame.time.Clock().tick(60)
