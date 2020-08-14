@@ -10,9 +10,11 @@ from pygame.draw import rect
 from pygame import mixer
 mixer.init()
 
+
 SPEED = 20
 GRAVITY = 2
 JUMP_POWER = 6
+
 
 # animation
 
@@ -85,21 +87,21 @@ ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\коро
 class Sound:
     def __init__(self):
         # audio
-        self.BACK_AUDIO = mixer.Sound(file=r'audio/basic_back.ogg')
-        self.FIGHT_AUDIO = mixer.Sound(file=r'audio/fight.ogg')
-        self.DAMAGE_AUDIO = mixer.Sound(file=r'audio/hock.ogg')
-        self.STRIKE_AUDIO = mixer.Sound(file=r'audio/strike.ogg')
-        self.TAKE_AUDIO = mixer.Sound(file=r'audio/take_barries.ogg')
-        self.BACK2_AUDIO = mixer.Sound(file=r'audio/back_water.ogg')
-        self.STEP_AUDIO = mixer.Sound(file=r'audio/step.ogg')
-        self.STEP2_AUDIO = mixer.Sound(file=r'audio/step2.ogg')
+        self.BACK_AUDIO = mixer.Sound(file=r'Sound\basic_back.wav')
+        self.FIGHT_AUDIO = mixer.Sound(file=r'Sound/fight.wav')
+        self.DAMAGE_AUDIO = mixer.Sound(file=r'Sound/hock.wav')
+        self.STRIKE_AUDIO = mixer.Sound(file=r'Sound/strike.wav')
+        self.TAKE_AUDIO = mixer.Sound(file=r'Sound/take_barries.wav')
+        self.BACK2_AUDIO = mixer.Sound(file=r'Sound/back_water.wav')
+        self.STEP_AUDIO = mixer.Sound(file=r'Sound/step.wav')
+        self.STEP2_AUDIO = mixer.Sound(file=r'Sound/step2.wav')
         self.SPIDER_AUDIO = [
-            mixer.Sound(file=r'audio/spider_01.ogg'),
-            mixer.Sound(file=r'audio/spider_02.ogg'),
-            mixer.Sound(file=r'audio/spider_03.ogg'),
-            mixer.Sound(file=r'audio/spider_04.ogg'),
-            mixer.Sound(file=r'audio/spider_05.ogg'),
-            mixer.Sound(file=r'audio/spider_06.ogg')
+            mixer.Sound(file=r'Sound/spider_01.wav'),
+            mixer.Sound(file=r'Sound/spider_02.wav'),
+            mixer.Sound(file=r'Sound/spider_03.wav'),
+            mixer.Sound(file=r'Sound/spider_04.wav'),
+            mixer.Sound(file=r'Sound/spider_05.wav'),
+            mixer.Sound(file=r'Sound/spider_06.wav')
         ]
 
         self.DAMAGE_AUDIO.set_volume(0.2)
