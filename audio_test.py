@@ -1,7 +1,5 @@
 import pygame
 from screeninfo import get_monitors
-from pygame import mixer
-mixer.init()
 pygame.init()
 
 
@@ -10,7 +8,7 @@ window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygam
 screen = pygame.Surface(SIZE)
 #screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
-BACK_AUDIO = mixer.Sound(file='audio/basicback.ogg')
+BACK_AUDIO = pygame.mixer.Sound(r'Sound\basicback.ogg')
 
 
 running = True
