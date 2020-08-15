@@ -50,8 +50,8 @@ ANIMATION_HERO_CLIMP_RIGHT = add_sprite('data\паук\по стене\кара�
 ANIMATION_HERO_TAKE_LEFT = add_sprite('data\паук\бросок\бросок_налево_', 3)
 ANIMATION_HERO_GO_LEFT = add_sprite('data\паук\бежит\паук_бежит_налево_', 5)
 ANIMATION_HERO_GO_RIGHT = add_sprite('data\паук\бежит\паук_бежит_направо_', 5)
-ANIMATION_HERO_FALL_RIGHT = ['data\паук\прыжок\прыжок_направо_3.png']
-ANIMATION_HERO_FALL_LEFT = ['data\паук\прыжок\прыжок_налево_3.png']
+ANIMATION_HERO_FALL_RIGHT = ['data\паук\по стене\прыжок_направо.png']
+ANIMATION_HERO_FALL_LEFT = ['data\паук\по стене\прыжок_налево.png']
 
 #enemy1
 ANIMATION_ENEMY1_STAY_RIGHT = add_sprite('data\враги\грибной паук\паук_стоит_направо_', 3)
@@ -127,6 +127,7 @@ class Enemy(Sprite):
         self.isdie = False
         self.helth = 3
         self.onGround = False
+        self.damage = False
 
         #animation
         self.AnimeEnemyStayLeft = PygAnimation(Work(ANIMATION_ENEMY1_STAY_LEFT))
@@ -146,12 +147,23 @@ class Enemy(Sprite):
         self.AnimeEnemyDieRight.play()
 
     def AI(self, hero, platforms):
-        if hero.rect.x <= self.rect.x + 1000 and hero.rect.x > self.rect.x + self.rect.width-1:
-            self.update(False, True, platforms)
-        elif hero.rect.x >= self.rect.x - 1000 and hero.rect.x < self.rect.x - self.rect.width-1:
-            self.update(True, False, platforms)
+        if self.damage:
+            print(hero.rect.x <= self.rect.x, hero.rect.x > self.rect.x + self.rect.width-1)
+            print(hero.rect.x >= self.rect.x, hero.rect.x < self.rect.x)
+            print()
+            if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
+                self.update(False, True, platforms)
+            elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
+                self.update(True, False, platforms)
+            else:
+                self.update(False, False, platforms)
         else:
-            self.update(False, False, platforms)
+            if hero.rect.x <= self.rect.x + 1000 and hero.rect.x > self.rect.x + self.rect.width-1:
+                self.update(False, True, platforms)
+            elif hero.rect.x >= self.rect.x - 1000 and hero.rect.x < self.rect.x:
+                self.update(True, False, platforms)
+            else:
+                self.update(False, False, platforms)
 
     def update(self, left, right, platforms):
         # лево право
@@ -354,6 +366,7 @@ class Ball(Sprite):
             if collide_rect(self, pl):
                 self.damage_audio.play()
                 pl.helth -= 1
+                pl.damage = True
                 pl.hit()
                 if pl.helth < 0:
                     pl.die()
@@ -361,7 +374,7 @@ class Ball(Sprite):
                 self.kill()
                 break
         if collide_rect(self, BOSS):
-            pl.hit()
+            BOSS.hit()
             BOSS.helth -= 1
             if BOSS.helth < 0:
                 BOSS.die()
@@ -437,7 +450,7 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 0
+        self.level = 7
         self.rect.x = x
         self.rect.y = y
         self.film = False
@@ -461,7 +474,7 @@ class Player(Sprite):
         self.AnimeGoLeft = PygAnimation(Work(ANIMATION_HERO_GO_LEFT))
         self.AnimeJumpRight = PygAnimation(Work(ANIMATION_HERO_JUMP_RIGHT))
         self.AnimeJumpLeft = PygAnimation(Work(ANIMATION_HERO_JUMP_LEFT))
-        self.AnimeFallLeft = PygAnimation(Work(ANIMATION_HERO_FALL_RIGHT))
+        self.AnimeFallLeft = PygAnimation(Work(ANIMATION_HERO_FALL_LEFT))
         self.AnimeFallRight = PygAnimation(Work(ANIMATION_HERO_FALL_RIGHT))
         self.AnimeClimbRight = PygAnimation(Work(ANIMATION_HERO_CLIMP_RIGHT))
         self.AnimeClimbLeft = PygAnimation(Work(ANIMATION_HERO_CLIMP_LEFT))
@@ -512,11 +525,11 @@ class Player(Sprite):
                 elif right:
                     self.xvel = SPEED
                     self.side = 1
-                if up:
+                if up and not self.serf:
                     if self.side == 1:
-                        self.AnimeJumpRight.blit(self.image, (-90, -90))
+                        self.AnimeFallRight.blit(self.image, (-90, -90))
                     elif self.side == -1:
-                        self.AnimeJumpLeft.blit(self.image, (-90, -90))
+                        self.AnimeFallLeft.blit(self.image, (-90, -90))
                 elif self.serf:
                     if left and right:
                         if self.side == 1:
@@ -528,12 +541,23 @@ class Player(Sprite):
                     elif right:
                         self.AnimeClimbRight.blit(self.image, (-90, -90))
                 else:
-                    if left and right:
+                    if left and right and self.onGround:
                         self.AnimeStayRight.blit(self.image, (-90, -90))
-                    elif left:
+                    elif left and right and not self.onGround:
+                        if self.side == 1:
+                            self.AnimeFallRight.blit(self.image, (-90, -90))
+                        elif self.side == -1:
+                            self.AnimeFallLeft.blit(self.image, (-90, -90))
+                    elif left and self.onGround:
                         self.AnimeGoLeft.blit(self.image, (-90, -90))
-                    elif right:
+                    elif right and self.onGround:
                         self.AnimeGoRight.blit(self.image, (-90, -90))
+                    else:
+                        if not (left and right):
+                            if self.side == 1:
+                                self.AnimeFallRight.blit(self.image, (-90, -90))
+                            elif self.side == -1:
+                                self.AnimeFallLeft.blit(self.image, (-90, -90))
 
             else:
                 self.xvel = 0

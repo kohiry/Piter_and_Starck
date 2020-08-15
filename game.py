@@ -3,6 +3,9 @@ from screeninfo import get_monitors
 from level import map as MAP
 import object
 from time import sleep
+import time
+from pyganim import PygAnimation
+
 
 pygame.init()
 
@@ -27,9 +30,19 @@ LEFT = False
 RIGHT = False
 E = False
 F = False
+start_part = False
 take_barries = False
 Boss_spawn = False
 First_on_audio = 0
+count_audio = 0
+first_strike_timer = 0
+Strike_fast = False
+for_strike_count_time_when_we_see_text = 0
+
+#Start part
+START_PART = object.add_sprite(r'data\катсцены\начало\начало_', 3)
+start_part_animation = PygAnimation(object.Work(START_PART))
+start_part_animation.play()
 
 # map
 location = 1
@@ -121,7 +134,6 @@ def make_level(level):
                     platform(row, col, object.Teleport_COME)
                 if col == "&":
                     pl = object.Enemy(x, y)
-                    group_draw.add(pl)
                     enemy.append(pl)
                 if col == "$":
                     BOSS.new_coord(x, y)
@@ -137,6 +149,9 @@ def make_level(level):
             x += lens
         y += lens
         x = 0
+    for pl in enemy:
+        group_draw.add(pl)
+
 
 
 
@@ -223,9 +238,14 @@ def draw():
         font = pygame.font.Font('pixle_font.ttf', 20)
         txt = font.render('нажми на E чтобы собрать плоды', 1, (0, 255, 0))
         screen.blit(txt, (50, 50))
+    if Strike_fast:
+        font = pygame.font.Font('pixle_font.ttf', 40)
+        txt = font.render('Заряжается...', 1, (0, 255, 0))
+        rect = HERO.image.get_rect()
+        screen.blit(txt, (WIDTH//2, HEIGHT-40))
     font = pygame.font.Font('pixle_font.ttf', 40)
     txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, (0, 255, 0))
-    screen.blit(txt, (WIDTH-200, HEIGHT-50))
+    screen.blit(txt, (WIDTH-200, HEIGHT+100))
     window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
 
 def create_button():
@@ -238,17 +258,44 @@ def create_button():
     for i in button:
         group_draw.add(i)
 
-if menu:
-    create_button()
+if start_part:
+    start_part_animation.blit(screen, (0, 0))
 
+
+create_button()
+print(button)
 
 running = True
 
 pygame.init()
+
 while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
 
-    if menu:
+    if start_part:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+            if event.type == pygame.MOUSEMOTION:
+                pass
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pass
+
+
+        screen.fill((255, 255, 255))
+        start_part_animation.blit(screen, (0, 0))
+        #font = pygame.font.Font('pixle_font.ttf', 72)
+        #txt = font.render('Spider Gay', 1, (0, 0, 0))
+        #screen.blit(txt, (WIDTH//3, 100))
+        #group_draw.draw(screen)
+        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        pygame.display.flip()
+        pygame.time.Clock().tick(60)
+
+    elif menu:
         First_on_audio = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -290,6 +337,7 @@ while running:
         pygame.time.Clock().tick(60)
 
 
+
     else:
         if First_on_audio == 0:
             sound.BACK_AUDIO.play(-1)
@@ -308,11 +356,16 @@ while running:
                 if event.key == pygame.K_e:
                     E = True
                 if event.key == pygame.K_f:
-                    sound.STRIKE_AUDIO.play()
-                    pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
+                    if int(time.process_time()) - first_strike_timer >= 1:
+                        Strike_fast = False
+                        first_strike_timer = time.process_time()
+                        sound.STRIKE_AUDIO.play()
+                        pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
+                        balls.append(pl)
+                        group_draw.add(pl)
 
-                    balls.append(pl)
-                    group_draw.add(pl)
+                    else:
+                        Strike_fast = True
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
@@ -330,6 +383,12 @@ while running:
 
         draw()
         take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS, monster)
+        if Strike_fast:
+            for_strike_count_time_when_we_see_text += 1
+        if for_strike_count_time_when_we_see_text >= 5:
+            Strike_fast = False
+            for_strike_count_time_when_we_see_text = 0
+
         for i in enemy:
             i.AI(HERO, platforms)
         for i in monster:
@@ -342,7 +401,6 @@ while running:
             pl = i.update(platforms, enemy, BOSS)
             if i.die:
                 del balls[balls.index(i)]
-        print(HERO.fight, fight)
         if HERO.fight and not fight:
             fight = True
             sound.BACK_AUDIO.stop()
@@ -350,9 +408,10 @@ while running:
             sound.BACK2_AUDIO.stop()
         elif not HERO.fight and fight:
             fight = False
-            sound.BACK2_AUDIO.play()
+            sound.BACK2_AUDIO.play(-1)
             sound.BACK_AUDIO.play(-1)
             sound.FIGHT_AUDIO.stop()
+
 
         pygame.display.flip()
         pygame.time.Clock().tick(60)
