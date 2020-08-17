@@ -450,7 +450,7 @@ class Player(Sprite):
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'
-        self.level = 7
+        self.level = 0
         self.rect.x = x
         self.rect.y = y
         self.film = False
