@@ -443,7 +443,6 @@ class Monster(Sprite):
 class Player(Sprite):
     def __init__(self, x, y, width=140, height=200):
         Sprite.__init__(self)
-        #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.TAKE_AUDIO = Sound().TAKE_AUDIO
         self.STEP_AUDIO = Sound().STEP_AUDIO
         self.STEP2_AUDIO = Sound().STEP2_AUDIO

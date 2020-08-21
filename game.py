@@ -18,7 +18,7 @@ sound = object.Sound()
 
 #setting
 fight = False
-SIZE = WIDTH, HEIGHT = 1080, 700
+SIZE = WIDTH, HEIGHT = 960, 540
 BACK_SIZE = int(1080/1.5)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -244,17 +244,19 @@ def draw():
         rect = HERO.image.get_rect()
         screen.blit(txt, (WIDTH//2, HEIGHT-40))
     font = pygame.font.Font('pixle_font.ttf', 40)
+    print(str(len(list(HERO.trees))))
     txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, (0, 255, 0))
-    screen.blit(txt, (WIDTH-200, HEIGHT+100))
+    pygame.display.flip()
+    screen.blit(txt, (0, 0)) #WIDTH-200, HEIGHT+100))
     window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
 
 def create_button():
     for e in group_draw:
         e.kill()
-    w, h = 400, 100
-    button.append(object.Button(320, 200, w, h, 'Play'))
-    button.append(object.Button(320, 350, w, h, 'Settings'))
-    button.append(object.Button(320, 500, w, h, 'Exit'))
+    w, h = 300, 100
+    button.append(object.Button(320, 110, w, h, 'Play'))
+    button.append(object.Button(320, 260, w, h, 'Settings'))
+    button.append(object.Button(320, 400, w, h, 'Exit'))
     for i in button:
         group_draw.add(i)
 
@@ -330,7 +332,7 @@ while running:
         screen.fill((255, 255, 255))
         font = pygame.font.Font('pixle_font.ttf', 72)
         txt = font.render('Spider Gay', 1, (0, 0, 0))
-        screen.blit(txt, (WIDTH//3, 100))
+        screen.blit(txt, (WIDTH//3 -20, 50))
         group_draw.draw(screen)
         window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
         pygame.display.flip()
