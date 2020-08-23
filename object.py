@@ -110,7 +110,6 @@ class Sound:
         self.TAKE_AUDIO.set_volume(0.5)
 
 
-
 class Enemy(Sprite):
     def __init__(self, x, y, width=216, height=220):
         Sprite.__init__(self)
@@ -148,9 +147,6 @@ class Enemy(Sprite):
 
     def AI(self, hero, platforms):
         if self.damage:
-            print(hero.rect.x <= self.rect.x, hero.rect.x > self.rect.x + self.rect.width-1)
-            print(hero.rect.x >= self.rect.x, hero.rect.x < self.rect.x)
-            print()
             if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
                 self.update(False, True, platforms)
             elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
@@ -729,10 +725,8 @@ class Player(Sprite):
                     self.rect.right = pl.rect.left
 
                 if pl.name == '^':
-                    print(self.level, 1)
                     self.level += pl.move
                     self.spawn = '@'
-                    print(self.level, 2)
                     return True
 
                 if pl.name == 'v':  # проблема с ебаным телепортом не решена
@@ -757,7 +751,7 @@ class Player(Sprite):
 class Background(Sprite):
     def __init__(self, x, y, filename):
         Sprite.__init__(self)
-        self.image = scale(load(filename), (int(720), int(720)))
+        self.image = scale(load(filename).convert(), (int(720), int(720)))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -766,7 +760,7 @@ class Background(Sprite):
 class Tree(Sprite):
     def __init__(self, x, y, filename_True, filename_False):
         Sprite.__init__(self)
-        self.image = scale(load(filename_True), (int(720), int(720)))
+        self.image = scale(load(filename_True).convert(), (int(720), int(720)))
         self.filename_False = filename_False
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -774,7 +768,7 @@ class Tree(Sprite):
         self.die = False
 
     def use(self):  # теперь ягоды с дерева собраны
-        self.image = scale(load(self.filename_False), (int(720), int(720)))
+        self.image = scale(load(self.filename_False).convert(), (int(720), int(720)))
         self.die = True
 
 

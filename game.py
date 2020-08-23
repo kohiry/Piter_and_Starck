@@ -5,12 +5,11 @@ import object
 from time import sleep
 import time
 from pyganim import PygAnimation
+from pygame.locals import *
+
 
 
 pygame.init()
-
-
-
 
 # audio
 sound = object.Sound()
@@ -38,6 +37,8 @@ count_audio = 0
 first_strike_timer = 0
 Strike_fast = False
 for_strike_count_time_when_we_see_text = 0
+jump_x = ((int(get_monitors()[0].width) - WIDTH) // 2)
+jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 #Start part
 START_PART = object.add_sprite(r'data\катсцены\начало\начало_', 3)
@@ -158,10 +159,11 @@ def make_level(level):
 
 #size = width, height = 1080, 720
 #window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.FULLSCREEN)
+window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 #screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
+
 
 #camera
 class Camera:
@@ -233,7 +235,12 @@ def draw():
 
     camera.update(HERO)
     for e in group_draw:
-        screen.blit(e.image, camera.apply(e))
+        coord = camera.apply(e)
+        obl = 600
+
+        if pygame.Rect(HERO.rect.topleft[0]-obl, HERO.rect.topleft[1]-obl, 2*obl, 2*obl).colliderect(e.rect):
+            screen.blit(e.image, coord)
+
     if take_barries:
         font = pygame.font.Font('pixle_font.ttf', 20)
         txt = font.render('нажми на E чтобы собрать плоды', 1, (0, 255, 0))
@@ -244,7 +251,6 @@ def draw():
         rect = HERO.image.get_rect()
         screen.blit(txt, (WIDTH//2, HEIGHT-40))
     font = pygame.font.Font('pixle_font.ttf', 40)
-    print(str(len(list(HERO.trees))))
     txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, (0, 255, 0))
     pygame.display.flip()
     screen.blit(txt, (0, 0)) #WIDTH-200, HEIGHT+100))
@@ -265,15 +271,13 @@ if start_part:
 
 
 create_button()
-print(button)
 
 running = True
-
+clock = pygame.time.Clock()
 pygame.init()
 
 while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
-
     if start_part:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -289,10 +293,6 @@ while running:
 
         screen.fill((255, 255, 255))
         start_part_animation.blit(screen, (0, 0))
-        #font = pygame.font.Font('pixle_font.ttf', 72)
-        #txt = font.render('Spider Gay', 1, (0, 0, 0))
-        #screen.blit(txt, (WIDTH//3, 100))
-        #group_draw.draw(screen)
         window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
         pygame.display.flip()
         pygame.time.Clock().tick(60)
@@ -307,8 +307,6 @@ while running:
                     running = False
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
-                    jump_x = ((int(get_monitors()[0].width) - WIDTH) // 2)
-                    jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
                     if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
                         i.mouse(False)
                     else:
@@ -336,7 +334,7 @@ while running:
         group_draw.draw(screen)
         window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
         pygame.display.flip()
-        pygame.time.Clock().tick(60)
+        clock.tick(60)
 
 
 
@@ -400,7 +398,7 @@ while running:
         if HERO.helth <= 0:
             HERO.respawn()
         for i in balls:
-            pl = i.update(platforms, enemy, BOSS)
+            i.update(platforms, enemy, BOSS)
             if i.die:
                 del balls[balls.index(i)]
         if HERO.fight and not fight:
@@ -416,9 +414,9 @@ while running:
 
 
         pygame.display.flip()
-        pygame.time.Clock().tick(60)
-
+        clock.tick(60)
 pygame.quit()
+quit()
 sys.exit()
 
     # иногда реально ненавижу git hub, снова для нового коммита
