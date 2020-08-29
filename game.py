@@ -41,9 +41,9 @@ jump_x = ((int(get_monitors()[0].width) - WIDTH) // 2)
 jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 #Start part
-START_PART = object.add_sprite(r'data\катсцены\начало\начало_', 3)
-start_part_animation = PygAnimation(object.Work(START_PART))
-start_part_animation.play()
+#START_PART = object.add_sprite(r'data\катсцены\начало\начало_', 3)
+#start_part_animation = PygAnimation(object.Work(START_PART))
+#start_part_animation.play()
 
 # map
 location = 1
@@ -157,9 +157,9 @@ def make_level(level):
 
 
 
-#size = width, height = 1080, 720
-#window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+size = width, height = 1080, 720
+window = pygame.display.set_mode(size)
+#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 #screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
@@ -379,12 +379,13 @@ while running:
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
                     UP = False
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_a:
                     LEFT = False
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_d:
                     RIGHT = False
-                if event.key == pygame.K_e:
-                    E = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 2:
+                        E = False
 
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
         if keys[pygame.K_ESCAPE]:

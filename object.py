@@ -39,8 +39,8 @@ def Work(anim, speed=ANIMATION_DELAY):
 #hero
 ANIMATION_HERO_STAY_LEFT = add_sprite('data/паук/стоит/паук_стоит_налево_', 3)
 ANIMATION_HERO_STAY_RIGHT = add_sprite('data/паук/стоит/паук_стоит_направо_', 3)
-ANIMATION_HERO_JUMP_RIGHT = add_sprite('data\паук\прыжок\прыжок_направо_', 6)
-ANIMATION_HERO_JUMP_LEFT = add_sprite('data\паук\прыжок\прыжок_налево_', 6)
+ANIMATION_HERO_JUMP_RIGHT = add_sprite('data\паук\прыжок\прыжок_направо_', 4)
+ANIMATION_HERO_JUMP_LEFT = add_sprite('data\паук\прыжок\прыжок_налево_', 4)
 ANIMATION_HERO_BIGJUMP_LEFT = add_sprite('data\паук\прыжок над пропастью\большой_прыжок_налево_', 9)
 ANIMATION_HERO_BIGJUMP_RIGHT = add_sprite('data\паук\прыжок над пропастью\большой_прыжок_направо_', 9)
 ANIMATION_HERO_LOSE_RIGHT = add_sprite('data\паук\проиграл\направо\проигрыш_направо_', 24)
@@ -48,10 +48,10 @@ ANIMATION_HERO_LOSE_LEFT = add_sprite('data\паук\проиграл\налев
 ANIMATION_HERO_CLIMP_LEFT = add_sprite('data\паук\по стене\карабкается_по_стене_налево_', 4)
 ANIMATION_HERO_CLIMP_RIGHT = add_sprite('data\паук\по стене\карабкается_по_стене_направо_', 4)
 ANIMATION_HERO_TAKE_LEFT = add_sprite('data\паук\бросок\бросок_налево_', 3)
-ANIMATION_HERO_GO_LEFT = add_sprite('data\паук\бежит\паук_бежит_налево_', 5)
-ANIMATION_HERO_GO_RIGHT = add_sprite('data\паук\бежит\паук_бежит_направо_', 5)
-ANIMATION_HERO_FALL_RIGHT = ['data\паук\по стене\прыжок_направо.png']
-ANIMATION_HERO_FALL_LEFT = ['data\паук\по стене\прыжок_налево.png']
+ANIMATION_HERO_GO_LEFT = add_sprite('data\паук\бежит\паук_бежит_налево_', 9)
+ANIMATION_HERO_GO_RIGHT = add_sprite('data\паук\бежит\паук_бежит_направо_', 9)
+ANIMATION_HERO_FALL_RIGHT = ['data\паук\прыжок\прыжок_направо_1.png']
+ANIMATION_HERO_FALL_LEFT = ['data\паук\прыжок\прыжок_налево_1.png']
 
 #enemy1
 ANIMATION_ENEMY1_STAY_RIGHT = add_sprite('data\враги\грибной паук\паук_стоит_направо_', 3)
@@ -441,7 +441,7 @@ class Monster(Sprite):
 
 
 class Player(Sprite):
-    def __init__(self, x, y, width=140, height=200):
+    def __init__(self, x, y, width=105, height=117):
         Sprite.__init__(self)
         self.TAKE_AUDIO = Sound().TAKE_AUDIO
         self.STEP_AUDIO = Sound().STEP_AUDIO
@@ -530,37 +530,37 @@ class Player(Sprite):
                         self.side = 1
                 if up and not self.serf:
                     if self.side == 1:
-                        self.AnimeFallRight.blit(self.image, (-90, -90))
+                        self.AnimeJumpRight.blit(self.image, (0, 0))
                     elif self.side == -1:
-                        self.AnimeFallLeft.blit(self.image, (-90, -90))
+                        self.AnimeJumpLeft.blit(self.image, (0, 0))
                 elif self.serf:
                     if left and right:
                         if self.side == 1:
-                            self.AnimeFallRight.blit(self.image, (-90, -90))
+                            self.AnimeJumpRight.blit(self.image, (0, 0))
                         elif self.side == -1:
-                            self.AnimeFallLeft.blit(self.image, (-90, -90))
+                            self.AnimeJumpLeft.blit(self.image, (0, 0))
                     elif left:
-                        self.AnimeClimbLeft.blit(self.image, (-90, -90))
+                        self.AnimeClimbLeft.blit(self.image, (0, 0))
                     elif right:
-                        self.AnimeClimbRight.blit(self.image, (-90, -90))
+                        self.AnimeClimbRight.blit(self.image, (0, 0))
                 else:
                     if left and right and self.onGround:
-                        self.AnimeStayRight.blit(self.image, (-90, -90))
+                        self.AnimeStayRight.blit(self.image, (0, 0))
                     elif left and right and not self.onGround:
                         if self.side == 1:
-                            self.AnimeFallRight.blit(self.image, (-90, -90))
+                            self.AnimeJumpRight.blit(self.image, (0, 0))
                         elif self.side == -1:
-                            self.AnimeFallLeft.blit(self.image, (-90, -90))
+                            self.AnimeJumpLeft.blit(self.image, (0, 0))
                     elif left and self.onGround:
-                        self.AnimeGoLeft.blit(self.image, (-90, -90))
+                        self.AnimeGoLeft.blit(self.image, (0, 0))
                     elif right and self.onGround:
-                        self.AnimeGoRight.blit(self.image, (-90, -90))
+                        self.AnimeGoRight.blit(self.image, (0, 0))
                     else:
                         if not (left and right):
                             if self.side == 1:
-                                self.AnimeFallRight.blit(self.image, (-90, -90))
+                                self.AnimeJumpRight.blit(self.image, (0, 0))
                             elif self.side == -1:
-                                self.AnimeFallLeft.blit(self.image, (-90, -90))
+                                self.AnimeJumpLeft.blit(self.image, (0, 0))
 
             else:
                 self.xvel = 0
@@ -570,20 +570,20 @@ class Player(Sprite):
                 self.STEP2_AUDIO.stop()
                 if up:
                     if self.side == 1:
-                        self.AnimeJumpRight.blit(self.image, (-90, -90))
+                        self.AnimeJumpRight.blit(self.image, (0, 0))
                     elif self.side == -1:
-                        self.AnimeJumpLeft.blit(self.image, (-90, -90))
+                        self.AnimeJumpLeft.blit(self.image, (0, 0))
                 else:
                     if not self.onGround:
                         if self.side == 1:
-                            self.AnimeFallRight.blit(self.image, (-90, -90))
+                            self.AnimeJumpRight.blit(self.image, (0, 0))
                         elif self.side == -1:
-                            self.AnimeFallLeft.blit(self.image, (-90, -90))
+                            self.AnimeJumpLeft.blit(self.image, (0, 0))
                     else:
                         if self.side == 1:
-                            self.AnimeStayRight.blit(self.image, (-90, -90))
+                            self.AnimeStayRight.blit(self.image, (0, 0))
                         else:
-                            self.AnimeStayLeft.blit(self.image, (-90, -90))
+                            self.AnimeStayLeft.blit(self.image, (0, 0))
         # прыжок
         if not self.onGround:
             #if self.yvel < 50:
