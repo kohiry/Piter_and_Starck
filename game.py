@@ -349,14 +349,21 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     UP = True
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_a:
                     LEFT = True
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_d:
                     RIGHT = True
-                if event.key == pygame.K_e:
-                    E = True
-                if event.key == pygame.K_f:
-                    if int(time.process_time()) - first_strike_timer >= 1:
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if len(balls) < 5:
+                        Strike_fast = False
+                        first_strike_timer = time.process_time()
+                        sound.STRIKE_AUDIO.play()
+                        pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
+                        balls.append(pl)
+                        group_draw.add(pl)
+                    elif int(time.process_time()) - first_strike_timer >= 1:
                         Strike_fast = False
                         first_strike_timer = time.process_time()
                         sound.STRIKE_AUDIO.play()
@@ -366,6 +373,8 @@ while running:
 
                     else:
                         Strike_fast = True
+                if event.button == 2:
+                    E = True
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:

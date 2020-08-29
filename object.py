@@ -11,7 +11,7 @@ from pygame import mixer
 mixer.init()
 
 
-SPEED = 20
+SPEED = 1
 GRAVITY = 2
 JUMP_POWER = 6
 
@@ -124,7 +124,7 @@ class Enemy(Sprite):
         self.xvel = 0
         self.side = 1
         self.isdie = False
-        self.helth = 3
+        self.helth = 10
         self.onGround = False
         self.damage = False
 
@@ -163,15 +163,18 @@ class Enemy(Sprite):
 
     def update(self, left, right, platforms):
         # лево право
+        global SPEED
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         if not self.isdie:
             if left:
-                self.xvel = -SPEED * 0.5
+                SPEED += 1
+                self.xvel = -SPEED
                 self.side = -1
                 self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
             if right:
-                self.xvel = SPEED * 0.5
+                SPEED += 1
+                self.xvel = SPEED
                 self.side = 1
                 self.AnimeEnemyGoRight.blit(self.image, (0, 0))
             if not (left or right):
@@ -343,6 +346,7 @@ class Ball(Sprite):
         #self.ball =
 
     def update(self, platforms, enemys, BOSS):
+        SPEED = 20
         # лево право
         if self.side == -1:
             self.xvel = -SPEED * 4
@@ -497,7 +501,7 @@ class Player(Sprite):
 
 
     def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster):
-
+        global SPEED
         # animation
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
@@ -514,12 +518,16 @@ class Player(Sprite):
                     self.STEP2_AUDIO.stop()
                 if left and right:
                     self.xvel = 0
-                elif left:
-                    self.xvel = -SPEED
-                    self.side = -1
-                elif right:
-                    self.xvel = SPEED
-                    self.side = 1
+                    SPEED = 1
+                elif left or right:
+                    if SPEED < 20:
+                        SPEED += 1
+                    if left:
+                        self.xvel = -SPEED
+                        self.side = -1
+                    elif right:
+                        self.xvel = SPEED
+                        self.side = 1
                 if up and not self.serf:
                     if self.side == 1:
                         self.AnimeFallRight.blit(self.image, (-90, -90))
@@ -556,6 +564,7 @@ class Player(Sprite):
 
             else:
                 self.xvel = 0
+                SPEED = 1
                 self.audio_step_count = 0
                 self.STEP_AUDIO.stop()
                 self.STEP2_AUDIO.stop()
