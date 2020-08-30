@@ -18,7 +18,7 @@ JUMP_POWER = 6
 
 # animation
 
-ANIMATION_DELAY = 200
+ANIMATION_DELAY = 120
 line_1 = 'data/паук/стоит/'
 end = '.png'
 
@@ -111,7 +111,7 @@ class Sound:
 
 
 class Enemy(Sprite):
-    def __init__(self, x, y, width=216, height=220):
+    def __init__(self, x, y, width=108, height=110):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
@@ -163,18 +163,16 @@ class Enemy(Sprite):
 
     def update(self, left, right, platforms):
         # лево право
-        global SPEED
+        SPEED = 15
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         if not self.isdie:
             if left:
-                SPEED += 1
-                self.xvel = -SPEED
+                self.xvel = -SPEED  * 0.5
                 self.side = -1
                 self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
             if right:
-                SPEED += 1
-                self.xvel = SPEED
+                self.xvel = SPEED * 0.5
                 self.side = 1
                 self.AnimeEnemyGoRight.blit(self.image, (0, 0))
             if not (left or right):
@@ -490,6 +488,7 @@ class Player(Sprite):
         self.AnimeFallLeft.play()
         self.AnimeFallRight.play()
 
+
     def new_coord(self, x, y):
         self.rect.x = x
         self.rect.y = y
@@ -521,6 +520,7 @@ class Player(Sprite):
                     SPEED = 1
                 elif left or right:
                     if SPEED < 20:
+                        print(1)
                         SPEED += 1
                     if left:
                         self.xvel = -SPEED
@@ -760,7 +760,7 @@ class Player(Sprite):
 class Background(Sprite):
     def __init__(self, x, y, filename):
         Sprite.__init__(self)
-        self.image = scale(load(filename).convert(), (int(720), int(720)))
+        self.image = scale(load(filename).convert(), (int(540), int(540)))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

@@ -96,6 +96,8 @@ def make_level(level):
                     if col == 'e':
                         group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_2.png'))
                     # поворот
+                    if col == 'm':
+                        group_draw.add(object.Background(x, y, 'data/фоны/начало_старт.png'))
                     if col == 'r':
                         group_draw.add(object.Background(x, y, 'data/фоны/поворот_1.png'))
                     if col == 't':
@@ -157,9 +159,9 @@ def make_level(level):
 
 
 
-size = width, height = 1080, 720
-window = pygame.display.set_mode(size)
-#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+#size = width, height = 1080, 720
+#window = pygame.display.set_mode(size)
+window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 #screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
@@ -222,7 +224,7 @@ def camera_level(place):
 
 def draw():
     global draw_loc, location
-    screen.fill((0, 0, 25))
+    screen.fill((0, 0, 0))
     last_level = location
     location = HERO.level
     try:
@@ -243,7 +245,7 @@ def draw():
 
     if take_barries:
         font = pygame.font.Font('pixle_font.ttf', 20)
-        txt = font.render('нажми на E чтобы собрать плоды', 1, (0, 255, 0))
+        txt = font.render('нажми на ПКМ чтобы собрать плоды', 1, (0, 255, 0))
         screen.blit(txt, (50, 50))
     if Strike_fast:
         font = pygame.font.Font('pixle_font.ttf', 40)
@@ -356,7 +358,7 @@ while running:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if len(balls) < 5:
+                    if len(balls) < 2:
                         Strike_fast = False
                         first_strike_timer = time.process_time()
                         sound.STRIKE_AUDIO.play()
