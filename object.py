@@ -12,13 +12,13 @@ mixer.init()
 
 
 SPEED = 1
-GRAVITY = 2
-JUMP_POWER = 6
+GRAVITY = 1
+JUMP_POWER = 4
 
 
 # animation
 
-ANIMATION_DELAY = 120
+ANIMATION_DELAY = 150
 line_1 = 'data/паук/стоит/'
 end = '.png'
 
@@ -30,8 +30,10 @@ def add_sprite(name, lens):
     return sprites
 
 
-def Work(anim, speed=ANIMATION_DELAY):
+def Work(anim, speed=ANIMATION_DELAY, correct=None):
     data = []
+    if correct == True:
+        speed = 500
     for i in anim:
         data.append((i, speed))
     return data
@@ -83,6 +85,39 @@ ANIMATION_BOSS_GO_RIGHT = add_sprite('data\враги\королева\коро�
 ANIMATION_BOSS_DIE_LEFT = add_sprite('data\враги\королева\королева_связана_налево_', 3)
 ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\королева_связана_направо_', 3)
 
+# титры
+ANIMATION_AFTER_WORDS = add_sprite('data\\ТИТРЫ\КАДРЫ\\', 49)
+
+
+class After_words(Sprite):
+    def __init__(self, end):
+        Sprite.__init__(self)
+        self.image = Surface((960, 4062))
+        self.image.fill((0, 255, 0))
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+        self.end = end
+        self.animation = []
+        for i in ANIMATION_AFTER_WORDS:
+            self.animation.append(load(i).convert())
+        self.animcount = 0
+
+
+    def play(self, BACK):
+        BACK.play(-1)
+
+    def update(self):
+        self.animcount += 1
+        self.image.blit(self.animation[self.animcount // 8], (0, 0))
+        if self.animcount >= 383:
+            self.animcount = 0
+        if self.rect.y +  + 4062 <= self.end:
+            return False
+        else:
+            self.rect.y -= 1
+            return True
+
 
 class Sound:
     def __init__(self):
@@ -95,6 +130,7 @@ class Sound:
         self.BACK2_AUDIO = mixer.Sound(file=r'Sound/back_water.wav')
         self.STEP_AUDIO = mixer.Sound(file=r'Sound/step.wav')
         self.STEP2_AUDIO = mixer.Sound(file=r'Sound/step2.wav')
+        self.BACK_AFTER_WORDS = mixer.Sound(file=r'Sound/Back_after_words.wav')
         self.SPIDER_AUDIO = [
             mixer.Sound(file=r'Sound/spider_01.wav'),
             mixer.Sound(file=r'Sound/spider_02.wav'),
@@ -163,7 +199,7 @@ class Enemy(Sprite):
 
     def update(self, left, right, platforms):
         # лево право
-        SPEED = 15
+        SPEED = 2
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         if not self.isdie:
@@ -381,7 +417,7 @@ class Ball(Sprite):
 
 
 class Monster(Sprite):
-    def __init__(self, x, y, width=800, height=600):
+    def __init__(self, x, y, width=400, height=500):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
@@ -519,8 +555,7 @@ class Player(Sprite):
                     self.xvel = 0
                     SPEED = 1
                 elif left or right:
-                    if SPEED < 20:
-                        print(1)
+                    if SPEED < 5:
                         SPEED += 1
                     if left:
                         self.xvel = -SPEED
@@ -591,7 +626,7 @@ class Player(Sprite):
 
             if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film:
                 self.count += 1
-                self.yvel += -JUMP_POWER**2
+                self.yvel = -JUMP_POWER**2
 
         if up and self.onGround and not self.serf and not self.film:
             self.jump = True
@@ -760,7 +795,7 @@ class Player(Sprite):
 class Background(Sprite):
     def __init__(self, x, y, filename):
         Sprite.__init__(self)
-        self.image = scale(load(filename).convert(), (int(540), int(540)))
+        self.image = load(filename).convert()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -769,7 +804,7 @@ class Background(Sprite):
 class Tree(Sprite):
     def __init__(self, x, y, filename_True, filename_False):
         Sprite.__init__(self)
-        self.image = scale(load(filename_True).convert(), (int(720), int(720)))
+        self.image = load(filename_True).convert()
         self.filename_False = filename_False
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -777,7 +812,7 @@ class Tree(Sprite):
         self.die = False
 
     def use(self):  # теперь ягоды с дерева собраны
-        self.image = scale(load(self.filename_False).convert(), (int(720), int(720)))
+        self.image = load(self.filename_False).convert()
         self.die = True
 
 
@@ -865,48 +900,67 @@ class Monster_platform(Sprite):
 
 
 class Button(Sprite):
-    def __init__(self, x, y, width, height, name):
+    def __init__(self, x, y, width, height, name, who=None, tag=True):
         Sprite.__init__(self)
+        self.who = who
         self.name = name
         self.WHITE = (255, 255, 255)
         self.BLACK = (0, 0, 0)
         self.image = Surface((width, height))
-        self.image.fill((255, 255, 255))
         self.rect = self.image.get_rect()
         self.width = width
         self.height = height
-
-        font = Font('pixle_font.ttf', 72)
-        txt = font.render(self.name, 1, (0, 0, 0))
-        text_x = width // 2 - txt.get_width() // 2
-        text_y = height // 2 - txt.get_height() // 2
-        text_w = txt.get_width()
-        text_h = txt.get_height()
-        self.image.blit(txt, (text_x, text_y))
-        rect(self.image, self.BLACK, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
-
+        self.tag = tag
+        self.image.fill((255, 255, 255))
         self.rect.x = x
         self.rect.y = y
-
+        if self.name == 'Exit':
+            self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
+        if self.name == 'Play':
+            self.image.blit(load('data\\МЕНЮ\\кнопка_новая_игра_выкл.png').convert(), (0, 0))
+        if self.name == 'Settings':
+            self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
+        if self.name == 'Shop':
+            self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
 
     def mouse(self, around):
         if around:
             self.image.fill(self.BLACK)
+            if self.name == 'Exit':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
+            if self.name == 'Play':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_новая_игра_выкл.png').convert(), (0, 0))
+            if self.name == 'Settings':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
+            if self.name == 'Shop':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
+
             font = Font('pixle_font.ttf', 72)
             txt = font.render(self.name, 1, self.WHITE)
             text_x = self.width // 2 - txt.get_width() // 2
             text_y = self.height // 2 - txt.get_height() // 2
             text_w = txt.get_width()
             text_h = txt.get_height()
-            self.image.blit(txt, (text_x, text_y))
-            rect(self.image, self.WHITE, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
+            if self.tag:
+                self.image.blit(txt, (text_x, text_y))
+                rect(self.image, self.WHITE, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
         else:
             self.image.fill(self.WHITE)
+            if self.name == 'Exit':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_выход_вкл.png').convert(), (0, 0))
+            if self.name == 'Play':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_новая_игра_вкл.png').convert(), (0, 0))
+            if self.name == 'Settings':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_вкл.png').convert(), (0, 0))
+            if self.name == 'Shop':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_вкл.png').convert(), (0, 0))
+
             font = Font('pixle_font.ttf', 72)
             txt = font.render(self.name, 1, self.BLACK)
             text_x = self.width // 2 - txt.get_width() // 2
             text_y = self.height // 2 - txt.get_height() // 2
             text_w = txt.get_width()
             text_h = txt.get_height()
-            self.image.blit(txt, (text_x, text_y))
-            rect(self.image, self.BLACK, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
+            if self.tag:
+                self.image.blit(txt, (text_x, text_y))
+                rect(self.image, self.BLACK, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)

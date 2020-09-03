@@ -24,21 +24,27 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 FONT = "pixle_font.ttf"
 UP = False
-menu = True
 LEFT = False
 RIGHT = False
 E = False
 F = False
-start_part = False
 take_barries = False
 Boss_spawn = False
 First_on_audio = 0
 count_audio = 0
 first_strike_timer = 0
+after_count = 0
 Strike_fast = False
 for_strike_count_time_when_we_see_text = 0
 jump_x = ((int(get_monitors()[0].width) - WIDTH) // 2)
 jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
+
+# состояния
+loading = False
+start_part = False
+menu = False
+settings = False
+after_words = True
 
 #Start part
 #START_PART = object.add_sprite(r'data\катсцены\начало\начало_', 3)
@@ -53,6 +59,7 @@ draw_loc = 1
 group_draw = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 BOSS = object.Boss(10, 10)
+BOSS.new_coord(-100, -100)
 platforms = []
 teleports = []
 enemy = []
@@ -61,7 +68,7 @@ balls = []
 monster = []
 button = []
 x_hero, y_hero = 0, 0
-lens = 45
+lens = 54
 
 
 
@@ -142,10 +149,9 @@ def make_level(level):
                     BOSS.new_coord(x, y)
                     BOSS.isdie = False
                 if col == "*":  # тентаклемонстр
-                    pass
-                    #pl = object.Monster(x, y)
-                    #group_draw.add(pl)
-                    #monster.append(pl)
+                    pl = object.Monster(x, y)
+                    group_draw.add(pl)
+                    monster.append(pl)
 
                 if col == "_":
                     pass
@@ -154,8 +160,6 @@ def make_level(level):
         x = 0
     for pl in enemy:
         group_draw.add(pl)
-
-
 
 
 
@@ -259,14 +263,86 @@ def draw():
     window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
 
 def create_button():
+    button.clear()
     for e in group_draw:
         e.kill()
-    w, h = 300, 100
-    button.append(object.Button(320, 110, w, h, 'Play'))
-    button.append(object.Button(320, 260, w, h, 'Settings'))
-    button.append(object.Button(320, 400, w, h, 'Exit'))
+    w, h = 302, 64
+    button.append(object.Button(328, 145, w, h, 'Play', tag=False))
+    button.append(object.Button(328, 225, w, h, 'Shop', tag=False))
+    button.append(object.Button(328, 315, w, h, 'Settings', tag=False))
+    button.append(object.Button(328, 400, w, h, 'Exit', tag=False))
+    group_draw.add(object.Background(0, 0, 'data\МЕНЮ\меню_фон.png'))
     for i in button:
         group_draw.add(i)
+
+def create_button_setting():
+    button.clear()
+    for e in group_draw:
+        e.kill()
+    w, h = 90, 50
+    music = 150
+    sound = 400
+    name_a = 'music'
+    name_b = 'sound'
+    name_c = 'menu'
+    # music
+    button.append(object.Button(100, music, w, h, '0', name_a))
+    button.append(object.Button(200, music, w, h, '25', name_a))
+    button.append(object.Button(300, music, w, h, '50', name_a))
+    button.append(object.Button(400, music, w, h, '75', name_a))
+    button.append(object.Button(500, music, w, h, '100', name_a))
+
+    # sound
+    button.append(object.Button(100, sound, w, h, '0', name_b))
+    button.append(object.Button(200, sound, w, h, '25', name_b))
+    button.append(object.Button(300, sound, w, h, '50', name_b))
+    button.append(object.Button(400, sound, w, h, '75', name_b))
+    button.append(object.Button(500, sound, w, h, '100', name_b))
+
+    # menu
+    button.append(object.Button(740, sound, w*2, h*2, 'Exited', name_c))
+    for i in button:
+        group_draw.add(i)
+
+def sound_correct(number, name):
+    level = 0
+    if name == "music":
+        if number == '0':
+            level = 0
+        if number == '25':
+            level = 0.10
+        if number == '50':
+            level = 0.25
+        if number == '75':
+            level = 0.45
+        if number == '100':
+            level = 0.5
+        sound.BACK_AUDIO.set_volume(level)
+        sound.BACK2_AUDIO.set_volume(level)
+        sound.FIGHT_AUDIO.set_volume(level)
+        sound.BACK_AFTER_WORDS.set_volume(level)
+    elif name == "sound":
+        if number == '0':
+            level = 0
+        if number == '25':
+            level = 0.10
+        if number == '50':
+            level = 0.25
+        if number == '75':
+            level = 0.45
+        if number == '100':
+            level = 0.5
+        sound.DAMAGE_AUDIO.set_volume(level)
+        sound.STRIKE_AUDIO.set_volume(level)
+        sound.TAKE_AUDIO.set_volume(level)
+        sound.BACK2_AUDIO.set_volume(level)
+        sound.STEP_AUDIO.set_volume(level)
+        sound.STEP2_AUDIO.set_volume(level)
+        for i in sound.SPIDER_AUDIO:
+            i.set_volume(level)
+        sound.BUTTON.set_volume(level)
+
+
 
 if start_part:
     start_part_animation.blit(screen, (0, 0))
@@ -274,13 +350,71 @@ if start_part:
 
 create_button()
 
+
+if after_words:
+    for e in group_draw:
+        e.kill()
+    button.clear()
+    words = object.After_words(HEIGHT)
+    words.play(sound.BACK_AFTER_WORDS)
+    group_draw.add(words)
+
 running = True
 clock = pygame.time.Clock()
 pygame.init()
 
 while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
-    if start_part:
+    if loading:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
+
+
+        screen.fill((255, 255, 255))
+        if after_count < 2:
+            after_count+= 1
+            sleep(1)
+        else:
+            loading = False
+        group_draw.draw(screen)
+        font = pygame.font.Font('pixle_font.ttf', 72)
+        txt = font.render('Типо гружу, да', 1, (0, 0, 0))
+        screen.blit(txt, (WIDTH//3, 250))
+        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        pygame.display.flip()
+        clock.tick(60)
+
+
+
+
+    elif after_words:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
+
+
+        screen.fill((255, 255, 255))
+        if after_count < 2:
+            after_count+= 1
+            sleep(1)
+        if not words.update():
+            sleep(2)
+            running = False
+        group_draw.draw(screen)
+        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        pygame.display.flip()
+        clock.tick(60)
+
+    elif start_part:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -299,7 +433,8 @@ while running:
         pygame.display.flip()
         pygame.time.Clock().tick(60)
 
-    elif menu:
+
+    elif settings:
         First_on_audio = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -317,27 +452,73 @@ while running:
                 if event.button == 1 or event.button == 2:
                     for i in button:
                         if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                            if i.who == 'music' or i.who == 'sound':
+                                sound_correct(i.name, i.who)
+                            if i.name == 'Exited':
+                                menu = True
+                                settings = False
+                                create_button()
+                            sound.BUTTON.play()
+
+
+        screen.fill((255, 255, 255))
+        font = pygame.font.Font('pixle_font.ttf', 72)
+        txt = font.render('Music', 1, (0, 0, 0))
+        screen.blit(txt, (WIDTH//3 - 120, 50))
+        font = pygame.font.Font('pixle_font.ttf', 72)
+        txt = font.render('Sound', 1, (0, 0, 0))
+        screen.blit(txt, (WIDTH//3 - 120, 300))
+        group_draw.draw(screen)
+        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        pygame.display.flip()
+        clock.tick(60)
+
+    elif menu:
+        First_on_audio = 0
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    menu = False
+            if event.type == pygame.MOUSEMOTION:
+                for i in button:
+                    if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                        i.mouse(False)
+                    else:
+                        i.mouse(True)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 or event.button == 2:
+                    for i in button:
+                        if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                            screen.fill((0, 0, 0))
                             if i.name == 'Play':
                                 menu = False
+                                loading = True
                                 button.clear()
+                                after_count = 0
+                                for e in group_draw:
+                                    e.kill()
                             if i.name == 'Settings':
-                                pass
+                                settings = True
+                                menu = False
+                                create_button_setting()
                             if i.name == 'Exit':
                                 running = False
-                            screen.fill((0, 0, 0))
+
                             pygame.display.flip()
                             sound.BUTTON.play()
                             sleep(2)
 
         screen.fill((255, 255, 255))
         font = pygame.font.Font('pixle_font.ttf', 72)
-        txt = font.render('Spider Gay', 1, (0, 0, 0))
-        screen.blit(txt, (WIDTH//3 -20, 50))
+        if not loading:
+            txt = font.render('Spider Gay', 1, (0, 0, 0))
+            screen.blit(txt, (WIDTH//3 -20, 50))
         group_draw.draw(screen)
         window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
         pygame.display.flip()
         clock.tick(60)
-
 
 
     else:
@@ -390,8 +571,8 @@ while running:
                         E = False
 
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
-        if keys[pygame.K_ESCAPE]:
-            running = False
+
+
 
         draw()
         take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS, monster)
@@ -427,6 +608,12 @@ while running:
 
         pygame.display.flip()
         clock.tick(60)
+        if keys[pygame.K_ESCAPE]:
+            menu = True
+            button.clear()
+            create_button()
+
+
 pygame.quit()
 quit()
 sys.exit()
