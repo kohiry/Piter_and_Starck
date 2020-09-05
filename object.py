@@ -369,9 +369,8 @@ class Boss(Sprite):
         self.yvel = 0
 
 
-class Ball(Sprite):
+class Ball:
     def __init__(self, x, y, side, r=20):
-        Sprite.__init__(self)
         self.damage_audio = Sound().DAMAGE_AUDIO
         self.image = Surface((r, r))
         self.image.fill((125, 125, 125))
@@ -419,6 +418,9 @@ class Ball(Sprite):
                 BOSS.die()
             self.kill()
             self.die = True
+
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
 
 
 class Monster(Sprite):
@@ -574,6 +576,7 @@ class Player(Sprite):
         # animation
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
+        print(strike)
         # лево право
         if not self.film:
             if left or right:
@@ -635,13 +638,13 @@ class Player(Sprite):
                     elif left and self.onGround and strike:
                         self.resize('go_strike')
                         self.AnimeGoStrikeLeft.blit(self.image, (0, 0))
-                    elif left and self.onGround:
+                    elif left and self.onGround and not strike:
                         self.resize('go')
                         self.AnimeGoLeft.blit(self.image, (0, 0))
                     elif right and self.onGround and strike:
                         self.resize('go_strike')
                         self.AnimeGoStrikeRight.blit(self.image, (0, 0))
-                    elif right and self.onGround:
+                    elif right and self.onGround and not strike:
                         self.resize('go')
                         self.AnimeGoRight.blit(self.image, (0, 0))
                     else:
@@ -678,13 +681,13 @@ class Player(Sprite):
                         if self.side == 1 and strike:
                             self.resize('strike')
                             self.AnimeStrikeRight.blit(self.image, (0, 0))
-                        elif self.side == 1:
+                        elif self.side == 1 and not strike:
                             self.resize('stay')
                             self.AnimeStayRight.blit(self.image, (0, 0))
                         elif self.side == -1 and strike:
                             self.resize('strike')
                             self.AnimeStrikeLeft.blit(self.image, (0, 0))
-                        elif self.side == -1:
+                        elif self.side == -1 and not strike:
                             self.resize('stay')
                             self.AnimeStayLeft.blit(self.image, (0, 0))
 
@@ -993,25 +996,31 @@ class Button(Sprite):
         self.image.fill((255, 255, 255))
         self.rect.x = x
         self.rect.y = y
-        if self.name == 'Exit':
+        self.number = [str(i) for i in range(1, 13)]
+        if self.name in self.number:
+            self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
+
+        elif self.name == 'Exit':
             self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
-        if self.name == 'Play':
+        elif self.name == 'Play':
             self.image.blit(load('data\\МЕНЮ\\кнопка_новая_игра_выкл.png').convert(), (0, 0))
-        if self.name == 'Settings':
+        elif self.name == 'Settings':
             self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
-        if self.name == 'Shop':
+        elif self.name == 'Shop':
             self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
 
     def mouse(self, around):
         if around:
             self.image.fill(self.BLACK)
-            if self.name == 'Exit':
+            if self.name in self.number:
+                self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
+            elif self.name == 'Exit':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
-            if self.name == 'Play':
+            elif self.name == 'Play':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_новая_игра_выкл.png').convert(), (0, 0))
-            if self.name == 'Settings':
+            elif self.name == 'Settings':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
-            if self.name == 'Shop':
+            elif self.name == 'Shop':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
 
             font = Font('pixle_font.ttf', 72)
@@ -1025,13 +1034,15 @@ class Button(Sprite):
                 rect(self.image, self.WHITE, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
         else:
             self.image.fill(self.WHITE)
-            if self.name == 'Exit':
+            if self.name in self.number:
+                self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_вкл.png').convert(), (0, 0))
+            elif self.name == 'Exit':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_выход_вкл.png').convert(), (0, 0))
-            if self.name == 'Play':
+            elif self.name == 'Play':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_новая_игра_вкл.png').convert(), (0, 0))
-            if self.name == 'Settings':
+            elif self.name == 'Settings':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_вкл.png').convert(), (0, 0))
-            if self.name == 'Shop':
+            elif self.name == 'Shop':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_вкл.png').convert(), (0, 0))
 
             font = Font('pixle_font.ttf', 72)

@@ -24,6 +24,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 FONT = "pixle_font.ttf"
 UP = False
+ball = 0
 LEFT = False
 RIGHT = False
 E = False
@@ -32,6 +33,7 @@ take_barries = False
 Boss_spawn = False
 First_on_audio = 0
 count_audio = 0
+Strike = False
 first_strike_timer = 0
 after_count = 0
 Strike_fast = False
@@ -42,9 +44,10 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 # состояния
 loading = False
 start_part = False
-menu = True
+menu = False
 settings = False
 after_words = False
+KPK = True
 
 #Start part
 #START_PART = object.add_sprite(r'data\катсцены\начало\начало_', 3)
@@ -359,13 +362,93 @@ if after_words:
     words.play(sound.BACK_AFTER_WORDS)
     group_draw.add(words)
 
+if KPK:
+    x_1 = 64
+    x_2 = 364
+    x_3 = 664
+    w, h = 234, 64
+    for e in group_draw:
+        e.kill()
+    button.clear()
+    button.append(object.Button(x_1, 140, w, h, '1', tag=False))
+    button.append(object.Button(x_1, 230, w, h, '2', tag=False))
+    button.append(object.Button(x_1, 320, w, h, '3', tag=False))
+    button.append(object.Button(x_1, 408, w, h, '4', tag=False))
+    button.append(object.Button(x_2, 140, w, h, '5', tag=False))
+    button.append(object.Button(x_2, 230, w, h, '6', tag=False))
+    button.append(object.Button(x_2, 320, w, h, '7', tag=False))
+    button.append(object.Button(x_2, 408, w, h, '8', tag=False))
+    button.append(object.Button(x_3, 140, w, h, '9', tag=False))
+    button.append(object.Button(x_3, 230, w, h, '10', tag=False))
+    button.append(object.Button(x_3, 320, w, h, '11', tag=False))
+    button.append(object.Button(x_3, 408, w, h, '12', tag=False))
+    group_draw.add(object.Background(0, 0, r'data\КПК\1\фон.png'))
+    for i in button:
+        group_draw.add(i)
+
 running = True
 clock = pygame.time.Clock()
 pygame.init()
 
 while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
-    if loading:
+    if KPK:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+            if event.type == pygame.MOUSEMOTION:
+                for i in button:
+                    if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                        i.mouse(False)
+                    else:
+                        i.mouse(True)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 or event.button == 2:
+                    for i in button:
+                        if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                            screen.fill((0, 0, 0))
+                            if i.name == '1':
+                                pass
+                            if i.name == '2':
+                                pass
+                            if i.name == '3':
+                                pass
+                            if i.name == '4':
+                                pass
+                            if i.name == '5':
+                                pass
+                            if i.name == '6':
+                                pass
+                            if i.name == '7':
+                                pass
+                            if i.name == '8':
+                                pass
+                            if i.name == '9':
+                                pass
+                            if i.name == '10':
+                                pass
+                            if i.name == '11':
+                                pass
+                            if i.name == '12':
+                                pass
+
+
+                            pygame.display.flip()
+                            sound.BUTTON.play()
+                            sleep(2)
+
+
+
+        screen.fill((255, 255, 255))
+        group_draw.draw(screen)
+        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        pygame.display.flip()
+        clock.tick(60)
+
+    elif loading:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -520,9 +603,8 @@ while running:
         pygame.display.flip()
         clock.tick(60)
 
-
     else:
-        Strike = False
+        ball = 0
         if First_on_audio == 0:
             sound.BACK_AUDIO.play(-1)
             sound.BACK2_AUDIO.play()
@@ -540,7 +622,9 @@ while running:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 Strike = True
-                if event.button == 1:
+                ball += 1
+
+                """if event.button == 1:
                     if len(balls) < 2:
                         Strike_fast = False
                         first_strike_timer = time.process_time()
@@ -557,7 +641,7 @@ while running:
                         group_draw.add(pl)
 
                     else:
-                        Strike_fast = True
+                        Strike_fast = True"""
                 if event.button == 2:
                     E = True
 
@@ -570,14 +654,19 @@ while running:
                     RIGHT = False
                 if event.key == pygame.K_f:
                     HERO.film = True
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 2:
-                        E = False
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    Strike = False
+                if event.button == 2:
+                    E = False
 
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
 
 
-
+        """for i in range(ball):
+            pl = object.Ball(200, 200, HERO.side)
+            #balls.append(pl)
+            #group_draw.add(pl) Потом исправлю фигню с фризом, когда создаю объект болл"""
         draw()
         take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         if Strike_fast:
@@ -594,10 +683,11 @@ while running:
             BOSS.AI(HERO, platforms)
         if HERO.helth <= 0:
             HERO.respawn()
-        for i in balls:
+        """for i in balls:
             i.update(platforms, enemy, BOSS)
             if i.die:
                 del balls[balls.index(i)]
+            i.draw(screen)"""
         if HERO.fight and not fight:
             fight = True
             sound.BACK_AUDIO.stop()
