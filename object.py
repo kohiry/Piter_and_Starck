@@ -509,12 +509,10 @@ class Player(Sprite):
         self.animationL = []
         for i in ANIMATION_HERO_LOSE_RIGHT:
             #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
-            im = load(i)
-            self.animationR.append(im)
+            self.animationR.append(load(i))
         for i in ANIMATION_HERO_LOSE_LEFT:
             #im = load(i).convert_alpha()
-            im = load(i)
-            self.animationL.append(im)
+            self.animationL.append(load(i))
         self.animcount = 0
 
         self.data_wh = {
@@ -544,6 +542,10 @@ class Player(Sprite):
         self.AnimeClimbLeft = PygAnimation(Work(ANIMATION_HERO_CLIMP_LEFT))
 
         # on
+        self.AnimeGoStrikeRight.play()
+        self.AnimeGoStrikeLeft.play()
+        self.AnimeStrikeRight.play()
+        self.AnimeStrikeLeft.play()
         self.AnimeClimbRight.play()
         self.AnimeClimbLeft.play()
         self.AnimeStayLeft.play()
@@ -617,6 +619,9 @@ class Player(Sprite):
                         self.resize('climb')
                         self.AnimeClimbRight.blit(self.image, (0, 0))
                 else:
+                    if left and right and self.onGround and strike:
+                        self.resize('strike')
+                        self.AnimeStrikeRight.blit(self.image, (0, 0))
                     if left and right and self.onGround:
                         self.resize('stay')
                         self.AnimeStayRight.blit(self.image, (0, 0))
@@ -627,9 +632,15 @@ class Player(Sprite):
                         elif self.side == -1:
                             self.resize('jump')
                             self.AnimeJumpLeft.blit(self.image, (0, 0))
+                    elif left and self.onGround and strike:
+                        self.resize('go_strike')
+                        self.AnimeGoStrikeLeft.blit(self.image, (0, 0))
                     elif left and self.onGround:
                         self.resize('go')
                         self.AnimeGoLeft.blit(self.image, (0, 0))
+                    elif right and self.onGround and strike:
+                        self.resize('go_strike')
+                        self.AnimeGoStrikeRight.blit(self.image, (0, 0))
                     elif right and self.onGround:
                         self.resize('go')
                         self.AnimeGoRight.blit(self.image, (0, 0))
@@ -664,10 +675,16 @@ class Player(Sprite):
                             self.resize('jump')
                             self.AnimeJumpLeft.blit(self.image, (0, 0))
                     else:
-                        if self.side == 1:
+                        if self.side == 1 and strike:
+                            self.resize('strike')
+                            self.AnimeStrikeRight.blit(self.image, (0, 0))
+                        elif self.side == 1:
                             self.resize('stay')
                             self.AnimeStayRight.blit(self.image, (0, 0))
-                        else:
+                        elif self.side == -1 and strike:
+                            self.resize('strike')
+                            self.AnimeStrikeLeft.blit(self.image, (0, 0))
+                        elif self.side == -1:
                             self.resize('stay')
                             self.AnimeStayLeft.blit(self.image, (0, 0))
 
