@@ -42,9 +42,9 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 # состояния
 loading = False
 start_part = False
-menu = False
+menu = True
 settings = False
-after_words = True
+after_words = False
 
 #Start part
 #START_PART = object.add_sprite(r'data\катсцены\начало\начало_', 3)
@@ -522,6 +522,7 @@ while running:
 
 
     else:
+        Strike = False
         if First_on_audio == 0:
             sound.BACK_AUDIO.play(-1)
             sound.BACK2_AUDIO.play()
@@ -538,6 +539,7 @@ while running:
                     RIGHT = True
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                Strike = True
                 if event.button == 1:
                     if len(balls) < 2:
                         Strike_fast = False
@@ -566,6 +568,8 @@ while running:
                     LEFT = False
                 if event.key == pygame.K_d:
                     RIGHT = False
+                if event.key == pygame.K_f:
+                    HERO.film = True
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 2:
                         E = False
@@ -575,7 +579,7 @@ while running:
 
 
         draw()
-        take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS, monster)
+        take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         if Strike_fast:
             for_strike_count_time_when_we_see_text += 1
         if for_strike_count_time_when_we_see_text >= 5:
