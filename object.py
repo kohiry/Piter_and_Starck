@@ -23,10 +23,13 @@ line_1 = 'data/паук/стоит/'
 end = '.png'
 
 
-def add_sprite(name, lens):
+def add_sprite(name, lens, can=True):
     sprites = []
-    for i in range(1, lens):
-        sprites.append(name + str(i) + end)
+    if can:
+        for i in range(1, lens):
+            sprites.append(name + str(i) + end)
+    else:
+        sprites.append(name + end)
     return sprites
 
 
@@ -93,6 +96,16 @@ ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\коро
 # титры
 ANIMATION_AFTER_WORDS = add_sprite('data\\ТИТРЫ\КАДРЫ\\', 49)
 
+# info
+ANIMATION_INFO_SPIDER = add_sprite('data\\КПК\\2\\грибной_паук_', 3)
+ANIMATION_INFO_BIGSPIDER = add_sprite('data\\КПК\\2\\грибная_королева_', 3)
+ANIMATION_INFO_TENTACLE = add_sprite('data\\КПК\\2\\овраговый_щупалцехват_', 5)
+ANIMATION_INFO_PIDOR = add_sprite('data\\КПК\\2\\сучий_жук_', 3)
+ANIMATION_INFO_ESJH = add_sprite('data\\КПК\\2\\ёж_', 3)
+
+ANIMATION_INFO_YELLOW = add_sprite('data\\КПК\\2\\жёлтая_ягода', 2, False)
+ANIMATION_INFO_BLUE = add_sprite('data\\КПК\\2\\потолочный_гриб', 2, False)
+ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, False)
 
 class After_words(Sprite):
     def __init__(self, end):
@@ -999,7 +1012,16 @@ class Button(Sprite):
         self.number = [str(i) for i in range(1, 13)]
         if self.name in self.number:
             self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
-
+            if self.name == "1":
+                self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
+            elif self.name == "2":
+                self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
+            elif self.name == "3":
+                self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
+            elif self.name == "4":
+                self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
+            elif self.name == "5":
+                self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
         elif self.name == 'Exit':
             self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
         elif self.name == 'Play':
@@ -1014,6 +1036,16 @@ class Button(Sprite):
             self.image.fill(self.BLACK)
             if self.name in self.number:
                 self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
+                if self.name == "1":
+                    self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
+                elif self.name == "2":
+                    self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
+                elif self.name == "3":
+                    self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
+                elif self.name == "4":
+                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
+                elif self.name == "5":
+                    self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
             elif self.name == 'Exit':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
             elif self.name == 'Play':
@@ -1036,6 +1068,16 @@ class Button(Sprite):
             self.image.fill(self.WHITE)
             if self.name in self.number:
                 self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_вкл.png').convert(), (0, 0))
+                if self.name == "1":
+                    self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
+                elif self.name == "2":
+                    self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
+                elif self.name == "3":
+                    self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
+                elif self.name == "4":
+                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
+                elif self.name == "5":
+                    self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
             elif self.name == 'Exit':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_выход_вкл.png').convert(), (0, 0))
             elif self.name == 'Play':
@@ -1054,3 +1096,52 @@ class Button(Sprite):
             if self.tag:
                 self.image.blit(txt, (text_x, text_y))
                 rect(self.image, self.BLACK, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
+
+class Info(Sprite):
+    def __init__(self, name):
+        Sprite.__init__(self)
+        self.name = name
+        self.width = 960
+        self.height = 540
+        self.image = Surface((self.width, self.height))
+        self.rect = self.image.get_rect()
+
+        self.image.fill((255, 255, 255))
+        self.rect.x = 0
+        self.rect.y = 0
+        self.could = True
+        self.txt = ''
+
+        try:
+            if name == "1":
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_SPIDER))
+            elif name == "2":
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_BIGSPIDER))
+            elif name == "3":
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_TENTACLE))
+            elif name == "4":
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_PIDOR))
+            elif name == "5":
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_ESJH))
+                self.txt = 'data\\КПК\\1\\текст\\ёж.png'
+            elif name == "6":
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_YELLOW))
+            elif name == "7":
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_BLUE))
+            elif name == "8":
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_LIFE))
+
+            self.Anime.play()
+        except AttributeError:
+            self.could = False
+
+
+    def life_die(self, live):
+        if not self.could:
+            live = False
+        if live:
+            self.Anime.blit(self.image, (0, 0))
+            return True
+        else:
+            self.kill()
+            return False

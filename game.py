@@ -69,6 +69,7 @@ enemy = []
 tree = []
 balls = []
 monster = []
+info = []
 button = []
 x_hero, y_hero = 0, 0
 lens = 54
@@ -406,43 +407,23 @@ while running:
                     else:
                         i.mouse(True)
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 or event.button == 2:
-                    for i in button:
-                        if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
-                            screen.fill((0, 0, 0))
-                            if i.name == '1':
-                                pass
-                            if i.name == '2':
-                                pass
-                            if i.name == '3':
-                                pass
-                            if i.name == '4':
-                                pass
-                            if i.name == '5':
-                                pass
-                            if i.name == '6':
-                                pass
-                            if i.name == '7':
-                                pass
-                            if i.name == '8':
-                                pass
-                            if i.name == '9':
-                                pass
-                            if i.name == '10':
-                                pass
-                            if i.name == '11':
-                                pass
-                            if i.name == '12':
-                                pass
-
-
-                            pygame.display.flip()
-                            sound.BUTTON.play()
-                            sleep(2)
-
+                if event.button == 1:
+                    if len(info) == 0:
+                        for i in button:
+                            if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                                pl = object.Info(i.name)
+                                info.append(pl)
+                                group_draw.add(pl)
+                if event.button == 3:
+                    if len(info) > 0:
+                        info[0].life_die(False)
+                    info.clear()
 
 
         screen.fill((255, 255, 255))
+        if len(info) > 0:
+            if not info[0].life_die(True):
+                info.clear()
         group_draw.draw(screen)
         window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
         pygame.display.flip()
@@ -532,7 +513,7 @@ while running:
                     else:
                         i.mouse(True)
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 or event.button == 2:
+                if event.button == 1 or event.button == 3:
                     for i in button:
                         if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
                             if i.who == 'music' or i.who == 'sound':
@@ -571,7 +552,7 @@ while running:
                     else:
                         i.mouse(True)
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 or event.button == 2:
+                if event.button == 1 or event.button == 3:
                     for i in button:
                         if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
                             screen.fill((0, 0, 0))
@@ -642,7 +623,7 @@ while running:
 
                     else:
                         Strike_fast = True"""
-                if event.button == 2:
+                if event.button == 3:
                     E = True
 
             if event.type == pygame.KEYUP:
@@ -657,7 +638,7 @@ while running:
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     Strike = False
-                if event.button == 2:
+                if event.button == 3:
                     E = False
 
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
