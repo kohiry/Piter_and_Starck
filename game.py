@@ -22,6 +22,7 @@ BACK_SIZE = int(1080/1.5)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
+
 FONT = "pixle_font.ttf"
 UP = False
 ball = 0
@@ -166,12 +167,12 @@ def make_level(level):
         group_draw.add(pl)
 
 
-
+middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
 #size = width, height = 1080, 720
 #window = pygame.display.set_mode(size)
 window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
-#screen = pygame.Surface((400, 400))
 pygame.display.set_caption('Gay game')
 
 
@@ -264,7 +265,7 @@ def draw():
     txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, (0, 255, 0))
     pygame.display.flip()
     screen.blit(txt, (0, 0)) #WIDTH-200, HEIGHT+100))
-    window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+    window.blit(screen, middle)
 
 def create_button():
     button.clear()
@@ -425,7 +426,7 @@ while running:
             if not info[0].life_die(True):
                 info.clear()
         group_draw.draw(screen)
-        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        window.blit(screen, middle)
         pygame.display.flip()
         clock.tick(60)
 
@@ -449,7 +450,7 @@ while running:
         font = pygame.font.Font('pixle_font.ttf', 72)
         txt = font.render('Типо гружу, да', 1, (0, 0, 0))
         screen.blit(txt, (WIDTH//3, 250))
-        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        window.blit(screen, middle)
         pygame.display.flip()
         clock.tick(60)
 
@@ -474,7 +475,7 @@ while running:
             sleep(2)
             running = False
         group_draw.draw(screen)
-        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        window.blit(screen, middle)
         pygame.display.flip()
         clock.tick(60)
 
@@ -493,7 +494,7 @@ while running:
 
         screen.fill((255, 255, 255))
         start_part_animation.blit(screen, (0, 0))
-        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        window.blit(screen, middle)
         pygame.display.flip()
         pygame.time.Clock().tick(60)
 
@@ -533,7 +534,7 @@ while running:
         txt = font.render('Sound', 1, (0, 0, 0))
         screen.blit(txt, (WIDTH//3 - 120, 300))
         group_draw.draw(screen)
-        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        window.blit(screen, middle)
         pygame.display.flip()
         clock.tick(60)
 
@@ -580,7 +581,7 @@ while running:
             txt = font.render('Spider Gay', 1, (0, 0, 0))
             screen.blit(txt, (WIDTH//3 -20, 50))
         group_draw.draw(screen)
-        window.blit(screen, ((int(get_monitors()[0].width) - WIDTH) // 2, (int(get_monitors()[0].height) - HEIGHT) // 2))
+        window.blit(screen, middle)
         pygame.display.flip()
         clock.tick(60)
 
