@@ -44,16 +44,11 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
 loading = False
-start_part = False
+start_part = True
 menu = False
 settings = False
 after_words = False
-KPK = True
-
-#Start part
-#START_PART = object.add_sprite(r'data\катсцены\начало\начало_', 3)
-#start_part_animation = PygAnimation(object.Work(START_PART))
-#start_part_animation.play()
+KPK = False
 
 # map
 location = 1
@@ -348,12 +343,8 @@ def sound_correct(number, name):
         sound.BUTTON.set_volume(level)
 
 
-
-if start_part:
-    start_part_animation.blit(screen, (0, 0))
-
-
-create_button()
+if menu:
+    create_button()
 
 
 if after_words:
@@ -387,6 +378,13 @@ if KPK:
     group_draw.add(object.Background(0, 0, r'data\КПК\1\фон.png'))
     for i in button:
         group_draw.add(i)
+
+if start_part:
+    for e in group_draw:
+        e.kill()
+    button.clear()
+    Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
+    group_draw.add(Scene)
 
 running = True
 clock = pygame.time.Clock()
@@ -430,6 +428,7 @@ while running:
         pygame.display.flip()
         clock.tick(60)
 
+
     elif loading:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -454,9 +453,6 @@ while running:
         pygame.display.flip()
         clock.tick(60)
 
-
-
-
     elif after_words:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -480,6 +476,7 @@ while running:
         clock.tick(60)
 
     elif start_part:
+        inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -489,15 +486,25 @@ while running:
             if event.type == pygame.MOUSEMOTION:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+                if event.button == 1:
+                    inf = True
+
 
 
         screen.fill((255, 255, 255))
-        start_part_animation.blit(screen, (0, 0))
+        group_draw.draw(screen)
         window.blit(screen, middle)
+        print(Scene.count)
+        if inf and Scene.count not in [1, 4, 5]:
+            if Scene.upd():
+                menu = True
+                start_part = False
+                create_button()
+        if Scene.count in [1, 4, 5]:
+            Scene.upd()
+
         pygame.display.flip()
         pygame.time.Clock().tick(60)
-
 
     elif settings:
         First_on_audio = 0

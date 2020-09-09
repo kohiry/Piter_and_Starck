@@ -11,14 +11,14 @@ from pygame import mixer
 mixer.init()
 
 
-SPEED = 1
+SPEED = 5
 GRAVITY = 1
 JUMP_POWER = 4
 
 
 # animation
 
-ANIMATION_DELAY = 150
+ANIMATION_DELAY = 100
 line_1 = 'data/паук/стоит/'
 end = '.png'
 
@@ -106,6 +106,54 @@ ANIMATION_INFO_ESJH = add_sprite('data\\КПК\\2\\ёж_', 3)
 ANIMATION_INFO_YELLOW = add_sprite('data\\КПК\\2\\жёлтая_ягода', 2, False)
 ANIMATION_INFO_BLUE = add_sprite('data\\КПК\\2\\потолочный_гриб', 2, False)
 ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, False)
+
+class Cutscene(Sprite):
+    def __init__(self, filename, end, name):
+        Sprite.__init__(self)
+        self.filename = filename
+        self.image = load(filename + '1.png').convert()
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+        self.name = name
+        self.end = end
+        self.count = 1
+        self.animcount = 0
+        self.number = 0
+        self.animation = []
+        for i in add_sprite('data\\катсцены\\1 начало\\начало_4_', 4):
+            self.animation.append(load(i).convert())
+
+    def upd(self):
+        if self.count == 1 and self.name == 'spawn':
+            if self.rect.y + 1529 <= self.end:
+                self.count += 1
+            else:
+                self.rect.y -= 2
+        else:
+            if self.name == 'spawn' and self.count == 4:
+
+                self.animcount += 1
+                self.image.blit(self.animation[self.animcount // 60], (0, 0))
+                if self.animcount >= 179:
+                    self.name = 'spaw'
+                return False
+            else:
+                self.rect.y = 0
+                if self.count <= 7 and self.count != 3:
+                    self.image = load(self.filename + str(self.count) + '.png').convert()
+                    self.count += 1
+                    return False
+                elif self.count == 3:
+                    self.number += 1
+                    self.image = load(self.filename + str(self.count) + '.png').convert()
+                    if self.number == 2:
+                        self.count += 1
+                    return False
+                else:
+                    return True
+
+
 
 class After_words(Sprite):
     def __init__(self, end):
