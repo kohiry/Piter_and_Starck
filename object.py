@@ -134,9 +134,10 @@ class Cutscene(Sprite):
             if self.name == 'spawn' and self.count == 4:
 
                 self.animcount += 1
-                self.image.blit(self.animation[self.animcount // 60], (0, 0))
-                if self.animcount >= 179:
+                self.image.blit(self.animation[self.animcount // 10], (0, 0))
+                if self.animcount >= 29:
                     self.name = 'spaw'
+                    self.count += 1
                 return False
             else:
                 self.rect.y = 0
@@ -152,7 +153,6 @@ class Cutscene(Sprite):
                     return False
                 else:
                     return True
-
 
 
 class After_words(Sprite):
@@ -323,6 +323,72 @@ class Enemy(Sprite):
         self.isdie = True  # включу запутанного моба
         self.xvel = 0
         self.yvel = 0
+
+class Enemy2(Sprite):
+    def __init__(self, x, y, width=80, height=46):
+        Sprite.__init__(self)
+        #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
+        self.image = Surface((width, height))
+        self.image.fill((0, 255, 0))
+        self.rect = self.image.get_rect()
+        self.SPIDER_AUDIO = Sound().SPIDER_AUDIO
+        self.rect.x = x
+        self.rect.y = y
+        self.yvel = 0
+        self.xvel = 0
+        self.side = 1
+        self.isdie = False
+        self.helth = 10
+        self.onGround = False
+        self.damage = False
+
+        #animation
+        self.AnimeEnemyStay = PygAnimation(Work(ANIMATION_ENEMY2_STAY))
+
+        self.AnimeEnemyStay.play()
+
+
+    def AI(self, hero, platforms):
+        self.update(platforms)
+
+
+    def update(self, platforms):
+        # лево право
+        self.image.set_colorkey((0, 255, 0))
+        self.image.fill((0, 255, 0))
+
+        self.AnimeEnemyStay.blit(self.image, (0, 0))
+
+        if not self.onGround:
+            self.yvel += GRAVITY
+
+        self.onGround = False
+        self.collide(self.xvel, 0, platforms)
+        self.collide(0, self.yvel, platforms)
+
+
+    def collide(self, xvel, yvel, platforms):
+        for pl in platforms:
+            if collide_rect(self, pl):
+                #self.serf = True
+                if yvel > 0:
+                    self.onGround = True
+                    self.rect.bottom = pl.rect.top
+                if yvel < 0:
+                    self.yvel = 0
+                    self.rect.top = pl.rect.bottom
+                if xvel < 0:
+                    self.yvel = 0
+                    self.rect.left = pl.rect.right
+                if xvel > 0:
+                    self.yvel = 0
+                    self.rect.right = pl.rect.left
+
+    def die(self):
+        self.isdie = True  # включу запутанного моба
+        self.xvel = 0
+        self.yvel = 0
+
 
 
 class Boss(Sprite):
@@ -570,6 +636,8 @@ class Player(Sprite):
         self.image.set_colorkey((0, 0, 0))
         self.animationR = []
         self.animationL = []
+        self.who_kill = []
+        self.death = False
         for i in ANIMATION_HERO_LOSE_RIGHT:
             #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
             self.animationR.append(load(i))
@@ -637,9 +705,11 @@ class Player(Sprite):
         # animation
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
-        print(strike)
         # лево право
+        if self.helth < 0:
+            self.film = True
         if not self.film:
+            die_anim = False
             if left or right:
                 if self.audio_step_count != 1 and self.onGround:
                     self.audio_step_count = 1
@@ -755,15 +825,23 @@ class Player(Sprite):
         else:
             self.resize('die')
             self.animcount += 1
-            end = 183
-            if self.side == -1:
+            end = 182
+            if self.side == 1:
                 self.image.blit(self.animationR[self.animcount // 8], (0, 0))
                 if self.animcount >= end:
+                    self.film = False
+                    self.death = True
                     self.animcount = 0
-            elif self.side == 1:
+                    self.level = 0
+                    self.helth = 3
+            elif self.side == -1:
                 self.image.blit(self.animationL[self.animcount // 8], (0, 0))
                 if self.animcount >= end:
                     self.animcount = 0
+                    self.film = False
+                    self.death = True
+                    self.level = 0
+                    self.helth = 3
         # прыжок
         if not self.onGround:
             #if self.yvel < 50:
@@ -848,6 +926,8 @@ class Player(Sprite):
             if collide_rect(self, pl):
                 if not pl.isdie:
                     self.helth -= 1
+                    if self.helth <= 0:
+                        self.who_kill.append(pl)
                     if pl.xvel >= 0:
                         self.rect.x += SPEED * 4
                     else:

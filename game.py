@@ -46,9 +46,11 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 loading = False
 start_part = True
 menu = False
+scene_enemy = False
 settings = False
 after_words = False
 KPK = False
+scene_enemy2 = False
 
 # map
 location = 1
@@ -144,6 +146,9 @@ def make_level(level):
                     platform(row, col, object.Teleport_COME)
                 if col == "&":
                     pl = object.Enemy(x, y)
+                    enemy.append(pl)
+                if col == "$":
+                    pl = object.Enemy2(x, y)
                     enemy.append(pl)
                 if col == "$":
                     BOSS.new_coord(x, y)
@@ -386,6 +391,22 @@ if start_part:
     Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
     group_draw.add(Scene)
 
+def scene_enemy_def():
+    for e in group_draw:
+        e.kill()
+    platforms.clear()
+    teleports.clear()
+    enemy.clear()
+    tree.clear()
+    monster.clear()
+    button.clear()
+    BOSS.isdie = True
+    Boss_spawn = False
+    button.clear()
+    #Scene = object.Cutscene('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png', HEIGHT, 'enemy')
+    #group_draw.add(Scene)
+
+
 running = True
 clock = pygame.time.Clock()
 pygame.init()
@@ -475,6 +496,59 @@ while running:
         pygame.display.flip()
         clock.tick(60)
 
+    elif scene_enemy:
+        inf = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+            if event.type == pygame.MOUSEMOTION:
+                pass
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    running = False
+                    #inf = True
+
+
+
+        screen.fill((255, 255, 255))
+        screen.blit(pygame.image.load('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png').convert(),(0, 0))
+        #group_draw.draw(screen)
+        window.blit(screen, middle)
+        #Scene.upd()
+
+        pygame.display.flip()
+        pygame.time.Clock().tick(60)
+
+    elif scene_enemy2:
+        inf = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+            if event.type == pygame.MOUSEMOTION:
+                pass
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    running = False
+                    #inf = True
+
+
+
+        screen.fill((255, 255, 255))
+        screen.blit(pygame.image.load('data\\катсцены\\6 ёж\\ёж_проигрыш.png').convert(),(0, 0))
+        group_draw.draw(screen)
+        window.blit(screen, middle)
+        #Scene.upd()
+
+        pygame.display.flip()
+        pygame.time.Clock().tick(60)
+
+
     elif start_part:
         inf = False
         for event in pygame.event.get():
@@ -494,7 +568,6 @@ while running:
         screen.fill((255, 255, 255))
         group_draw.draw(screen)
         window.blit(screen, middle)
-        print(Scene.count)
         if inf and Scene.count not in [1, 4, 5]:
             if Scene.upd():
                 menu = True
@@ -666,6 +739,7 @@ while running:
 
         for i in enemy:
             i.AI(HERO, platforms)
+
         for i in monster:
             i.AI(HERO)
         if Boss_spawn:
@@ -695,6 +769,12 @@ while running:
             menu = True
             button.clear()
             create_button()
+        if HERO.death:
+            if type(HERO.who_kill[0]) == object.Enemy:
+                scene_enemy = True
+            elif type(HERO.who_kill[0]) == object.Enemy2:
+                scene_enemy2 = True
+                scene_enemy_def()
 
 
 pygame.quit()
