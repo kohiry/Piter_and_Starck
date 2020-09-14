@@ -390,7 +390,6 @@ class Enemy2(Sprite):
         self.yvel = 0
 
 
-
 class Boss(Sprite):
     def __init__(self, x, y, width=400, height=400):
         Sprite.__init__(self)
@@ -551,11 +550,11 @@ class Ball:
 
 
 class Monster(Sprite):
-    def __init__(self, x, y, width=400, height=500):
+    def __init__(self, x, y, width=522, height=486):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
-        self.image.fill((0, 200, 200))
+        #self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -563,22 +562,32 @@ class Monster(Sprite):
         self.xvel = 0
         self.isdie = False
         self.eat = 0
+        self.animationR = []
+        self.animationL = []
+
+        for i in ANIMATION_ENEMY3_GO_RIGHT:
+            #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
+            self.animationR.append(load(i))
+        for i in ANIMATION_ENEMY3_GO_LEFT:
+            #im = load(i).convert_alpha()
+            self.animationL.append(load(i))
+        self.animcount = 0
+
+        # coord count
+        self.y_go_monster = y - 200
+        self.y_stay_monster = y
 
         self.onGround = False
 
         #animation
         self.AnimeEnemyStayLeft = PygAnimation(Work(ANIMATION_ENEMY3_STAY_LEFT))
         self.AnimeEnemyStayRight = PygAnimation(Work(ANIMATION_ENEMY3_STAY_RIGHT))
-        self.AnimeEnemyGoLeft = PygAnimation(Work(ANIMATION_ENEMY3_GO_RIGHT))
-        self.AnimeEnemyGoRight = PygAnimation(Work(ANIMATION_ENEMY3_GO_LEFT))
         self.AnimeEnemyDieLeft = PygAnimation(Work(ANIMATION_ENEMY3_DIE_LEFT))
         self.AnimeEnemyDieRight = PygAnimation(Work(ANIMATION_ENEMY3_DIE_RIGHT))
 
         #on
         self.AnimeEnemyStayLeft.play()
         self.AnimeEnemyStayRight.play()
-        self.AnimeEnemyGoLeft.play()
-        self.AnimeEnemyGoRight.play()
         self.AnimeEnemyDieLeft.play()
         self.AnimeEnemyDieRight.play()
 
@@ -587,19 +596,58 @@ class Monster(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def AI(self, hero):
-        self.image.set_colorkey((0, 255, 0))
-        self.image.fill((0, 255, 0))
-        if collide_rect(self, hero):
-            hero.films()
-            if hero.side == 1:
-                self.AnimeEnemyGoLeft.blit(self.image, (0, 0))
-            elif hero.side == -1:
-                self.AnimeEnemyGoRight.blit(self.image, (0, 0))
-            else:
-                self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+    def resize(self, name, hero):
+        self.rect.width, self.rect.height = {'Go': (522, 486), 'Stay':(286, 179)}[name]
+        if name == 'Go':
+            self.rect.y = hero.rect.y - 100   #self.y_go_monster
         else:
-            hero.film = False
+            self.rect.y = self.y_stay_monster
+
+    def AI(self, hero):
+        self.image.fill((0, 255, 0))
+        self.image.set_colorkey((0, 255, 0))
+        if collide_rect(self, hero):
+            end = 63
+            if not hero.film:
+                hero.films()
+                hero.moster = True
+            if hero.side == 1:
+                self.resize('Go', hero)
+                self.animcount += 1
+                #self.image.fill((0, 255, 0))
+                self.image.blit(self.animationL[self.animcount // 8], (0, 0))
+                self.image.set_colorkey((0, 255, 0))
+                if self.animcount >= end:
+                    hero.who_kill.append(self)
+                    hero.film = False
+                    hero.death = True
+                    hero.animcount = 0
+                    hero.level = 0
+                    hero.helth = 3
+            elif hero.side == -1:
+                self.resize('Go', hero)
+                self.animcount += 1
+                #self.image.fill((0, 255, 0))
+                self.image.blit(self.animationR[self.animcount // 8], (0, 0))
+                self.image.set_colorkey((0, 255, 0))
+                if self.animcount >= end:
+                    hero.who_kill.append(self)
+                    hero.film = False
+                    hero.death = True
+                    hero.animcount = 0
+                    hero.level = 0
+                    hero.helth = 3
+
+            else:
+                if hero.side == -1:
+                    self.resize('Stay', hero)
+                    self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+                elif hero.side == 1:
+                    self.resize('Stay', hero)
+                    self.AnimeEnemyRightLeft.blit(self.image, (0, 0))
+        else:
+            #hero.film = False
+            self.resize('Stay', hero)
             self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
 
     def die(self):
@@ -632,6 +680,7 @@ class Player(Sprite):
         self.fight = False
         self.jump = False
         self.serf = False
+        self.moster = False
         self.trees = set()
         self.image.set_colorkey((0, 0, 0))
         self.animationR = []
@@ -713,8 +762,8 @@ class Player(Sprite):
             if left or right:
                 if self.audio_step_count != 1 and self.onGround:
                     self.audio_step_count = 1
-                    self.STEP_AUDIO.play(-1)
-                    self.STEP2_AUDIO.play(-1)
+                    self.STEP_AUDIO.play()
+                    self.STEP2_AUDIO.play()
                 elif not self.onGround:
                     self.audio_step_count = 0
                     self.STEP_AUDIO.stop()
@@ -823,25 +872,32 @@ class Player(Sprite):
                             self.AnimeStayLeft.blit(self.image, (0, 0))
 
         else:
-            self.resize('die')
-            self.animcount += 1
-            end = 182
-            if self.side == 1:
-                self.image.blit(self.animationR[self.animcount // 8], (0, 0))
-                if self.animcount >= end:
-                    self.film = False
-                    self.death = True
-                    self.animcount = 0
-                    self.level = 0
-                    self.helth = 3
-            elif self.side == -1:
-                self.image.blit(self.animationL[self.animcount // 8], (0, 0))
-                if self.animcount >= end:
-                    self.animcount = 0
-                    self.film = False
-                    self.death = True
-                    self.level = 0
-                    self.helth = 3
+            self.xvel = 0
+            self.yvel = 0
+
+            if self.moster:
+                pass
+            else:
+                self.resize('die')
+                self.animcount += 1
+                end = 182
+                if self.side == 1:
+                    self.image.blit(self.animationR[self.animcount // 8], (0, 0))
+                    if self.animcount >= end:
+                        self.film = False
+                        self.death = True
+                        self.animcount = 0
+                        self.level = 0
+                        self.helth = 3
+                elif self.side == -1:
+                    self.image.blit(self.animationL[self.animcount // 8], (0, 0))
+                    if self.animcount >= end:
+                        self.animcount = 0
+                        self.film = False
+                        self.death = True
+                        self.level = 0
+                        self.helth = 3
+
         # прыжок
         if not self.onGround:
             #if self.yvel < 50:

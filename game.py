@@ -36,6 +36,7 @@ First_on_audio = 0
 count_audio = 0
 Strike = False
 first_strike_timer = 0
+black_count = 0
 after_count = 0
 Strike_fast = False
 for_strike_count_time_when_we_see_text = 0
@@ -44,9 +45,10 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
 loading = False
-start_part = True
+start_part = False
 menu = False
 scene_enemy = False
+scene_enemy3 = False
 settings = False
 after_words = False
 KPK = False
@@ -406,6 +408,20 @@ def scene_enemy_def():
     #Scene = object.Cutscene('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png', HEIGHT, 'enemy')
     #group_draw.add(Scene)
 
+def scene_moster():
+    for e in group_draw:
+        e.kill()
+    platforms.clear()
+    teleports.clear()
+    enemy.clear()
+    tree.clear()
+    monster.clear()
+    button.clear()
+    BOSS.isdie = True
+    Boss_spawn = False
+    button.clear()
+    #Scene = object.Cutscene('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png', HEIGHT, 'enemy')
+    #group_draw.add(Scene)
 
 running = True
 clock = pygame.time.Clock()
@@ -548,6 +564,32 @@ while running:
         pygame.display.flip()
         pygame.time.Clock().tick(60)
 
+    elif scene_enemy3:
+        inf = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+            if event.type == pygame.MOUSEMOTION:
+                pass
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and black_count < 100:
+                    running = False
+                    #inf = True
+
+
+
+        screen.fill((255, 255, 255))
+        black_count
+        screen.blit(pygame.image.load('data\\катсцены\\2 тентакли\\тентакли.png').convert(),(0, 0))
+        group_draw.draw(screen)
+        window.blit(screen, middle)
+        #Scene.upd()
+
+        pygame.display.flip()
+        pygame.time.Clock().tick(60)
 
     elif start_part:
         inf = False
@@ -775,6 +817,9 @@ while running:
             elif type(HERO.who_kill[0]) == object.Enemy2:
                 scene_enemy2 = True
                 scene_enemy_def()
+            elif type(HERO.who_kill[0]) == object.Monster:
+                scene_enemy3 = True
+                scene_moster()
 
 
 pygame.quit()
