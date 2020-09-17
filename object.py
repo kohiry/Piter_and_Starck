@@ -6,7 +6,7 @@ from pygame.transform import scale
 from pyganim import PygAnimation
 from random import choice
 from pygame.font import Font
-from pygame.draw import rect
+from pygame import Rect
 from pygame import mixer
 mixer.init()
 
@@ -53,6 +53,7 @@ ANIMATION_HERO_LOSE_LEFT = add_sprite('data\паук\проиграл\налев
 ANIMATION_HERO_CLIMP_LEFT = add_sprite('data\паук\по стене\карабкается_по_стене_налево_', 4)
 ANIMATION_HERO_CLIMP_RIGHT = add_sprite('data\паук\по стене\карабкается_по_стене_направо_', 4)
 ANIMATION_HERO_TAKE_LEFT = add_sprite('data\паук\бросок\бросок_налево_', 3)
+ANIMATION_HERO_TAKE_RIGHT = add_sprite('data\паук\бросок\бросок_направо_', 3)
 ANIMATION_HERO_GO_LEFT = add_sprite('data\паук\бежит\паук_бежит_налево_', 9)
 ANIMATION_HERO_GO_RIGHT = add_sprite('data\паук\бежит\паук_бежит_направо_', 9)
 ANIMATION_HERO_GO_STRIKE_RIGHT = add_sprite('data\паук\стреляет\бежит\паук_стреляет_бежит_направо_', 9)
@@ -189,6 +190,10 @@ class Sound:
     def __init__(self):
         # audio
         self.BACK_AUDIO = mixer.Sound(file=r'Sound\basic_back.wav')
+        self.START_AUDIO = mixer.Sound(file=r'Sound\start.wav')
+        self.USE_AUDIO = mixer.Sound(file=r'Sound\use.wav')
+        self.MENU_AUDIO = mixer.Sound(file=r'Sound\menu.wav')
+        self.CUTSCENE_AUDIO = mixer.Sound(file=r'Sound\cutscene.wav')
         self.FIGHT_AUDIO = mixer.Sound(file=r'Sound/fight.wav')
         self.DAMAGE_AUDIO = mixer.Sound(file=r'Sound/hock.wav')
         self.STRIKE_AUDIO = mixer.Sound(file=r'Sound/strike.wav')
@@ -562,8 +567,11 @@ class Monster(Sprite):
         self.xvel = 0
         self.isdie = False
         self.eat = 0
+        self.death = False
         self.animationR = []
         self.animationL = []
+        self.animationR_D = []
+        self.animationL_D = []
 
         for i in ANIMATION_ENEMY3_GO_RIGHT:
             #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
@@ -571,6 +579,13 @@ class Monster(Sprite):
         for i in ANIMATION_ENEMY3_GO_LEFT:
             #im = load(i).convert_alpha()
             self.animationL.append(load(i))
+
+        for i in ANIMATION_ENEMY3_DIE_LEFT:
+            #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
+            self.animationR_D.append(load(i))
+        for i in ANIMATION_ENEMY3_DIE_RIGHT:
+            #im = load(i).convert_alpha()
+            self.animationL_D.append(load(i))
         self.animcount = 0
 
         # coord count
@@ -606,49 +621,69 @@ class Monster(Sprite):
     def AI(self, hero):
         self.image.fill((0, 255, 0))
         self.image.set_colorkey((0, 255, 0))
-        if collide_rect(self, hero):
-            end = 63
-            if not hero.film:
-                hero.films()
-                hero.moster = True
-            if hero.side == 1:
-                self.resize('Go', hero)
-                self.animcount += 1
-                #self.image.fill((0, 255, 0))
-                self.image.blit(self.animationL[self.animcount // 8], (0, 0))
-                self.image.set_colorkey((0, 255, 0))
-                if self.animcount >= end:
-                    hero.who_kill.append(self)
-                    hero.film = False
-                    hero.death = True
-                    hero.animcount = 0
-                    hero.level = 0
-                    hero.helth = 3
-            elif hero.side == -1:
-                self.resize('Go', hero)
-                self.animcount += 1
-                #self.image.fill((0, 255, 0))
-                self.image.blit(self.animationR[self.animcount // 8], (0, 0))
-                self.image.set_colorkey((0, 255, 0))
-                if self.animcount >= end:
-                    hero.who_kill.append(self)
-                    hero.film = False
-                    hero.death = True
-                    hero.animcount = 0
-                    hero.level = 0
-                    hero.helth = 3
+        if not self.death:
 
-            else:
+            if collide_rect(self, hero):
+                end = 63
+                if not hero.film:
+                    hero.films()
+                    hero.moster = True
                 if hero.side == -1:
-                    self.resize('Stay', hero)
-                    self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+                    self.resize('Go', hero)
+                    self.animcount += 1
+                    #self.image.fill((0, 255, 0))
+                    self.image.blit(self.animationL[self.animcount // 8], (0, 0))
+                    self.image.set_colorkey((0, 255, 0))
+                    if self.animcount >= end:
+                        hero.who_kill.append(self)
+                        hero.film = False
+                        hero.death = True
+                        hero.animcount = 0
+                        hero.level = 0
+                        hero.helth = 3
                 elif hero.side == 1:
-                    self.resize('Stay', hero)
-                    self.AnimeEnemyRightLeft.blit(self.image, (0, 0))
+                    self.resize('Go', hero)
+                    self.animcount += 1
+                    #self.image.fill((0, 255, 0))
+                    self.image.blit(self.animationR[self.animcount // 8], (0, 0))
+                    self.image.set_colorkey((0, 255, 0))
+                    if self.animcount >= end:
+                        hero.who_kill.append(self)
+                        hero.film = False
+                        hero.death = True
+                        hero.animcount = 0
+                        hero.level = 0
+                        hero.helth = 3
+
+                else:
+                    if hero.side == -1:
+                        self.resize('Stay', hero)
+                        self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+                    elif hero.side == 1:
+                        self.resize('Stay', hero)
+                        self.AnimeEnemyRightLeft.blit(self.image, (0, 0))
+            else:
+                #hero.film = False
+                self.resize('Stay', hero)
+                self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+
         else:
-            #hero.film = False
-            self.resize('Stay', hero)
-            self.AnimeEnemyStayLeft.blit(self.image, (0, 0))
+            end = 23
+            if hero.side == -1:
+                self.resize('Stay', hero)
+                self.animcount += 1
+                #self.image.fill((0, 255, 0))
+                if self.animcount <= end:
+                    self.image.blit(self.animationL_D[self.animcount // 8], (0, 0))
+                    self.image.set_colorkey((0, 255, 0))
+            elif hero.side == 1:
+                self.resize('Stay', hero)
+                self.animcount += 1
+                #self.image.fill((0, 255, 0))
+                if self.animcount <= end:
+                    self.image.blit(self.animationR_D[self.animcount // 8], (0, 0))
+                    self.image.set_colorkey((0, 255, 0))
+
 
     def die(self):
         self.isdie = True  # включу запутанного моба
@@ -681,7 +716,9 @@ class Player(Sprite):
         self.jump = False
         self.serf = False
         self.moster = False
-        self.trees = set()
+        self.y_basic = y
+        self.y_take = y + self.rect.height - 140
+        self.trees = []
         self.image.set_colorkey((0, 0, 0))
         self.animationR = []
         self.animationL = []
@@ -702,7 +739,8 @@ class Player(Sprite):
             'jump': (88, 90),
             'climb': (47, 144),
             'go_strike': (120, 117),
-            'die': (127, 109)
+            'die': (127, 109),
+            'take': (90, 140)
 
         }
 
@@ -720,8 +758,12 @@ class Player(Sprite):
         self.AnimeJumpLeft = PygAnimation(Work(ANIMATION_HERO_JUMP_LEFT))
         self.AnimeClimbRight = PygAnimation(Work(ANIMATION_HERO_CLIMP_RIGHT))
         self.AnimeClimbLeft = PygAnimation(Work(ANIMATION_HERO_CLIMP_LEFT))
+        self.AnimeUseRight = PygAnimation(Work(ANIMATION_HERO_TAKE_RIGHT))
+        self.AnimeUseLeft = PygAnimation(Work(ANIMATION_HERO_TAKE_LEFT))
 
         # on
+        self.AnimeUseRight.play()
+        self.AnimeUseLeft.play()
         self.AnimeGoStrikeRight.play()
         self.AnimeGoStrikeLeft.play()
         self.AnimeStrikeRight.play()
@@ -746,10 +788,16 @@ class Player(Sprite):
 
     def resize(self, name):
         self.image = Surface(self.data_wh[name])
+        '''
+        if self.onGround:
+            if name == 'strike':
+                self.rect.y = self.y_basic + self.rect.height - 140
+            else:
+                self.rect.bottom = self.y_basic'''
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
 
-    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):
+    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):  # продолжить работать с анимациями кормления тентаклемонстра
         global SPEED
         # animation
         self.image.set_colorkey((0, 255, 0))
@@ -827,6 +875,18 @@ class Player(Sprite):
                     elif right and self.onGround and not strike:
                         self.resize('go')
                         self.AnimeGoRight.blit(self.image, (0, 0))
+                    elif left and self.onGround and use:
+                        self.resize('take')
+                        self.AnimeUseLeft.blit(self.image, (0, 0))
+                    elif right and self.onGround and use:
+                        self.resize('take')
+                        self.AnimeUseRight.blit(self.image, (0, 0))
+                    elif self.side == 1 and self.onGround and use:
+                        self.resize('take')
+                        self.AnimeUseLeft.blit(self.image, (0, 0))
+                    elif self.side == -1 and self.onGround and use:
+                        self.resize('take')
+                        self.AnimeUseRight.blit(self.image, (0, 0))
                     else:
                         if not (left and right):
                             if self.side == 1:
@@ -835,6 +895,7 @@ class Player(Sprite):
                             elif self.side == -1:
                                 self.resize('jump')
                                 self.AnimeJumpLeft.blit(self.image, (0, 0))
+
 
             else:
                 self.xvel = 0
@@ -858,18 +919,26 @@ class Player(Sprite):
                             self.resize('jump')
                             self.AnimeJumpLeft.blit(self.image, (0, 0))
                     else:
-                        if self.side == 1 and strike:
-                            self.resize('strike')
-                            self.AnimeStrikeRight.blit(self.image, (0, 0))
+                        if self.side == -1 and self.onGround and use:
+                            self.resize('take')
+                            self.AnimeUseLeft.blit(self.image, (0, 0))
+                        elif self.side == 1 and self.onGround and use:
+                            self.resize('take')
+                            self.AnimeUseRight.blit(self.image, (0, 0))
                         elif self.side == 1 and not strike:
                             self.resize('stay')
                             self.AnimeStayRight.blit(self.image, (0, 0))
-                        elif self.side == -1 and strike:
-                            self.resize('strike')
-                            self.AnimeStrikeLeft.blit(self.image, (0, 0))
-                        elif self.side == -1 and not strike:
+                        elif self.side == -1 and not strike and not use:
                             self.resize('stay')
                             self.AnimeStayLeft.blit(self.image, (0, 0))
+                        elif self.side == 1 and strike and not use:
+                            self.resize('strike')
+                            self.AnimeStrikeRight.blit(self.image, (0, 0))
+
+                        elif self.side == -1 and strike and not use:
+                            self.resize('strike')
+                            self.AnimeStrikeLeft.blit(self.image, (0, 0))
+
 
         else:
             self.xvel = 0
@@ -928,17 +997,20 @@ class Player(Sprite):
 
         self.Boss(BOSS)
 
-        self.monsters(monster)
+        self.monsters(monster, use)
 
         self.fight_find(enemy)
 
         return self.wooden(tree, use, screen)
 
-    def monsters(self, monster):
+    def monsters(self, monster, use):
         for pl in monster:
-            if collide_rect(self, pl):
-                #self.respawn_new()
-                break
+            if self.rect.colliderect(Rect(pl.rect.x-100, pl.rect.y-(540-pl.rect.width), 600, 540)) and use and not pl.death:
+                try:
+                    del self.trees[0]
+                    pl.death = True
+                except IndexError:
+                    continue
 
     def fight_find(self, enemy):
         for i in enemy:
@@ -964,7 +1036,7 @@ class Player(Sprite):
     def respawn(self):
         self.spawn = '@'
         self.level = 1
-        self.trees = set()
+        self.trees = []
 
     def Boss(self, BOSS):
         if collide_rect(self, BOSS):
@@ -1000,9 +1072,12 @@ class Player(Sprite):
                         self.serf = False
                         self.onGround = True
                         self.count = 0
+
+                        #self.y_basic = pl.rect.bottom  # попытки подравнять спрайт take
                         self.rect.bottom = pl.rect.top
                     if yvel < 0:
                         self.yvel = 0
+
                         self.onGround = False
                         self.rect.top = pl.rect.bottom
                     if xvel < 0:
@@ -1022,11 +1097,11 @@ class Player(Sprite):
     def wooden(self, tree, use, screen):
         for pl in tree:
             if collide_rect(self, pl):  # текст не отобравжается
-                if use:
+                if use and not pl.die:
                     pl.use()
                     self.TAKE_AUDIO.play()
+                    self.trees.append(pl)
                 if pl.die:
-                    self.trees.add(pl)
                     return False
                 return True
 

@@ -45,7 +45,7 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
 loading = False
-start_part = False
+start_part = True
 menu = False
 scene_enemy = False
 scene_enemy3 = False
@@ -74,7 +74,10 @@ button = []
 x_hero, y_hero = 0, 0
 lens = 54
 
-
+animation_balck = []
+# затемнение для катсцен
+for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in range(1, 7)]:
+    animation_balck.append(pygame.image.load(i))
 
 
 def make_level(level):
@@ -325,7 +328,10 @@ def sound_correct(number, name):
         if number == '100':
             level = 0.5
         sound.BACK_AUDIO.set_volume(level)
+        sound.START_AUDIO.set_volume(level)
+        sound.CUTSCENE_AUDIO.set_volume(level)
         sound.BACK2_AUDIO.set_volume(level)
+        sound.MENU_AUDIO.set_volume(level)
         sound.FIGHT_AUDIO.set_volume(level)
         sound.BACK_AFTER_WORDS.set_volume(level)
     elif name == "sound":
@@ -339,6 +345,7 @@ def sound_correct(number, name):
             level = 0.45
         if number == '100':
             level = 0.5
+        sound.USE_AUDIO.set_volume(level)
         sound.DAMAGE_AUDIO.set_volume(level)
         sound.STRIKE_AUDIO.set_volume(level)
         sound.TAKE_AUDIO.set_volume(level)
@@ -352,6 +359,7 @@ def sound_correct(number, name):
 
 if menu:
     create_button()
+    sound.MENU_AUDIO.play(-1)
 
 
 if after_words:
@@ -387,6 +395,7 @@ if KPK:
         group_draw.add(i)
 
 if start_part:
+    sound.START_AUDIO.play()
     for e in group_draw:
         e.kill()
     button.clear()
@@ -482,6 +491,11 @@ while running:
             sleep(1)
         else:
             loading = False
+            total_level_width = len(MAP['level1'][0])*lens
+            total_level_height = len(MAP['level1'])*lens
+            camera.new(total_level_width, total_level_height)
+            make_level(MAP['level1'])
+            group_draw.add(HERO)
         group_draw.draw(screen)
         font = pygame.font.Font('pixle_font.ttf', 72)
         txt = font.render('Типо гружу, да', 1, (0, 0, 0))
@@ -523,7 +537,7 @@ while running:
             if event.type == pygame.MOUSEMOTION:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
+                if event.button == 1 and black_count > 47:
                     running = False
                     #inf = True
 
@@ -532,6 +546,10 @@ while running:
         screen.fill((255, 255, 255))
         screen.blit(pygame.image.load('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png').convert(),(0, 0))
         #group_draw.draw(screen)
+        black_count += 1
+        if black_count <= 47:
+            print(black_count // 8)
+            screen.blit(animation_balck[black_count // 8], (0, 0))
         window.blit(screen, middle)
         #Scene.upd()
 
@@ -549,7 +567,7 @@ while running:
             if event.type == pygame.MOUSEMOTION:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
+                if event.button == 1 and black_count > 47:
                     running = False
                     #inf = True
 
@@ -557,6 +575,10 @@ while running:
 
         screen.fill((255, 255, 255))
         screen.blit(pygame.image.load('data\\катсцены\\6 ёж\\ёж_проигрыш.png').convert(),(0, 0))
+        black_count += 1
+        if black_count <= 47:
+            print(black_count // 8)
+            screen.blit(animation_balck[black_count // 8], (0, 0))
         group_draw.draw(screen)
         window.blit(screen, middle)
         #Scene.upd()
@@ -575,16 +597,20 @@ while running:
             if event.type == pygame.MOUSEMOTION:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 and black_count < 100:
+                if event.button == 1 and black_count > 47:
                     running = False
                     #inf = True
 
 
 
+
         screen.fill((255, 255, 255))
-        black_count
-        screen.blit(pygame.image.load('data\\катсцены\\2 тентакли\\тентакли.png').convert(),(0, 0))
-        group_draw.draw(screen)
+
+        screen.blit(pygame.image.load('data\\катсцены\\2 тентакли\\тентакли.png').convert(), (0, 0))
+        black_count += 1
+        if black_count <= 47:
+            screen.blit(animation_balck[black_count // 8], (0, 0))
+        #group_draw.draw(screen)
         window.blit(screen, middle)
         #Scene.upd()
 
@@ -612,9 +638,11 @@ while running:
         window.blit(screen, middle)
         if inf and Scene.count not in [1, 4, 5]:
             if Scene.upd():
+                sound.START_AUDIO.stop()
                 menu = True
                 start_part = False
                 create_button()
+                sound.MENU_AUDIO.play(-1)
         if Scene.count in [1, 4, 5]:
             Scene.upd()
 
@@ -682,10 +710,12 @@ while running:
                             if i.name == 'Play':
                                 menu = False
                                 loading = True
+                                sound.MENU_AUDIO.stop()
                                 button.clear()
                                 after_count = 0
                                 for e in group_draw:
                                     e.kill()
+
                             if i.name == 'Settings':
                                 settings = True
                                 menu = False
@@ -725,8 +755,9 @@ while running:
                     RIGHT = True
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                Strike = True
-                ball += 1
+                if event.button == 1:
+                    Strike = True
+                    ball += 1
 
                 """if event.button == 1:
                     if len(balls) < 2:
@@ -747,7 +778,9 @@ while running:
                     else:
                         Strike_fast = True"""
                 if event.button == 3:
+                    sound.USE_AUDIO.play()
                     E = True
+                    Strike = False
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
@@ -811,7 +844,20 @@ while running:
             menu = True
             button.clear()
             create_button()
+            sound.BACK_AUDIO.stop()
+            sound.BACK2_AUDIO.stop()
+            sound.FIGHT_AUDIO.stop()
+            sound.BACK_AFTER_WORDS.stop()
+            sound.MENU_AUDIO.play(-1)
+
         if HERO.death:
+            sound.BACK_AUDIO.stop()
+            sound.BACK2_AUDIO.stop()
+            sound.FIGHT_AUDIO.stop()
+            sound.BACK_AFTER_WORDS.stop()
+            sound.MENU_AUDIO.stop()
+            sound.CUTSCENE_AUDIO.play(-1)
+            black_count = 0
             if type(HERO.who_kill[0]) == object.Enemy:
                 scene_enemy = True
             elif type(HERO.who_kill[0]) == object.Enemy2:
