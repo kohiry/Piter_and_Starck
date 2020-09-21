@@ -6,7 +6,7 @@ from time import sleep
 import time
 from pyganim import PygAnimation
 from pygame.locals import *
-
+from pprint import pprint
 
 
 pygame.init()
@@ -66,6 +66,8 @@ BOSS.new_coord(-100, -100)
 platforms = []
 teleports = []
 enemy = []
+all_obj = []
+matrix = []
 tree = []
 balls = []
 monster = []
@@ -81,25 +83,27 @@ for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in 
 
 
 def make_level(level):
+    global all_obj
     x, y = 0, 0
 
     def platform(row, col, obj):
+        global all_obj
         if obj == object.Teleport_BOSS:
             pl = obj(x, y, lens*10, lens)
         else:
             pl = obj(x, y, lens, lens)
         #group_draw.add(pl)
         if object.Platform == obj:
+            all_obj.append(pl)
             platforms.append(pl)
         else:
             teleports.append(pl)
 
     #width =
     for row in level:
-
         for col in row:
             if col == ' ':
-                pass
+                all_obj.append('')
             else:
                 if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f']:
                     if col == 'q':
@@ -139,6 +143,7 @@ def make_level(level):
                         group_draw.add(pl)
                         tree.append(pl)
                     platform(row, col, object.Platform)
+
                 if (col == '@' and HERO.spawn == '@') or (col == '#' and HERO.spawn == '#') or (col == '%' and HERO.spawn == '%'):
                     HERO.new_coord(x, y)
                 if col == "^":
@@ -165,11 +170,15 @@ def make_level(level):
 
                 if col == "_":
                     pass
+
             x += lens
+        matrix.append(all_obj.copy())
+        all_obj.clear()
         y += lens
         x = 0
     for pl in enemy:
         group_draw.add(pl)
+    print(matrix)
 
 
 middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
@@ -548,7 +557,6 @@ while running:
         #group_draw.draw(screen)
         black_count += 1
         if black_count <= 47:
-            print(black_count // 8)
             screen.blit(animation_balck[black_count // 8], (0, 0))
         window.blit(screen, middle)
         #Scene.upd()
@@ -577,7 +585,6 @@ while running:
         screen.blit(pygame.image.load('data\\катсцены\\6 ёж\\ёж_проигрыш.png').convert(),(0, 0))
         black_count += 1
         if black_count <= 47:
-            print(black_count // 8)
             screen.blit(animation_balck[black_count // 8], (0, 0))
         group_draw.draw(screen)
         window.blit(screen, middle)
