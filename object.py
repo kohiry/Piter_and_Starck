@@ -8,12 +8,13 @@ from random import choice
 from pygame.font import Font
 from pygame import Rect
 from pygame import mixer
+from pygame import sprite
 mixer.init()
 
 
-SPEED = 5
+SPEED = 6
 GRAVITY = 1
-JUMP_POWER = 4
+JUMP_POWER = 5
 
 
 # animation
@@ -253,7 +254,10 @@ class Enemy(Sprite):
         self.AnimeEnemyDieRight.play()
 
     def AI(self, hero, platforms):
-        if self.damage:
+        if not self.damage and (self.rect.x >= hero.rect.x + 300 or hero.rect.x >= self.rect.x + 300):
+            if self.rect.y >= hero.rect.y + 300 or hero.rect.y >= self.rect.y + 300:
+                pass
+        elif self.damage:
             if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
                 self.update(False, True, platforms)
             elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
@@ -797,7 +801,7 @@ class Player(Sprite):
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
 
-    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):  # продолжить работать с анимациями кормления тентаклемонстра
+    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):
         global SPEED
         # animation
         self.image.set_colorkey((0, 255, 0))
@@ -818,10 +822,7 @@ class Player(Sprite):
                     self.STEP2_AUDIO.stop()
                 if left and right:
                     self.xvel = 0
-                    SPEED = 1
                 elif left or right:
-                    if SPEED < 5:
-                        SPEED += 1
                     if left:
                         self.xvel = -SPEED
                         self.side = -1
@@ -899,7 +900,6 @@ class Player(Sprite):
 
             else:
                 self.xvel = 0
-                SPEED = 1
                 self.audio_step_count = 0
                 self.STEP_AUDIO.stop()
                 self.STEP2_AUDIO.stop()
@@ -974,7 +974,7 @@ class Player(Sprite):
 
             if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film:
                 self.count += 1
-                self.yvel = -JUMP_POWER**2
+                self.yvel = -(JUMP_POWER - 1)**2
 
         if up and self.onGround and not self.serf and not self.film:
             self.jump = True
@@ -1064,34 +1064,34 @@ class Player(Sprite):
 
 
     def collide(self, xvel, yvel, platforms):
-        for pl in platforms:
-            if collide_rect(self, pl):
-                if pl.name == '-':
-                    #self.serf = True
-                    if yvel > 0:
-                        self.serf = False
-                        self.onGround = True
-                        self.count = 0
+        pl = sprite.spritecollideany(self, platforms, collided = None)
+        if pl != None:
+            if pl.name == '-':
+                #self.serf = True
+                if yvel > 0:
+                    self.serf = False
+                    self.onGround = True
+                    self.count = 0
 
-                        #self.y_basic = pl.rect.bottom  # попытки подравнять спрайт take
-                        self.rect.bottom = pl.rect.top
-                    if yvel < 0:
-                        self.yvel = 0
+                    #self.y_basic = pl.rect.bottom  # попытки подравнять спрайт take
+                    self.rect.bottom = pl.rect.top
+                if yvel < 0:
+                    self.yvel = 0
 
-                        self.onGround = False
-                        self.rect.top = pl.rect.bottom
-                    if xvel < 0:
-                        self.yvel = -SPEED
-                        self.onGround = True
-                        self.serf = True
-                        self.jump = False
-                        self.rect.left = pl.rect.right
-                    if xvel > 0:
-                        self.yvel = -SPEED
-                        self.onGround = True
-                        self.serf = True
-                        self.jump = False
-                        self.rect.right = pl.rect.left
+                    self.onGround = False
+                    self.rect.top = pl.rect.bottom
+                if xvel < 0:
+                    self.yvel = -SPEED
+                    self.onGround = True
+                    self.serf = True
+                    self.jump = False
+                    self.rect.left = pl.rect.right
+                if xvel > 0:
+                    self.yvel = -SPEED
+                    self.onGround = True
+                    self.serf = True
+                    self.jump = False
+                    self.rect.right = pl.rect.left
 
 
     def wooden(self, tree, use, screen):

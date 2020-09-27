@@ -6,7 +6,6 @@ from time import sleep
 import time
 from pyganim import PygAnimation
 from pygame.locals import *
-from pprint import pprint
 
 
 pygame.init()
@@ -45,8 +44,8 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
 loading = False
-start_part = True
-menu = False
+start_part = False
+menu = True
 scene_enemy = False
 scene_enemy3 = False
 settings = False
@@ -60,6 +59,7 @@ draw_loc = 1
 
 #startet_obj
 group_draw = pygame.sprite.Group()
+group_platform = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 BOSS = object.Boss(10, 10)
 BOSS.new_coord(-100, -100)
@@ -94,7 +94,7 @@ def make_level(level):
             pl = obj(x, y, lens, lens)
         #group_draw.add(pl)
         if object.Platform == obj:
-            all_obj.append(pl)
+            group_platform.add(pl)
             platforms.append(pl)
         else:
             teleports.append(pl)
@@ -105,7 +105,7 @@ def make_level(level):
             if col == ' ':
                 all_obj.append('')
             else:
-                if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f']:
+                if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'l']:
                     if col == 'q':
                         group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
                     # горизонталь
@@ -113,9 +113,9 @@ def make_level(level):
                         group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_1.png'))
                     if col == 'e':
                         group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_2.png'))
+                    if col == 'l':
+                        group_draw.add(object.Background(x, y, 'data/фоны/началостарт.png'))
                     # поворот
-                    if col == 'm':
-                        group_draw.add(object.Background(x, y, 'data/фоны/начало_старт.png'))
                     if col == 'r':
                         group_draw.add(object.Background(x, y, 'data/фоны/поворот_1.png'))
                     if col == 't':
@@ -172,20 +172,17 @@ def make_level(level):
                     pass
 
             x += lens
-        matrix.append(all_obj.copy())
-        all_obj.clear()
         y += lens
         x = 0
     for pl in enemy:
         group_draw.add(pl)
-    print(matrix)
 
 
-middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-#size = width, height = 1080, 720
-#window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+size = width, height = 1080, 720
+window = pygame.display.set_mode(size)
+#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -218,11 +215,6 @@ def camera_func(camera, target_rect):
 
 
 camera = Camera(camera_func, 1, 1)
-total_level_width = len(MAP['level1'][0])*lens
-total_level_height = len(MAP['level1'])*lens
-camera.new(total_level_width, total_level_height)
-make_level(MAP['level1'])
-group_draw.add(HERO)
 
 def camera_level(place):
     global Boss_spawn
@@ -252,8 +244,9 @@ def draw():
     location = HERO.level
     try:
         if draw_loc != location:
+            print(1)
             draw_loc = location
-            camera_level(f'level{str(location)}')
+            #camera_level(f'level{str(location)}')
 
     except KeyError:
         HERO.level = last_level
@@ -500,11 +493,7 @@ while running:
             sleep(1)
         else:
             loading = False
-            total_level_width = len(MAP['level1'][0])*lens
-            total_level_height = len(MAP['level1'])*lens
-            camera.new(total_level_width, total_level_height)
-            make_level(MAP['level1'])
-            group_draw.add(HERO)
+            camera_level('level1')
         group_draw.draw(screen)
         font = pygame.font.Font('pixle_font.ttf', 72)
         txt = font.render('Типо гружу, да', 1, (0, 0, 0))
@@ -812,18 +801,19 @@ while running:
             #balls.append(pl)
             #group_draw.add(pl) Потом исправлю фигню с фризом, когда создаю объект болл"""
         draw()
-        take_barries = HERO.update(LEFT, RIGHT, UP, platforms, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
+        take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         if Strike_fast:
             for_strike_count_time_when_we_see_text += 1
         if for_strike_count_time_when_we_see_text >= 5:
             Strike_fast = False
             for_strike_count_time_when_we_see_text = 0
 
+
         for i in enemy:
             i.AI(HERO, platforms)
 
-        for i in monster:
-            i.AI(HERO)
+        #for i in monster:
+            #i.AI(HERO)
         if Boss_spawn:
             BOSS.AI(HERO, platforms)
         if HERO.helth <= 0:
