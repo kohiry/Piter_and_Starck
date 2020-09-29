@@ -44,8 +44,8 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
 loading = False
-start_part = False
-menu = True
+start_part = True
+menu = False
 scene_enemy = False
 scene_enemy3 = False
 settings = False
@@ -178,11 +178,11 @@ def make_level(level):
         group_draw.add(pl)
 
 
-#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-size = width, height = 1080, 720
-window = pygame.display.set_mode(size)
-#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+#size = width, height = 1080, 720
+#window = pygame.display.set_mode(size)
+window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -496,7 +496,7 @@ while running:
             camera_level('level1')
         group_draw.draw(screen)
         font = pygame.font.Font('pixle_font.ttf', 72)
-        txt = font.render('Типо гружу, да', 1, (0, 0, 0))
+        txt = font.render('Загрузка...', 1, (0, 0, 0))
         screen.blit(txt, (WIDTH//3, 250))
         window.blit(screen, middle)
         pygame.display.flip()
