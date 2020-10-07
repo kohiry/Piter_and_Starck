@@ -109,11 +109,14 @@ ANIMATION_INFO_YELLOW = add_sprite('data\\КПК\\2\\жёлтая_ягода', 2
 ANIMATION_INFO_BLUE = add_sprite('data\\КПК\\2\\потолочный_гриб', 2, False)
 ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, False)
 
+
 class Cutscene(Sprite):
     def __init__(self, filename, end, name):
         Sprite.__init__(self)
         self.filename = filename
-        self.image = load(filename + '1.png').convert()
+        #self.image = load(filename + '1.png').convert()
+        self.image = Surface((960, 1529))
+        self.image.fill((0, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.y = 0
@@ -121,21 +124,80 @@ class Cutscene(Sprite):
         self.end = end
         self.count = 1
         self.animcount = 0
+        self.anim = False
+        self.lock = 0
+
         self.number = 0
         self.animation = []
         for i in add_sprite('data\\катсцены\\1 начало\\начало_4_', 4):
             self.animation.append(load(i).convert())
+        self.animation_black = []
+        for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in range(1, 7)]:
+            self.animation_black.append(load(i))
 
     def upd(self):
-        if self.count == 1 and self.name == 'spawn':
-            if self.rect.y + 1529 <= self.end:
-                self.count += 1
+
+        if self.count == 1:
+            if not self.anim:
+                self.image.blit(load(self.filename + '1.png').convert(), (0, 0))
+            if self.animcount >= 29:
+                self.anim = True
+                self.animcount = 0
+            if not self.anim:
+                self.animcount += 1
+                self.image.blit(self.animation_black[self.animcount // 5], (0, 0))
+            if self.rect.y + 1529 <= self.end and self.anim:
+                self.count = 2
             else:
-                self.rect.y -= 2
+                if self.anim:
+                    self.rect.y -= 2
+
+        elif self.count == 4:
+            self.animcount += 1
+            self.image.blit(self.animation[self.animcount // 10], (0, 0))
+            if self.animcount >= 29:
+                self.animcount = 0
+                self.count += 1
+
+        elif self.count + 1 <= 7 and self.lock == 1:
+            self.rect.y = 0
+            self.animcount = 0
+            self.count += 1
+            self.image = load(self.filename + str(self.count) + '.png').convert()
+        elif self.count + 1 > 7:
+            return True
+        """
+        if self.count == 1 and self.name == 'spawn':
+
+            self.number = 0
+            if not self.anim:
+                self.image.blit(load(self.filename + '1.png').convert(), (0, 0))
+            if self.animcount >= 29:
+                self.lock += 1
+                self.animcount = 0
+                self.anim = True
+            if self.lock == 1:
+                self.lock += 1
+                self.image.blit(load(self.filename + '1.png').convert(), (0, 0))
+
+            if not self.anim:
+                self.animcount += 1  # попытка затемнить экран оказалась неуспешной ибо затемнение двигается с самим Surface
+                #print(self.animcount // 10)
+                self.image.blit(self.animation_black[self.animcount // 5], (0, 0))
+            #
+
+            #print(self.rect.y + 1529 <= self.end and self.anim)
+            if self.rect.y + 1529 <= self.end and self.anim:
+                self.count = 2
+            else:
+                #print(self.anim)
+                if self.anim:
+                    self.rect.y -= 2
         else:
             if self.name == 'spawn' and self.count == 4:
 
                 self.animcount += 1
+                self.number = 0
                 self.image.blit(self.animation[self.animcount // 10], (0, 0))
                 if self.animcount >= 29:
                     self.name = 'spaw'
@@ -144,6 +206,8 @@ class Cutscene(Sprite):
             else:
                 self.rect.y = 0
                 if self.count <= 7 and self.count != 3:
+
+                    self.number = 0
                     self.image = load(self.filename + str(self.count) + '.png').convert()
                     self.count += 1
                     return False
@@ -154,7 +218,7 @@ class Cutscene(Sprite):
                         self.count += 1
                     return False
                 else:
-                    return True
+                    return True"""
 
 
 class After_words(Sprite):
@@ -812,12 +876,10 @@ class Player(Sprite):
         if not self.film:
             die_anim = False
             if left or right:
-                if self.audio_step_count != 1 and self.onGround:
-                    self.audio_step_count = 1
+                if self.onGround:
                     self.STEP_AUDIO.play()
                     self.STEP2_AUDIO.play()
                 elif not self.onGround:
-                    self.audio_step_count = 0
                     self.STEP_AUDIO.stop()
                     self.STEP2_AUDIO.stop()
                 if left and right:

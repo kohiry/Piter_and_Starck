@@ -6,12 +6,22 @@ from time import sleep
 import time
 from pyganim import PygAnimation
 from pygame.locals import *
+import asyncio
+from level_mini_map import level as mini_map_level
 
 
 pygame.init()
 
 # audio
 sound = object.Sound()
+
+async def play_step(hero, left, right):
+    if (right or left) and hero.onGround:
+        sound.STEP_AUDIO.play(1)
+        sound.STEP2_AUDIO.play(1)
+    else:
+        sound.STEP_AUDIO.stop()
+        sound.STEP2_AUDIO.stop()
 
 
 #setting
@@ -44,8 +54,9 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
 loading = False
-start_part = True
-menu = False
+start_part = False
+menu = True
+map = False
 scene_enemy = False
 scene_enemy3 = False
 settings = False
@@ -70,6 +81,7 @@ all_obj = []
 matrix = []
 tree = []
 balls = []
+game = []
 monster = []
 info = []
 button = []
@@ -82,6 +94,8 @@ for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in 
     animation_balck.append(pygame.image.load(i))
 
 
+
+
 def make_level(level):
     global all_obj
     x, y = 0, 0
@@ -90,14 +104,18 @@ def make_level(level):
         global all_obj
         if obj == object.Teleport_BOSS:
             pl = obj(x, y, lens*10, lens)
+            game.append(pl)
         else:
             pl = obj(x, y, lens, lens)
+            game.append(pl)
         #group_draw.add(pl)
         if object.Platform == obj:
             group_platform.add(pl)
             platforms.append(pl)
+            game.append(pl)
         else:
             teleports.append(pl)
+            game.append(pl)
 
     #width =
     for row in level:
@@ -107,40 +125,65 @@ def make_level(level):
             else:
                 if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'l']:
                     if col == 'q':
-                        group_draw.add(object.Background(x, y, 'data/фоны/начало.png'))
+                        pl = object.Background(x, y, 'data/фоны/начало.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     # горизонталь
                     if col == 'w':
-                        group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_1.png'))
+                        pl = object.Background(x, y, 'data/фоны/горизонталь_1.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 'e':
-                        group_draw.add(object.Background(x, y, 'data/фоны/горизонталь_2.png'))
+                        pl = object.Background(x, y, 'data/фоны/горизонталь_2.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 'l':
-                        group_draw.add(object.Background(x, y, 'data/фоны/началостарт.png'))
+                        pl = object.Background(x, y, 'data/фоны/началостарт.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     # поворот
                     if col == 'r':
-                        group_draw.add(object.Background(x, y, 'data/фоны/поворот_1.png'))
+                        pl = object.Background(x, y, 'data/фоны/поворот_1.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 't':
-                        group_draw.add(object.Background(x, y, 'data/фоны/поворот_2.png'))
+                        pl = object.Background(x, y, 'data/фоны/поворот_2.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 'y':
-                        group_draw.add(object.Background(x, y, 'data/фоны/поворот_3.png'))
+                        pl = object.Background(x, y, 'data/фоны/поворот_3.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 'u':
-                        group_draw.add(object.Background(x, y, 'data/фоны/поворот_4.png'))
+                        pl = object.Background(x, y, 'data/фоны/поворот_4.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 'f':
-                        group_draw.add(object.Background(x, y, 'data/фоны/овраг.png'))
+                        pl = object.Background(x, y, 'data/фоны/овраг.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 'i':
-                        group_draw.add(object.Background(x, y, 'data/фоны/вертикаль.png'))
+                        pl = object.Background(x, y, 'data/фоны/вертикаль.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 'p':
-                        group_draw.add(object.Background(x, y, 'data/фоны/конец.png'))
+                        pl = object.Background(x, y, 'data/фоны/конец.png')
+                        group_draw.add(pl)
+                        game.append(pl)
                     if col == 'a':
                         pl = object.Tree(x, y, 'data/фоны/развилка_вниз.png', 'data/фоны/развилка_вниз_без_ягод.png')
                         group_draw.add(pl)
                         tree.append(pl)
+                        game.append(pl)
                     if col == 's':
                         pl = object.Tree(x, y, 'data/фоны/развилка_наверх.png', 'data/фоны/развилка_наверх_без_ягод.png')
                         group_draw.add(pl)
+                        game.append(pl)
                         tree.append(pl)
                     if col == 'd':
                         pl = object.Tree(x, y, 'data/фоны/развилка_направо.png', 'data/фоны/развилка_направо_без_ягод.png')
                         group_draw.add(pl)
+                        game.append(pl)
                         tree.append(pl)
                     platform(row, col, object.Platform)
 
@@ -157,14 +200,17 @@ def make_level(level):
                 if col == "&":
                     pl = object.Enemy(x, y)
                     enemy.append(pl)
+                    game.append(pl)
                 if col == "$":
                     pl = object.Enemy2(x, y)
                     enemy.append(pl)
+                    game.append(pl)
                 if col == "$":
                     BOSS.new_coord(x, y)
                     BOSS.isdie = False
                 if col == "*":  # тентаклемонстр
                     pl = object.Monster(x, y)
+                    game.append(pl)
                     group_draw.add(pl)
                     monster.append(pl)
 
@@ -178,11 +224,11 @@ def make_level(level):
         group_draw.add(pl)
 
 
-middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-#size = width, height = 1080, 720
-#window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+size = width, height = 1080, 720
+window = pygame.display.set_mode(size)
+#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -244,7 +290,6 @@ def draw():
     location = HERO.level
     try:
         if draw_loc != location:
-            print(1)
             draw_loc = location
             #camera_level(f'level{str(location)}')
 
@@ -258,6 +303,7 @@ def draw():
 
         if pygame.Rect(HERO.rect.topleft[0]-obl, HERO.rect.topleft[1]-obl, 2*obl, 2*obl).colliderect(e.rect):
             screen.blit(e.image, coord)
+
 
     if take_barries:
         font = pygame.font.Font('pixle_font.ttf', 20)
@@ -284,6 +330,16 @@ def create_button():
     button.append(object.Button(328, 315, w, h, 'Settings', tag=False))
     button.append(object.Button(328, 400, w, h, 'Exit', tag=False))
     group_draw.add(object.Background(0, 0, 'data\МЕНЮ\меню_фон.png'))
+    for i in button:
+        group_draw.add(i)
+
+def create_button_map():
+    button.clear()
+    for e in group_draw:
+        e.kill()
+    w, h = 302, 64
+    button.append(object.Button(740, 400, w*2, h*2, 'Exited', 'menu'))
+    group_draw.add(object.Background(0, 0, 'data\\катсцены\\корабль .png'))
     for i in button:
         group_draw.add(i)
 
@@ -477,6 +533,7 @@ while running:
         clock.tick(60)
 
 
+
     elif loading:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -488,17 +545,28 @@ while running:
 
 
         screen.fill((255, 255, 255))
-        if after_count < 2:
-            after_count+= 1
-            sleep(1)
-        else:
-            loading = False
-            camera_level('level1')
+
         group_draw.draw(screen)
         font = pygame.font.Font('pixle_font.ttf', 72)
         txt = font.render('Загрузка...', 1, (0, 0, 0))
         screen.blit(txt, (WIDTH//3, 250))
         window.blit(screen, middle)
+        if after_count < 2:
+            after_count+= 1
+            sleep(1)
+        else:
+            loading = False
+            if len(game) != 0:
+                button.clear()
+                for e in group_draw:
+                    e.kill()
+                game.reverse()
+                for i in game:
+                    if type(i) != object.Platform:
+                        group_draw.add(i)
+                group_draw.add(HERO)
+            else:
+                camera_level('level1')
         pygame.display.flip()
         clock.tick(60)
 
@@ -615,35 +683,60 @@ while running:
 
     elif start_part:
         inf = False
+        skip = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    running = False
-            if event.type == pygame.MOUSEMOTION:
-                pass
+                    skip = True
+                if event.key == pygame.K_a:
+                    if Scene.count != 1:
+                        Scene.count = 1
+                        Scene.lock = 0
+                        Scene.anim = False
+                        Scene.animcount = 0
+                        Scene.image = pygame.image.load('data\\катсцены\\1 начало\\начало_1.png').convert()
+                        Scene.image.fill((0,0,0))
+                if event.key == pygame.K_d:
+                    inf = True
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
+                    Scene.lock = 1
                     inf = True
 
+        if skip:
+            sound.START_AUDIO.stop()
+            menu = True
+            start_part = False
+            create_button()
+            sound.MENU_AUDIO.play(-1)
+        else:
+            screen.fill((255, 255, 255))
+            group_draw.draw(screen)
+            window.blit(screen, middle)
+            '''if inf and Scene.count not in [1, 4, 5]:
+                if Scene.upd():
+                    sound.START_AUDIO.stop()
+                    menu = True
+                    start_part = False
+                    create_button()
+                    sound.MENU_AUDIO.play(-1)
+            if Scene.count in [1, 4, 5]:
+                print(1)
+                Scene.upd()'''
+            if inf:
+                if Scene.upd():
+                    sound.START_AUDIO.stop()
+                    menu = True
+                    start_part = False
+                    create_button()
+                    sound.MENU_AUDIO.play(-1)
+            if Scene.count in [1, 4]:
+                Scene.upd()
 
-
-        screen.fill((255, 255, 255))
-        group_draw.draw(screen)
-        window.blit(screen, middle)
-        if inf and Scene.count not in [1, 4, 5]:
-            if Scene.upd():
-                sound.START_AUDIO.stop()
-                menu = True
-                start_part = False
-                create_button()
-                sound.MENU_AUDIO.play(-1)
-        if Scene.count in [1, 4, 5]:
-            Scene.upd()
-
-        pygame.display.flip()
-        pygame.time.Clock().tick(60)
+            pygame.display.flip()
+            pygame.time.Clock().tick(60)
 
     elif settings:
         First_on_audio = 0
@@ -691,7 +784,14 @@ while running:
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    menu = False
+                    if len(game) != 0:
+                        menu = False
+                        loading = True
+                        sound.MENU_AUDIO.stop()
+                        button.clear()
+                        after_count = 0
+                        for e in group_draw:
+                            e.kill()
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
                     if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -728,6 +828,54 @@ while running:
         if not loading:
             txt = font.render('Spider Gay', 1, (0, 0, 0))
             screen.blit(txt, (WIDTH//3 -20, 50))
+        group_draw.draw(screen)
+        window.blit(screen, middle)
+        pygame.display.flip()
+        clock.tick(60)
+
+    elif map:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if len(game) != 0:
+                        map = False
+                        loading = True
+                        sound.MENU_AUDIO.stop()
+                        button.clear()
+                        after_count = 0
+                        for e in group_draw:
+                            e.kill()
+            if event.type == pygame.MOUSEMOTION:
+                for i in button:
+                    if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                        i.mouse(False)
+                    else:
+                        i.mouse(True)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 or event.button == 3:
+                    for i in button:
+                        if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                            screen.fill((0, 0, 0))
+                            if i.name == 'Exited':
+                                if len(game) != 0:
+                                    map = False
+                                    loading = True
+                                    sound.MENU_AUDIO.stop()
+                                    button.clear()
+                                    after_count = 0
+                                    for e in group_draw:
+                                        e.kill()
+
+                            pygame.display.flip()
+                            sound.BUTTON.play()
+                            sleep(2)
+
+
+
+
+        screen.fill((255, 255, 255))
         group_draw.draw(screen)
         window.blit(screen, middle)
         pygame.display.flip()
@@ -841,6 +989,15 @@ while running:
             menu = True
             button.clear()
             create_button()
+            sound.BACK_AUDIO.stop()
+            sound.BACK2_AUDIO.stop()
+            sound.FIGHT_AUDIO.stop()
+            sound.BACK_AFTER_WORDS.stop()
+            sound.MENU_AUDIO.play(-1)
+        if keys[pygame.K_j]:
+            map = True
+            button.clear()
+            create_button_map()
             sound.BACK_AUDIO.stop()
             sound.BACK2_AUDIO.stop()
             sound.FIGHT_AUDIO.stop()
