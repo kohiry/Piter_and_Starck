@@ -7,7 +7,6 @@ import time
 from pyganim import PygAnimation
 from pygame.locals import *
 import asyncio
-from level_mini_map import level as mini_map_level
 
 
 pygame.init()
@@ -54,8 +53,8 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
 loading = False
-start_part = False
-menu = True
+start_part = True
+menu = False
 map = False
 scene_enemy = False
 scene_enemy3 = False
@@ -699,6 +698,7 @@ while running:
                         Scene.image = pygame.image.load('data\\катсцены\\1 начало\\начало_1.png').convert()
                         Scene.image.fill((0,0,0))
                 if event.key == pygame.K_d:
+                    Scene.lock = 1
                     inf = True
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
