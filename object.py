@@ -769,8 +769,10 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.spawn = '@'
         self.level = 0
-        self.rect.x = x
-        self.rect.y = y
+        self.bottom = self.rect.bottom
+        self.rect.move(x, y)
+        self.anim = ''
+        self.old_anim = ''
         self.film = False
         self.side = 1
         self.yvel = 0
@@ -848,25 +850,32 @@ class Player(Sprite):
     def new_coord(self, x, y):
         self.rect.x = x
         self.rect.y = y
+        #self.x = x
+        #self.y = y
 
     def films(self):
         self.film = True
         self.xvel = 0
         self.yvel = 0
 
+    def change_coord(self, who):
+        if who == 'x':
+            #self.x += self.xvel
+            self.rect = self.rect.move(self.xvel, 0)
+
+        elif who == 'y':
+            #self.y += self.yvel
+            self.rect = self.rect.move(0, self.yvel)
+
+
     def resize(self, name):
         self.image = Surface(self.data_wh[name])
-        '''
-        if self.onGround:
-            if name == 'strike':
-                self.rect.y = self.y_basic + self.rect.height - 140
-            else:
-                self.rect.bottom = self.y_basic'''
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
 
     def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):
         global SPEED
+
         # animation
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
@@ -999,7 +1008,7 @@ class Player(Sprite):
 
                         elif self.side == -1 and strike and not use:
                             self.resize('strike')
-                            self.AnimeStrikeLeft.blit(self.image, (0, 0))
+                            self.AnimeStrikeLeft.blit(self.image, (-25, 0))
 
 
         else:
@@ -1032,6 +1041,7 @@ class Player(Sprite):
         # прыжок
         if not self.onGround:
             #if self.yvel < 50:
+            #self.yvel += GRAVITY
             self.yvel += GRAVITY
 
             if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film:
@@ -1046,10 +1056,12 @@ class Player(Sprite):
 
         self.onGround = False
         self.serf = False
-        self.rect.x += self.xvel
+        self.change_coord('x')
         self.collide(self.xvel, 0, platforms)
-        self.rect.y += self.yvel
+        self.change_coord('y')
         self.collide(0, self.yvel, platforms)
+        #print(self.rect.x)
+        print(self.rect)
 
         answer = self.teleport(self.xvel, 0, teleports, BOSS)
         if not answer:
@@ -1128,6 +1140,7 @@ class Player(Sprite):
     def collide(self, xvel, yvel, platforms):
         pl = sprite.spritecollideany(self, platforms, collided = None)
         if pl != None:
+            print(1)
             if pl.name == '-':
                 #self.serf = True
                 if yvel > 0:
@@ -1135,8 +1148,9 @@ class Player(Sprite):
                     self.onGround = True
                     self.count = 0
 
-                    #self.y_basic = pl.rect.bottom  # попытки подравнять спрайт take
+                    #self.rect.y = pl.rect.top - self.rect.height  # попытки подравнять спрайт take
                     self.rect.bottom = pl.rect.top
+                    print(2, self.rect.bottom)
                 if yvel < 0:
                     self.yvel = 0
 
@@ -1316,7 +1330,7 @@ class Monster_platform(Sprite):
 
 
 class Button(Sprite):
-    def __init__(self, x, y, width, height, name, who=None, tag=True):
+    def __init__(self, x, y, width, height, name, who=None, tag=True, use=False):
         Sprite.__init__(self)
         self.who = who
         self.name = name
@@ -1327,10 +1341,11 @@ class Button(Sprite):
         self.width = width
         self.height = height
         self.tag = tag
-        self.image.fill((255, 255, 255))
+        self.image.fill((0, 255, 0))
         self.rect.x = x
         self.rect.y = y
         self.number = [str(i) for i in range(1, 13)]
+        self.image.set_colorkey((0, 255, 0))
         if self.name in self.number:
             self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
             if self.name == "1":
@@ -1351,10 +1366,29 @@ class Button(Sprite):
             self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
         elif self.name == 'Shop':
             self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
+        if use:
+        elif self.name == '0':
+            self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_1_выкл.png').convert(), (0, 0))
+        elif self.name == '25':
+            self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_2_выкл.png').convert(), (0, 0))
+        elif self.name == '50':
+            self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_3_выкл.png').convert(), (0, 0))
+        elif self.name == '75':
+            self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_4_выкл.png').convert(), (0, 0))
+        elif self.name == '100':
+            self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_5_выкл.png').convert(), (0, 0))
+        elif self.name == 'назад':
+            self.image.blit(load('data\\НАСТРОЙКИ\\назад_выкл.png').convert(), (0, 0))
+
+
+
 
     def mouse(self, around):
+
+        self.image.set_colorkey((0, 255, 0))
+        self.image.fill((0, 255, 0))
         if around:
-            self.image.fill(self.BLACK)
+            self.image.fill((0, 255, 0))
             if self.name in self.number:
                 self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
                 if self.name == "1":
@@ -1375,6 +1409,18 @@ class Button(Sprite):
                 self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
             elif self.name == 'Shop':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
+            elif self.name == '0':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_1_выкл.png').convert(), (0, 0))
+            elif self.name == '25':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_2_выкл.png').convert(), (0, 0))
+            elif self.name == '50':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_3_выкл.png').convert(), (0, 0))
+            elif self.name == '75':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_4_выкл.png').convert(), (0, 0))
+            elif self.name == '100':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_5_выкл.png').convert(), (0, 0))
+            elif self.name == 'назад':
+                self.image.blit(load('data\\НАСТРОЙКИ\\назад_выкл.png').convert(), (0, 0))
 
             font = Font('pixle_font.ttf', 72)
             txt = font.render(self.name, 1, self.WHITE)
@@ -1386,7 +1432,9 @@ class Button(Sprite):
                 self.image.blit(txt, (text_x, text_y))
                 rect(self.image, self.WHITE, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
         else:
-            self.image.fill(self.WHITE)
+
+            self.image.set_colorkey((0, 255, 0))
+            self.image.fill((0, 255, 0))
             if self.name in self.number:
                 self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_вкл.png').convert(), (0, 0))
                 if self.name == "1":
@@ -1407,6 +1455,18 @@ class Button(Sprite):
                 self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_вкл.png').convert(), (0, 0))
             elif self.name == 'Shop':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_вкл.png').convert(), (0, 0))
+            elif self.name == '0':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_1_вкл.png').convert(), (0, 0))
+            elif self.name == '25':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_2_вкл.png').convert(), (0, 0))
+            elif self.name == '50':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_3_вкл.png').convert(), (0, 0))
+            elif self.name == '75':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_4_вкл.png').convert(), (0, 0))
+            elif self.name == '100':
+                self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_5_вкл.png').convert(), (0, 0))
+            elif self.name == 'назад':
+                self.image.blit(load('data\\НАСТРОЙКИ\\назад_вкл.png').convert(), (0, 0))
 
             font = Font('pixle_font.ttf', 72)
             txt = font.render(self.name, 1, self.BLACK)

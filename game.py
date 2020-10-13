@@ -53,8 +53,8 @@ jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
 loading = False
-start_part = True
-menu = False
+start_part = False
+menu = True
 map = False
 scene_enemy = False
 scene_enemy3 = False
@@ -223,11 +223,11 @@ def make_level(level):
         group_draw.add(pl)
 
 
-#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-size = width, height = 1080, 720
-window = pygame.display.set_mode(size)
-#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+#size = width, height = 1080, 720
+#window = pygame.display.set_mode(size)
+window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -346,7 +346,7 @@ def create_button_setting():
     button.clear()
     for e in group_draw:
         e.kill()
-    w, h = 90, 50
+    w, h = 113, 59
     music = 150
     sound = 400
     name_a = 'music'
@@ -354,20 +354,21 @@ def create_button_setting():
     name_c = 'menu'
     # music
     button.append(object.Button(100, music, w, h, '0', name_a))
-    button.append(object.Button(200, music, w, h, '25', name_a))
-    button.append(object.Button(300, music, w, h, '50', name_a))
-    button.append(object.Button(400, music, w, h, '75', name_a))
-    button.append(object.Button(500, music, w, h, '100', name_a))
+    button.append(object.Button(213, music, w, h, '25', name_a))
+    button.append(object.Button(323, music, w, h, '50', name_a))
+    button.append(object.Button(432, music, w, h, '75', name_a))
+    button.append(object.Button(542, music, w, h, '100', name_a))
 
     # sound
     button.append(object.Button(100, sound, w, h, '0', name_b))
-    button.append(object.Button(200, sound, w, h, '25', name_b))
-    button.append(object.Button(300, sound, w, h, '50', name_b))
-    button.append(object.Button(400, sound, w, h, '75', name_b))
-    button.append(object.Button(500, sound, w, h, '100', name_b))
+    button.append(object.Button(213, sound, w, h, '25', name_b))
+    button.append(object.Button(323, sound, w, h, '50', name_b))
+    button.append(object.Button(432, sound, w, h, '75', name_b))
+    button.append(object.Button(542, sound, w, h, '100', name_b))
 
     # menu
-    button.append(object.Button(740, sound, w*2, h*2, 'Exited', name_c))
+    button.append(object.Button(740, sound, 135, 68, 'назад', name_c, False))
+    group_draw.add(object.Background(0, 0, 'data\\НАСТРОЙКИ\\фон.png'))
     for i in button:
         group_draw.add(i)
 
@@ -758,7 +759,7 @@ while running:
                         if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
                             if i.who == 'music' or i.who == 'sound':
                                 sound_correct(i.name, i.who)
-                            if i.name == 'Exited':
+                            if i.name == 'назад':
                                 menu = True
                                 settings = False
                                 create_button()
