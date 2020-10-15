@@ -1061,7 +1061,6 @@ class Player(Sprite):
         self.change_coord('y')
         self.collide(0, self.yvel, platforms)
         #print(self.rect.x)
-        print(self.rect)
 
         answer = self.teleport(self.xvel, 0, teleports, BOSS)
         if not answer:
@@ -1140,7 +1139,6 @@ class Player(Sprite):
     def collide(self, xvel, yvel, platforms):
         pl = sprite.spritecollideany(self, platforms, collided = None)
         if pl != None:
-            print(1)
             if pl.name == '-':
                 #self.serf = True
                 if yvel > 0:
@@ -1150,7 +1148,6 @@ class Player(Sprite):
 
                     #self.rect.y = pl.rect.top - self.rect.height  # попытки подравнять спрайт take
                     self.rect.bottom = pl.rect.top
-                    print(2, self.rect.bottom)
                 if yvel < 0:
                     self.yvel = 0
 
@@ -1341,11 +1338,11 @@ class Button(Sprite):
         self.width = width
         self.height = height
         self.tag = tag
-        self.image.fill((0, 255, 0))
+        self.image.fill((0, 0, 0))
         self.rect.x = x
         self.rect.y = y
         self.number = [str(i) for i in range(1, 13)]
-        self.image.set_colorkey((0, 255, 0))
+        self.image.set_colorkey((0, 0, 0))
         if self.name in self.number:
             self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
             if self.name == "1":
@@ -1358,6 +1355,7 @@ class Button(Sprite):
                 self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
             elif self.name == "5":
                 self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
+
         elif self.name == 'Exit':
             self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
         elif self.name == 'Play':
@@ -1366,7 +1364,6 @@ class Button(Sprite):
             self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
         elif self.name == 'Shop':
             self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
-        if use:
         elif self.name == '0':
             self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_1_выкл.png').convert(), (0, 0))
         elif self.name == '25':
@@ -1379,16 +1376,19 @@ class Button(Sprite):
             self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_5_выкл.png').convert(), (0, 0))
         elif self.name == 'назад':
             self.image.blit(load('data\\НАСТРОЙКИ\\назад_выкл.png').convert(), (0, 0))
+        elif self.name == 'KPK':
+            self.image.blit(load('data\\интерфейс\\иконки и кнопки\\КПК_вкл.png').convert(), (0, 0))
+        elif self.name == 'menu_ink':
+            self.image.blit(load('data\\интерфейс\\иконки и кнопки\\дом_вкл.png').convert(), (0, 0))  # чёт не так с этими кнопками
 
 
 
 
     def mouse(self, around):
+        self.image.fill((0, 0, 0))
+        self.image.set_colorkey((0, 0, 0))
 
-        self.image.set_colorkey((0, 255, 0))
-        self.image.fill((0, 255, 0))
         if around:
-            self.image.fill((0, 255, 0))
             if self.name in self.number:
                 self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
                 if self.name == "1":
@@ -1421,8 +1421,12 @@ class Button(Sprite):
                 self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_5_выкл.png').convert(), (0, 0))
             elif self.name == 'назад':
                 self.image.blit(load('data\\НАСТРОЙКИ\\назад_выкл.png').convert(), (0, 0))
+            elif self.name == 'KPK':
+                self.image.blit(load('data\\интерфейс\\иконки и кнопки\\КПК_вкл.png').convert(), (0, 0))
+            elif self.name == 'menu_ink':
+                self.image.blit(load('data\\интерфейс\\иконки и кнопки\\дом_вкл.png').convert(), (0, 0))
 
-            font = Font('pixle_font.ttf', 72)
+            font = Font('pixle_font.ttf', 30)
             txt = font.render(self.name, 1, self.WHITE)
             text_x = self.width // 2 - txt.get_width() // 2
             text_y = self.height // 2 - txt.get_height() // 2
@@ -1432,9 +1436,6 @@ class Button(Sprite):
                 self.image.blit(txt, (text_x, text_y))
                 rect(self.image, self.WHITE, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
         else:
-
-            self.image.set_colorkey((0, 255, 0))
-            self.image.fill((0, 255, 0))
             if self.name in self.number:
                 self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_вкл.png').convert(), (0, 0))
                 if self.name == "1":
@@ -1467,9 +1468,13 @@ class Button(Sprite):
                 self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_5_вкл.png').convert(), (0, 0))
             elif self.name == 'назад':
                 self.image.blit(load('data\\НАСТРОЙКИ\\назад_вкл.png').convert(), (0, 0))
+            elif self.name == 'KPK':
+                self.image.blit(load('data\\интерфейс\\иконки и кнопки\\КПК_выкл.png').convert(), (0, 0))
+            elif self.name == 'menu_ink':
+                self.image.blit(load('data\\интерфейс\\иконки и кнопки\\дом_выкл.png').convert(), (0, 0))
 
-            font = Font('pixle_font.ttf', 72)
-            txt = font.render(self.name, 1, self.BLACK)
+            font = Font('pixle_font.ttf', 30)
+            txt = font.render(self.name, 1, self.WHITE)
             text_x = self.width // 2 - txt.get_width() // 2
             text_y = self.height // 2 - txt.get_height() // 2
             text_w = txt.get_width()

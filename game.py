@@ -69,6 +69,7 @@ draw_loc = 1
 
 #startet_obj
 group_draw = pygame.sprite.Group()
+group_interface = pygame.sprite.Group()
 group_platform = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 BOSS = object.Boss(10, 10)
@@ -265,6 +266,8 @@ def camera_level(place):
     global Boss_spawn
     for e in group_draw:
         e.kill()
+    for e in group_interface:
+        e.kill()
     platforms.clear()
     teleports.clear()
     enemy.clear()
@@ -313,15 +316,20 @@ def draw():
         txt = font.render('Заряжается...', 1, (0, 255, 0))
         rect = HERO.image.get_rect()
         screen.blit(txt, (WIDTH//2, HEIGHT-40))
+
     font = pygame.font.Font('pixle_font.ttf', 40)
     txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, (0, 255, 0))
+    group_interface.draw(screen)
     pygame.display.flip()
     screen.blit(txt, (0, 0)) #WIDTH-200, HEIGHT+100))
     window.blit(screen, middle)
+    group_interface.draw(screen)
 
 def create_button():
     button.clear()
     for e in group_draw:
+        e.kill()
+    for e in group_interface:
         e.kill()
     w, h = 302, 64
     button.append(object.Button(328, 145, w, h, 'Play', tag=False))
@@ -336,6 +344,8 @@ def create_button_map():
     button.clear()
     for e in group_draw:
         e.kill()
+    for e in group_interface:
+        e.kill()
     w, h = 302, 64
     button.append(object.Button(740, 400, w*2, h*2, 'Exited', 'menu'))
     group_draw.add(object.Background(0, 0, 'data\\катсцены\\корабль .png'))
@@ -346,28 +356,30 @@ def create_button_setting():
     button.clear()
     for e in group_draw:
         e.kill()
+    for e in group_interface:
+        e.kill()
     w, h = 113, 59
-    music = 150
-    sound = 400
+    music = 100
+    sound = 350
     name_a = 'music'
     name_b = 'sound'
     name_c = 'menu'
     # music
-    button.append(object.Button(100, music, w, h, '0', name_a))
-    button.append(object.Button(213, music, w, h, '25', name_a))
-    button.append(object.Button(323, music, w, h, '50', name_a))
-    button.append(object.Button(432, music, w, h, '75', name_a))
-    button.append(object.Button(542, music, w, h, '100', name_a))
+    button.append(object.Button(70, music, w, h, '0', name_a))
+    button.append(object.Button(183, music, w, h, '25', name_a))
+    button.append(object.Button(293, music, w, h, '50', name_a))
+    button.append(object.Button(402, music, w, h, '75', name_a))
+    button.append(object.Button(512, music, w, h, '100', name_a))
 
     # sound
-    button.append(object.Button(100, sound, w, h, '0', name_b))
-    button.append(object.Button(213, sound, w, h, '25', name_b))
-    button.append(object.Button(323, sound, w, h, '50', name_b))
-    button.append(object.Button(432, sound, w, h, '75', name_b))
-    button.append(object.Button(542, sound, w, h, '100', name_b))
+    button.append(object.Button(70, sound, w, h, '0', name_b))
+    button.append(object.Button(183, sound, w, h, '25', name_b))
+    button.append(object.Button(293, sound, w, h, '50', name_b))
+    button.append(object.Button(402, sound, w, h, '75', name_b))
+    button.append(object.Button(512, sound, w, h, '100', name_b))
 
     # menu
-    button.append(object.Button(740, sound, 135, 68, 'назад', name_c, False))
+    button.append(object.Button(760, 420, 135, 68, 'назад', name_c, False))
     group_draw.add(object.Background(0, 0, 'data\\НАСТРОЙКИ\\фон.png'))
     for i in button:
         group_draw.add(i)
@@ -452,6 +464,32 @@ if KPK:
     for i in button:
         group_draw.add(i)
 
+def KPK_create():
+    x_1 = 64
+    x_2 = 364
+    x_3 = 664
+    w, h = 234, 64
+    for e in group_draw:
+        e.kill()
+    for e in group_interface:
+        e.kill()
+    button.clear()
+    button.append(object.Button(x_1, 140, w, h, '1', tag=False))
+    button.append(object.Button(x_1, 230, w, h, '2', tag=False))
+    button.append(object.Button(x_1, 320, w, h, '3', tag=False))
+    button.append(object.Button(x_1, 408, w, h, '4', tag=False))
+    button.append(object.Button(x_2, 140, w, h, '5', tag=False))
+    button.append(object.Button(x_2, 230, w, h, '6', tag=False))
+    button.append(object.Button(x_2, 320, w, h, '7', tag=False))
+    button.append(object.Button(x_2, 408, w, h, '8', tag=False))
+    button.append(object.Button(x_3, 140, w, h, '9', tag=False))
+    button.append(object.Button(x_3, 230, w, h, '10', tag=False))
+    button.append(object.Button(x_3, 320, w, h, '11', tag=False))
+    button.append(object.Button(x_3, 408, w, h, '12', tag=False))
+    group_draw.add(object.Background(0, 0, r'data\КПК\1\фон.png'))
+    for i in button:
+        group_draw.add(i)
+
 if start_part:
     sound.START_AUDIO.play()
     for e in group_draw:
@@ -490,6 +528,15 @@ def scene_moster():
     #Scene = object.Cutscene('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png', HEIGHT, 'enemy')
     #group_draw.add(Scene)
 
+def interface_bytton():
+    pl = object.Button(kpk_width, all_height, 46, 39, 'KPK', tag=False)
+    pl2 = object.Button(menu_width, all_height, 47, 46, 'menu_ink', tag=False)
+    button.append(pl)
+    button.append(pl2)
+    group_interface.add(pl)
+    group_interface.add(pl2)
+    group_draw.add(HERO)
+
 running = True
 clock = pygame.time.Clock()
 pygame.init()
@@ -502,7 +549,25 @@ while running:
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    running = False
+                    KPK = False
+                    loading = True
+                    sound.MENU_AUDIO.stop()
+                    button.clear()
+                    after_count = 0
+                    for e in group_draw:
+                        e.kill()
+                    for e in group_interface:
+                        e.kill()
+                if event.key == pygame.K_k:
+                    KPK = False
+                    loading = True
+                    sound.MENU_AUDIO.stop()
+                    button.clear()
+                    after_count = 0
+                    for e in group_draw:
+                        e.kill()
+                    for e in group_interface:
+                        e.kill()
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
                     if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -551,22 +616,30 @@ while running:
         txt = font.render('Загрузка...', 1, (0, 0, 0))
         screen.blit(txt, (WIDTH//3, 250))
         window.blit(screen, middle)
+        kpk_width = 850
+        menu_width = 100
+        all_height = 60
         if after_count < 2:
             after_count+= 1
             sleep(1)
         else:
             loading = False
             if len(game) != 0:
+
                 button.clear()
                 for e in group_draw:
+                    e.kill()
+                for e in group_interface:
                     e.kill()
                 game.reverse()
                 for i in game:
                     if type(i) != object.Platform:
                         group_draw.add(i)
-                group_draw.add(HERO)
+                interface_bytton()
+
             else:
                 camera_level('level1')
+                interface_bytton()
         pygame.display.flip()
         clock.tick(60)
 
@@ -749,7 +822,7 @@ while running:
                     running = False
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
-                    if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                    if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):  # добавить залипание выбранной кнопки звука
                         i.mouse(False)
                     else:
                         i.mouse(True)
@@ -767,13 +840,14 @@ while running:
 
 
         screen.fill((255, 255, 255))
-        font = pygame.font.Font('pixle_font.ttf', 72)
-        txt = font.render('Music', 1, (0, 0, 0))
-        screen.blit(txt, (WIDTH//3 - 120, 50))
-        font = pygame.font.Font('pixle_font.ttf', 72)
-        txt = font.render('Sound', 1, (0, 0, 0))
-        screen.blit(txt, (WIDTH//3 - 120, 300))
         group_draw.draw(screen)
+        font = pygame.font.Font('pixle_font.ttf', 50)
+        txt = font.render('Music', 1, (255, 255, 255))
+        screen.blit(txt, (WIDTH//3 - 250, 20))
+        font = pygame.font.Font('pixle_font.ttf', 50)
+        txt = font.render('Sound', 1, (255, 255, 255))
+        screen.blit(txt, (WIDTH//3 - 250, 270))
+
         window.blit(screen, middle)
         pygame.display.flip()
         clock.tick(60)
@@ -942,6 +1016,39 @@ while running:
                 if event.button == 3:
                     E = False
 
+            if event.type == pygame.MOUSEMOTION:
+                for i in button:
+                    if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                        i.mouse(False)
+                    else:
+                        i.mouse(True)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 or event.button == 3:
+                    for i in button:
+                        if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                            screen.fill((0, 0, 0))
+                            if i.name == 'KPK':
+                                KPK = True
+                                button.clear()
+                                KPK_create()
+                                sound.BACK_AUDIO.stop()
+                                sound.BACK2_AUDIO.stop()
+                                sound.FIGHT_AUDIO.stop()
+                                sound.BACK_AFTER_WORDS.stop()
+                                sound.MENU_AUDIO.play(-1)
+                            if i.name == 'menu_ink':
+                                menu = True
+                                button.clear()
+                                create_button()
+                                sound.BACK_AUDIO.stop()
+                                sound.BACK2_AUDIO.stop()
+                                sound.FIGHT_AUDIO.stop()
+                                sound.BACK_AFTER_WORDS.stop()
+                                sound.MENU_AUDIO.play(-1)
+
+                            pygame.display.flip()
+                            sound.BUTTON.play()
+                            sleep(2)
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
 
 
@@ -999,6 +1106,16 @@ while running:
             map = True
             button.clear()
             create_button_map()
+            sound.BACK_AUDIO.stop()
+            sound.BACK2_AUDIO.stop()
+            sound.FIGHT_AUDIO.stop()
+            sound.BACK_AFTER_WORDS.stop()
+            sound.MENU_AUDIO.play(-1)
+
+        if keys[pygame.K_k]:
+            KPK = True
+            button.clear()
+            KPK_create()
             sound.BACK_AUDIO.stop()
             sound.BACK2_AUDIO.stop()
             sound.FIGHT_AUDIO.stop()
