@@ -109,6 +109,50 @@ ANIMATION_INFO_YELLOW = add_sprite('data\\КПК\\2\\жёлтая_ягода', 2
 ANIMATION_INFO_BLUE = add_sprite('data\\КПК\\2\\потолочный_гриб', 2, False)
 ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, False)
 
+class Dialog_Tab(Sprite):
+    def __init__(self):
+        Sprite.__init__(self)
+        self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert()
+        self.image.set_colorkey((0, 255, 0))
+        self.image.fill((0, 255, 0))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.data = {
+            'stark_bad': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_недоволен.png').convert(),
+            'stark_neitral': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_нейтрал.png').convert(),
+            'stark_happy': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_рад.png').convert(),
+            'piter_napriag': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_напряг.png').convert(),
+            'piter_neitral': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png').convert(),
+            'piter_sad': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_обижен.png').convert(),
+            'piter_sheet': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_падла.png').convert(),
+            'piter_kill_1': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_убивака_1.png').convert(),
+            'piter_kill_2': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_убивака_2.png').convert(),
+            'piter_shock': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_удивлен.png').convert(),
+            'piter_very_sad': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_уныние.png').convert(),
+            'piter_flirt': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_флирт.png').convert(),
+            'spider': load('data\\интерфейс\\иконки и кнопки\\морды\\грибной_паук.png').convert(),
+            'Boss': load('data\\интерфейс\\иконки и кнопки\\морды\\королева.png').convert(),
+            'esh': load('data\\интерфейс\\иконки и кнопки\\морды\\ёж.png').convert(),
+        }
+
+class Health_tab(Sprite):
+    def __init__(self, x, y):
+        Sprite.__init__(self)
+        self.image = load('data\\интерфейс\\иконки и кнопки\\жизни\\жизни_10.png')
+        self.image.fill((0, 0, 0))
+        self.image.set_colorkey((0, 0, 0))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def new_image(self, helth):
+        self.image.fill((0, 0, 0))
+        self.image.set_colorkey((0, 0, 0))
+        if helth >= 0:
+            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_{helth}.png')
+        else:
+            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_0.png')
 
 class Cutscene(Sprite):
     def __init__(self, filename, end, name):
@@ -781,7 +825,7 @@ class Player(Sprite):
         self.xvel = 0
         self.onGround = False
         self.count = 0
-        self.helth = 3
+        self.helth = 9
         self.fight = False
         self.jump = False
         self.serf = False
@@ -1378,6 +1422,8 @@ class Button(Sprite):
             self.image.blit(load('data\\НАСТРОЙКИ\\назад_выкл.png').convert(), (0, 0))
         elif self.name == 'KPK':
             self.image.blit(load('data\\интерфейс\\иконки и кнопки\\КПК_вкл.png').convert(), (0, 0))
+        elif self.name == 'back':
+            self.image.blit(load('data\\интерфейс\\иконки и кнопки\\назад_выкл.png').convert(), (0, 0))
         elif self.name == 'menu_ink':
             self.image.blit(load('data\\интерфейс\\иконки и кнопки\\дом_вкл.png').convert(), (0, 0))  # чёт не так с этими кнопками
 
@@ -1425,6 +1471,8 @@ class Button(Sprite):
                 self.image.blit(load('data\\интерфейс\\иконки и кнопки\\КПК_вкл.png').convert(), (0, 0))
             elif self.name == 'menu_ink':
                 self.image.blit(load('data\\интерфейс\\иконки и кнопки\\дом_вкл.png').convert(), (0, 0))
+            elif self.name == 'back':
+                self.image.blit(load('data\\интерфейс\\иконки и кнопки\\назад_выкл.png').convert(), (0, 0))
 
             font = Font('pixle_font.ttf', 30)
             txt = font.render(self.name, 1, self.WHITE)
@@ -1472,6 +1520,8 @@ class Button(Sprite):
                 self.image.blit(load('data\\интерфейс\\иконки и кнопки\\КПК_выкл.png').convert(), (0, 0))
             elif self.name == 'menu_ink':
                 self.image.blit(load('data\\интерфейс\\иконки и кнопки\\дом_выкл.png').convert(), (0, 0))
+            elif self.name == 'back':
+                self.image.blit(load('data\\интерфейс\\иконки и кнопки\\назад_вкл.png').convert(), (0, 0))
 
             font = Font('pixle_font.ttf', 30)
             txt = font.render(self.name, 1, self.WHITE)

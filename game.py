@@ -73,6 +73,7 @@ group_interface = pygame.sprite.Group()
 group_platform = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 BOSS = object.Boss(10, 10)
+health_tab = object.Health_tab(450, 60)
 BOSS.new_coord(-100, -100)
 platforms = []
 teleports = []
@@ -486,6 +487,7 @@ def KPK_create():
     button.append(object.Button(x_3, 230, w, h, '10', tag=False))
     button.append(object.Button(x_3, 320, w, h, '11', tag=False))
     button.append(object.Button(x_3, 408, w, h, '12', tag=False))
+    button.append(object.Button(890, 470, 48, 48, 'back', tag=False))
     group_draw.add(object.Background(0, 0, r'data\КПК\1\фон.png'))
     for i in button:
         group_draw.add(i)
@@ -533,8 +535,10 @@ def interface_bytton():
     pl2 = object.Button(menu_width, all_height, 47, 46, 'menu_ink', tag=False)
     button.append(pl)
     button.append(pl2)
+    health_tab
     group_interface.add(pl)
     group_interface.add(pl2)
+    group_interface.add(health_tab)
     group_draw.add(HERO)
 
 running = True
@@ -579,9 +583,22 @@ while running:
                     if len(info) == 0:
                         for i in button:
                             if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
-                                pl = object.Info(i.name)
-                                info.append(pl)
-                                group_draw.add(pl)
+                                if i.name != 'back':
+                                    pl = object.Info(i.name)
+                                    info.append(pl)
+                                    group_draw.add(pl)
+                                else:
+                                    KPK = False
+                                    loading = True
+                                    sound.MENU_AUDIO.stop()
+                                    button.clear()
+                                    after_count = 0
+                                    for e in group_draw:
+                                        e.kill()
+                                    for e in group_interface:
+                                        e.kill()
+
+
                 if event.button == 3:
                     if len(info) > 0:
                         info[0].life_die(False)
@@ -1058,6 +1075,7 @@ while running:
             #group_draw.add(pl) Потом исправлю фигню с фризом, когда создаю объект болл"""
         draw()
         take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
+        health_tab.new_image(HERO.helth)
         if Strike_fast:
             for_strike_count_time_when_we_see_text += 1
         if for_strike_count_time_when_we_see_text >= 5:
@@ -1130,14 +1148,15 @@ while running:
             sound.MENU_AUDIO.stop()
             sound.CUTSCENE_AUDIO.play(-1)
             black_count = 0
-            if type(HERO.who_kill[0]) == object.Enemy:
-                scene_enemy = True
-            elif type(HERO.who_kill[0]) == object.Enemy2:
-                scene_enemy2 = True
-                scene_enemy_def()
-            elif type(HERO.who_kill[0]) == object.Monster:
-                scene_enemy3 = True
-                scene_moster()
+            if len(HERO.who_kill) != 0:
+                if type(HERO.who_kill[0]) == object.Enemy:
+                    scene_enemy = True
+                elif type(HERO.who_kill[0]) == object.Enemy2:
+                    scene_enemy2 = True
+                    scene_enemy_def()
+                elif type(HERO.who_kill[0]) == object.Monster:
+                    scene_enemy3 = True
+                    scene_moster()
 
 
 pygame.quit()
