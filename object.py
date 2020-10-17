@@ -9,10 +9,12 @@ from pygame.font import Font
 from pygame import Rect
 from pygame import mixer
 from pygame import sprite
+from pygame.display import set_mode
+from time import process_time
 mixer.init()
 
 
-SPEED = 6
+SPEED = 8
 GRAVITY = 1
 JUMP_POWER = 5
 
@@ -110,14 +112,20 @@ ANIMATION_INFO_BLUE = add_sprite('data\\КПК\\2\\потолочный_гриб
 ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, False)
 
 class Dialog_Tab(Sprite):
-    def __init__(self):
+    def __init__(self, x, y):
         Sprite.__init__(self)
-        self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert()
-        self.image.set_colorkey((0, 255, 0))
+
+        self.image = load('data\\интерфейс\\диалоговая_полоса.png')
+        set_mode()
         self.image.fill((0, 255, 0))
+        self.image.set_colorkey((0, 255, 0))
+        self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
+        #self.image = load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png')
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.old_art = 'piter_neitral'
+        self.art_now = 'piter_neitral'
         self.data = {
             'stark_bad': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_недоволен.png').convert(),
             'stark_neitral': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_нейтрал.png').convert(),
@@ -135,6 +143,36 @@ class Dialog_Tab(Sprite):
             'Boss': load('data\\интерфейс\\иконки и кнопки\\морды\\королева.png').convert(),
             'esh': load('data\\интерфейс\\иконки и кнопки\\морды\\ёж.png').convert(),
         }
+        for i in self.data.keys():
+            self.data[i].set_colorkey((0, 0, 0))
+        self.image.blit(self.data['piter_neitral'], (0, 414))  # ещё не перешёл в интеграцию в игру
+
+
+    def check(self, enemys, hero):
+        obl = 600
+
+        for i in enemys:
+            if Rect(hero.rect.topleft[0]-obl, hero.rect.topleft[1]-obl, 2*obl, 2*obl).colliderect(i.rect) and not i.phrase:
+                if self.art_now == self.old_art and self.art_now not in ['spider', 'esh', 'Boss']:
+                    self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
+                    name = ''
+                    if type(i) == Enemy:
+                        name = 'spider'
+                        self.image.blit(self.data['spider'], (0, 414))
+                    elif type(i) == Enemy2:
+                        name = 'esh'
+                        self.image.blit(self.data['esh'], (0, 414))
+                    elif type(i) == Boss:
+                        name = 'Boss'
+                        self.image.blit(self.data['Boss'], (0, 414))
+                    self.old_art = self.art_now
+                    self.art_now = name
+                break
+        else:
+            if self.art_now in ['spider', 'esh', 'Boss']:
+                self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
+                self.image.blit(self.data['piter_neitral'], (0, 414))
+            self.old_art = self.art_now = 'piter_neitral'
 
 class Health_tab(Sprite):
     def __init__(self, x, y):
@@ -338,6 +376,7 @@ class Enemy(Sprite):
         self.rect.y = y
         self.yvel = 0
         self.xvel = 0
+        self.phrase = False
         self.side = 1
         self.isdie = False
         self.helth = 10
@@ -362,8 +401,8 @@ class Enemy(Sprite):
         self.AnimeEnemyDieRight.play()
 
     def AI(self, hero, platforms):
-        if not self.damage and (self.rect.x >= hero.rect.x + 300 or hero.rect.x >= self.rect.x + 300):
-            if self.rect.y >= hero.rect.y + 300 or hero.rect.y >= self.rect.y + 300:
+        if not self.damage and (self.rect.x >= hero.rect.x + 1000 or hero.rect.x >= self.rect.x + 1000):
+            if self.rect.y >= hero.rect.y + 1000 or hero.rect.y >= self.rect.y + 1000:
                 pass
         elif self.damage:
             if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
@@ -453,6 +492,7 @@ class Enemy2(Sprite):
         self.rect.y = y
         self.yvel = 0
         self.xvel = 0
+        self.phrase = False
         self.side = 1
         self.isdie = False
         self.helth = 10
@@ -518,6 +558,7 @@ class Boss(Sprite):
         self.SPIDER_AUDIO = Sound().SPIDER_AUDIO
         self.yvel = 0
         self.xvel = 0
+        self.phrase = False
         self.isdie = False
         self.helth = 3
         self.onGround = False
@@ -612,10 +653,11 @@ class Boss(Sprite):
         self.yvel = 0
 
 
-class Ball:
+class Ball(Sprite):
     def __init__(self, x, y, side, r=20):
+        Sprite.__init__(self)
         self.damage_audio = Sound().DAMAGE_AUDIO
-        self.image = Surface((r, r))
+        self.image = load('data\\штуки\\выстрел_паутины.png')
         self.image.fill((125, 125, 125))
         self.rect = self.image.get_rect()
         self.side = side
@@ -662,10 +704,6 @@ class Ball:
             self.kill()
             self.die = True
 
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
-
-
 class Monster(Sprite):
     def __init__(self, x, y, width=522, height=486):
         Sprite.__init__(self)
@@ -679,6 +717,7 @@ class Monster(Sprite):
         self.xvel = 0
         self.isdie = False
         self.eat = 0
+        self.phrase = False
         self.death = False
         self.animationR = []
         self.animationL = []
@@ -837,6 +876,7 @@ class Player(Sprite):
         self.animationR = []
         self.animationL = []
         self.who_kill = []
+        self.old_time_on = 0
         self.death = False
         for i in ANIMATION_HERO_LOSE_RIGHT:
             #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
@@ -1169,14 +1209,11 @@ class Player(Sprite):
     def enemys(self, enemy):
         for pl in enemy:
             if collide_rect(self, pl):
-                if not pl.isdie:
+                if not pl.isdie and process_time() - self.old_time_on >= 2:
+                    self.old_time_on = process_time()
                     self.helth -= 1
                     if self.helth <= 0:
                         self.who_kill.append(pl)
-                    if pl.xvel >= 0:
-                        self.rect.x += SPEED * 4
-                    else:
-                        self.rect.x += -(SPEED * 4)
                     break
 
 

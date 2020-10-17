@@ -74,6 +74,7 @@ group_platform = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 BOSS = object.Boss(10, 10)
 health_tab = object.Health_tab(450, 60)
+dialog_tab = object.Dialog_Tab(0, 0)
 BOSS.new_coord(-100, -100)
 platforms = []
 teleports = []
@@ -225,11 +226,11 @@ def make_level(level):
         group_draw.add(pl)
 
 
-middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-#size = width, height = 1080, 720
-#window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+size = width, height = 1080, 720
+window = pygame.display.set_mode(size)
+#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -281,6 +282,7 @@ def camera_level(place):
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)
     make_level(MAP[place])
+    MAP.clear()
     if place == 'level69':
         group_draw.add(BOSS)
         Boss_spawn = True
@@ -288,6 +290,7 @@ def camera_level(place):
 
 def draw():
     global draw_loc, location
+    print(MAP)
     screen.fill((0, 0, 0))
     last_level = location
     location = HERO.level
@@ -307,24 +310,23 @@ def draw():
         if pygame.Rect(HERO.rect.topleft[0]-obl, HERO.rect.topleft[1]-obl, 2*obl, 2*obl).colliderect(e.rect):
             screen.blit(e.image, coord)
 
-
+    white = (255, 255, 255)
     if take_barries:
         font = pygame.font.Font('pixle_font.ttf', 20)
-        txt = font.render('нажми на ПКМ чтобы собрать плоды', 1, (0, 255, 0))
+        txt = font.render('нажми на ПКМ чтобы собрать плоды', 1, white)
         screen.blit(txt, (50, 50))
     if Strike_fast:
         font = pygame.font.Font('pixle_font.ttf', 40)
-        txt = font.render('Заряжается...', 1, (0, 255, 0))
+        txt = font.render('Заряжается...', 1, white)
         rect = HERO.image.get_rect()
         screen.blit(txt, (WIDTH//2, HEIGHT-40))
 
     font = pygame.font.Font('pixle_font.ttf', 40)
-    txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, (0, 255, 0))
+    txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, white)
     group_interface.draw(screen)
     pygame.display.flip()
     screen.blit(txt, (0, 0)) #WIDTH-200, HEIGHT+100))
     window.blit(screen, middle)
-    group_interface.draw(screen)
 
 def create_button():
     button.clear()
@@ -535,10 +537,10 @@ def interface_bytton():
     pl2 = object.Button(menu_width, all_height, 47, 46, 'menu_ink', tag=False)
     button.append(pl)
     button.append(pl2)
-    health_tab
     group_interface.add(pl)
     group_interface.add(pl2)
     group_interface.add(health_tab)
+    group_interface.add(dialog_tab)
     group_draw.add(HERO)
 
 running = True
@@ -995,15 +997,7 @@ while running:
                     Strike = True
                     ball += 1
 
-                """if event.button == 1:
-                    if len(balls) < 2:
-                        Strike_fast = False
-                        first_strike_timer = time.process_time()
-                        sound.STRIKE_AUDIO.play()
-                        pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
-                        balls.append(pl)
-                        group_draw.add(pl)
-                    elif int(time.process_time()) - first_strike_timer >= 1:
+                    if int(time.process_time()) - first_strike_timer >= 1:
                         Strike_fast = False
                         first_strike_timer = time.process_time()
                         sound.STRIKE_AUDIO.play()
@@ -1012,7 +1006,7 @@ while running:
                         group_draw.add(pl)
 
                     else:
-                        Strike_fast = True"""
+                        Strike_fast = True
                 if event.button == 3:
                     sound.USE_AUDIO.play()
                     E = True
@@ -1065,7 +1059,7 @@ while running:
 
                             pygame.display.flip()
                             sound.BUTTON.play()
-                            sleep(2)
+                            #sleep(2)
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
 
 
@@ -1076,6 +1070,7 @@ while running:
         draw()
         take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         health_tab.new_image(HERO.helth)
+        dialog_tab.check(enemy, HERO)
         if Strike_fast:
             for_strike_count_time_when_we_see_text += 1
         if for_strike_count_time_when_we_see_text >= 5:
@@ -1092,11 +1087,10 @@ while running:
             BOSS.AI(HERO, platforms)
         if HERO.helth <= 0:
             HERO.respawn()
-        """for i in balls:
+        for i in balls:
             i.update(platforms, enemy, BOSS)
             if i.die:
                 del balls[balls.index(i)]
-            i.draw(screen)"""
         if HERO.fight and not fight:
             fight = True
             sound.BACK_AUDIO.stop()
