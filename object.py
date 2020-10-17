@@ -21,7 +21,7 @@ JUMP_POWER = 5
 
 # animation
 
-ANIMATION_DELAY = 100
+ANIMATION_DELAY = 80
 line_1 = 'data/паук/стоит/'
 end = '.png'
 
@@ -1540,7 +1540,7 @@ class Button(Sprite):
             elif self.name == 'Settings':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_вкл.png').convert(), (0, 0))
             elif self.name == 'Shop':
-                self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_вкл.png').convert(), (0, 0))
+                self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
             elif self.name == '0':
                 self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_1_вкл.png').convert(), (0, 0))
             elif self.name == '25':

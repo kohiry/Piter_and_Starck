@@ -71,6 +71,7 @@ draw_loc = 1
 group_draw = pygame.sprite.Group()
 group_interface = pygame.sprite.Group()
 group_platform = pygame.sprite.Group()
+batton_in_KPK = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 BOSS = object.Boss(10, 10)
 health_tab = object.Health_tab(450, 60)
@@ -290,7 +291,6 @@ def camera_level(place):
 
 def draw():
     global draw_loc, location
-    print(MAP)
     screen.fill((0, 0, 0))
     last_level = location
     location = HERO.level
@@ -489,10 +489,13 @@ def KPK_create():
     button.append(object.Button(x_3, 230, w, h, '10', tag=False))
     button.append(object.Button(x_3, 320, w, h, '11', tag=False))
     button.append(object.Button(x_3, 408, w, h, '12', tag=False))
-    button.append(object.Button(890, 470, 48, 48, 'back', tag=False))
+    pl = object.Button(20, 10, 48, 48, 'back', tag=False)
+    batton_in_KPK.add(pl)
+    button.append(pl)
     group_draw.add(object.Background(0, 0, r'data\КПК\1\фон.png'))
     for i in button:
-        group_draw.add(i)
+        if i.name != 'back':
+            group_draw.add(i)
 
 if start_part:
     sound.START_AUDIO.play()
@@ -549,6 +552,9 @@ pygame.init()
 
 while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
+    if start_game:
+        pass
+
     if KPK:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -582,6 +588,7 @@ while running:
                         i.mouse(True)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
+
                     if len(info) == 0:
                         for i in button:
                             if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -599,6 +606,13 @@ while running:
                                         e.kill()
                                     for e in group_interface:
                                         e.kill()
+                                    i.kill()
+                    else:
+                        for i in batton_in_KPK:
+                            if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
+                                if len(info) > 0:
+                                    info[0].life_die(False)
+                                info.clear()
 
 
                 if event.button == 3:
@@ -612,6 +626,7 @@ while running:
             if not info[0].life_die(True):
                 info.clear()
         group_draw.draw(screen)
+        batton_in_KPK.draw(screen)
         window.blit(screen, middle)
         pygame.display.flip()
         clock.tick(60)
