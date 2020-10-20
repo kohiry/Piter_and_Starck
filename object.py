@@ -21,7 +21,7 @@ JUMP_POWER = 5
 
 # animation
 
-ANIMATION_DELAY = 80
+ANIMATION_DELAY = 120
 line_1 = 'data/паук/стоит/'
 end = '.png'
 
@@ -36,10 +36,10 @@ def add_sprite(name, lens, can=True):
     return sprites
 
 
-def Work(anim, speed=ANIMATION_DELAY, correct=None):
+def Work(anim, speed=ANIMATION_DELAY, correct=None, speed_coorect=500):
     data = []
-    if correct == True:
-        speed = 500
+    if correct:
+        speed = speed_coorect
     for i in anim:
         data.append((i, speed))
     return data
@@ -110,6 +110,28 @@ ANIMATION_INFO_ESJH = add_sprite('data\\КПК\\2\\ёж_', 3)
 ANIMATION_INFO_YELLOW = add_sprite('data\\КПК\\2\\жёлтая_ягода', 2, False)
 ANIMATION_INFO_BLUE = add_sprite('data\\КПК\\2\\потолочный_гриб', 2, False)
 ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, False)
+
+ANIMATION_START = add_sprite('data\\ЗАСТАВКА\\', 9)
+
+class Start(Sprite):
+    def __init__(self):
+        Sprite.__init__(self)
+        set_mode()
+        self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
+
+        #self.image = load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png')
+        self.rect = self.image.get_rect()
+        self.old_time = 0
+        self.change = True
+
+        self.Anime = PygAnimation(Work(ANIMATION_START))
+        self.Anime.play()
+
+    def upd(self, tag):
+        if tag:
+            self.Anime.blit(self.image, (0, 0))
+        else:
+            self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
 
 class Dialog_Tab(Sprite):
     def __init__(self, x, y):
@@ -228,7 +250,7 @@ class Cutscene(Sprite):
             if not self.anim:
                 self.animcount += 1
                 self.image.blit(self.animation_black[self.animcount // 5], (0, 0))
-            if self.rect.y + 1529 <= self.end and self.anim:
+            if self.rect.y + 1528 <= self.end and self.anim:
                 self.count = 2
             else:
                 if self.anim:
@@ -248,59 +270,7 @@ class Cutscene(Sprite):
             self.image = load(self.filename + str(self.count) + '.png').convert()
         elif self.count + 1 > 7:
             return True
-        """
-        if self.count == 1 and self.name == 'spawn':
 
-            self.number = 0
-            if not self.anim:
-                self.image.blit(load(self.filename + '1.png').convert(), (0, 0))
-            if self.animcount >= 29:
-                self.lock += 1
-                self.animcount = 0
-                self.anim = True
-            if self.lock == 1:
-                self.lock += 1
-                self.image.blit(load(self.filename + '1.png').convert(), (0, 0))
-
-            if not self.anim:
-                self.animcount += 1  # попытка затемнить экран оказалась неуспешной ибо затемнение двигается с самим Surface
-                #print(self.animcount // 10)
-                self.image.blit(self.animation_black[self.animcount // 5], (0, 0))
-            #
-
-            #print(self.rect.y + 1529 <= self.end and self.anim)
-            if self.rect.y + 1529 <= self.end and self.anim:
-                self.count = 2
-            else:
-                #print(self.anim)
-                if self.anim:
-                    self.rect.y -= 2
-        else:
-            if self.name == 'spawn' and self.count == 4:
-
-                self.animcount += 1
-                self.number = 0
-                self.image.blit(self.animation[self.animcount // 10], (0, 0))
-                if self.animcount >= 29:
-                    self.name = 'spaw'
-                    self.count += 1
-                return False
-            else:
-                self.rect.y = 0
-                if self.count <= 7 and self.count != 3:
-
-                    self.number = 0
-                    self.image = load(self.filename + str(self.count) + '.png').convert()
-                    self.count += 1
-                    return False
-                elif self.count == 3:
-                    self.number += 1
-                    self.image = load(self.filename + str(self.count) + '.png').convert()
-                    if self.number == 2:
-                        self.count += 1
-                    return False
-                else:
-                    return True"""
 
 
 class After_words(Sprite):
@@ -401,23 +371,21 @@ class Enemy(Sprite):
         self.AnimeEnemyDieRight.play()
 
     def AI(self, hero, platforms):
-        if not self.damage and (self.rect.x >= hero.rect.x + 1000 or hero.rect.x >= self.rect.x + 1000):
-            if self.rect.y >= hero.rect.y + 1000 or hero.rect.y >= self.rect.y + 1000:
-                pass
-        elif self.damage:
+        way = 1000
+        if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
+            self.update(False, True, platforms)
+        elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
+            self.update(True, False, platforms)
+        else:
+            self.update(False, False, platforms)
+        """elif self.damage:
             if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
                 self.update(False, True, platforms)
             elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
                 self.update(True, False, platforms)
             else:
-                self.update(False, False, platforms)
-        else:
-            if hero.rect.x <= self.rect.x + 1000 and hero.rect.x > self.rect.x + self.rect.width-1:
-                self.update(False, True, platforms)
-            elif hero.rect.x >= self.rect.x - 1000 and hero.rect.x < self.rect.x:
-                self.update(True, False, platforms)
-            else:
-                self.update(False, False, platforms)
+                self.update(False, False, platforms)"""
+
 
     def update(self, left, right, platforms):
         # лево право
@@ -904,8 +872,8 @@ class Player(Sprite):
         self.AnimeStrikeRight = PygAnimation(Work(ANIMATION_HERO_STRIKE_RIGHT))
         self.AnimeStrikeLeft = PygAnimation(Work(ANIMATION_HERO_STRIKE_LEFT))
 
-        self.AnimeStayLeft = PygAnimation(Work(ANIMATION_HERO_STAY_LEFT))
-        self.AnimeStayRight = PygAnimation(Work(ANIMATION_HERO_STAY_RIGHT))
+        self.AnimeStayLeft = PygAnimation(Work(ANIMATION_HERO_STAY_LEFT, True, 80))
+        self.AnimeStayRight = PygAnimation(Work(ANIMATION_HERO_STAY_RIGHT, True, 80))
         self.AnimeGoRight = PygAnimation(Work(ANIMATION_HERO_GO_RIGHT))
         self.AnimeGoLeft = PygAnimation(Work(ANIMATION_HERO_GO_LEFT))
         self.AnimeJumpRight = PygAnimation(Work(ANIMATION_HERO_JUMP_RIGHT))
@@ -1144,7 +1112,6 @@ class Player(Sprite):
         self.collide(self.xvel, 0, platforms)
         self.change_coord('y')
         self.collide(0, self.yvel, platforms)
-        #print(self.rect.x)
 
         answer = self.teleport(self.xvel, 0, teleports, BOSS)
         if not answer:
@@ -1445,6 +1412,8 @@ class Button(Sprite):
             self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
         elif self.name == 'Shop':
             self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
+        elif self.name == 'Continue':
+            self.image.blit(load('data\\МЕНЮ\\кнопка_продолжить_выкл.png').convert(), (0, 0))
         elif self.name == '0':
             self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_1_выкл.png').convert(), (0, 0))
         elif self.name == '25':
@@ -1492,6 +1461,8 @@ class Button(Sprite):
                 self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_выкл.png').convert(), (0, 0))
             elif self.name == 'Shop':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
+            elif self.name == 'Continue':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_продолжить_выкл.png').convert(), (0, 0))
             elif self.name == '0':
                 self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_1_выкл.png').convert(), (0, 0))
             elif self.name == '25':
@@ -1541,6 +1512,8 @@ class Button(Sprite):
                 self.image.blit(load('data\\МЕНЮ\\кнопка_настройки_вкл.png').convert(), (0, 0))
             elif self.name == 'Shop':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_магазин_выкл.png').convert(), (0, 0))
+            elif self.name == 'Continue':
+                self.image.blit(load('data\\МЕНЮ\\кнопка_продолжить_вкл.png').convert(), (0, 0))
             elif self.name == '0':
                 self.image.blit(load('data\\НАСТРОЙКИ\\индикатор_1_вкл.png').convert(), (0, 0))
             elif self.name == '25':

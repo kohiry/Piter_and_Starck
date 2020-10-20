@@ -13,16 +13,6 @@ pygame.init()
 
 # audio
 sound = object.Sound()
-
-async def play_step(hero, left, right):
-    if (right or left) and hero.onGround:
-        sound.STEP_AUDIO.play(1)
-        sound.STEP2_AUDIO.play(1)
-    else:
-        sound.STEP_AUDIO.stop()
-        sound.STEP2_AUDIO.stop()
-
-
 #setting
 fight = False
 SIZE = WIDTH, HEIGHT = 960, 540
@@ -52,9 +42,10 @@ jump_x = ((int(get_monitors()[0].width) - WIDTH) // 2)
 jump_y = ((int(get_monitors()[0].height) - HEIGHT) // 2)
 
 # состояния
+start_game = True
 loading = False
 start_part = False
-menu = True
+menu = False
 map = False
 scene_enemy = False
 scene_enemy3 = False
@@ -72,11 +63,14 @@ group_draw = pygame.sprite.Group()
 group_interface = pygame.sprite.Group()
 group_platform = pygame.sprite.Group()
 batton_in_KPK = pygame.sprite.Group()
+start_game_gr = pygame.sprite.Group()
 HERO = object.Player(10, 10)
 BOSS = object.Boss(10, 10)
-health_tab = object.Health_tab(450, 60)
-dialog_tab = object.Dialog_Tab(0, 0)
+health_tab = object.Health_tab(400, 60)
+#dialog_tab = object.Dialog_Tab(0, 0)
 BOSS.new_coord(-100, -100)
+StartScene = object.Start()
+start_game_gr.add(StartScene)
 platforms = []
 teleports = []
 enemy = []
@@ -165,6 +159,10 @@ def make_level(level):
                         pl = object.Background(x, y, 'data/фоны/овраг.png')
                         group_draw.add(pl)
                         game.append(pl)
+                        pl2 = object.Monster(x+lens*3, y+lens*6)
+                        game.append(pl2)
+                        group_draw.add(pl2)
+                        monster.append(pl2)
                     if col == 'i':
                         pl = object.Background(x, y, 'data/фоны/вертикаль.png')
                         group_draw.add(pl)
@@ -211,12 +209,6 @@ def make_level(level):
                 if col == "$":
                     BOSS.new_coord(x, y)
                     BOSS.isdie = False
-                if col == "*":  # тентаклемонстр
-                    pl = object.Monster(x, y)
-                    game.append(pl)
-                    group_draw.add(pl)
-                    monster.append(pl)
-
                 if col == "_":
                     pass
 
@@ -227,11 +219,11 @@ def make_level(level):
         group_draw.add(pl)
 
 
-#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-size = width, height = 1080, 720
-window = pygame.display.set_mode(size)
-#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+#size = width, height = 1080, 720
+#window = pygame.display.set_mode(size)
+window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -343,15 +335,30 @@ def create_button():
     for i in button:
         group_draw.add(i)
 
-def create_button_map():
+def create_button_2():
     button.clear()
     for e in group_draw:
         e.kill()
     for e in group_interface:
         e.kill()
     w, h = 302, 64
-    button.append(object.Button(740, 400, w*2, h*2, 'Exited', 'menu'))
-    group_draw.add(object.Background(0, 0, 'data\\катсцены\\корабль .png'))
+    button.append(object.Button(328, 145, w, h, 'Continue', tag=False))
+    button.append(object.Button(328, 225, w, h, 'Shop', tag=False))
+    button.append(object.Button(328, 315, w, h, 'Settings', tag=False))
+    button.append(object.Button(328, 400, w, h, 'Exit', tag=False))
+    group_draw.add(object.Background(0, 0, 'data\МЕНЮ\меню_фон.png'))
+    for i in button:
+        group_draw.add(i)
+
+
+def create_button_map():
+    button.clear()
+    for e in group_draw:
+        e.kill()
+    for e in group_interface:
+        e.kill()
+    w, h = 46, 46
+    button.append(object.Button(20, 10, w, h, 'back', tag=False))
     for i in button:
         group_draw.add(i)
 
@@ -423,8 +430,8 @@ def sound_correct(number, name):
         sound.STRIKE_AUDIO.set_volume(level)
         sound.TAKE_AUDIO.set_volume(level)
         sound.BACK2_AUDIO.set_volume(level)
-        sound.STEP_AUDIO.set_volume(level)
-        sound.STEP2_AUDIO.set_volume(level)
+        sound.STEP_AUDIO.set_volume(level - 1.5)
+        sound.STEP2_AUDIO.set_volume(level - 1.5)
         for i in sound.SPIDER_AUDIO:
             i.set_volume(level)
         sound.BUTTON.set_volume(level)
@@ -543,8 +550,11 @@ def interface_bytton():
     group_interface.add(pl)
     group_interface.add(pl2)
     group_interface.add(health_tab)
-    group_interface.add(dialog_tab)
+    #group_interface.add(dialog_tab)
     group_draw.add(HERO)
+
+if start_game:
+    StartScene.time = time.process_time()
 
 running = True
 clock = pygame.time.Clock()
@@ -553,9 +563,51 @@ pygame.init()
 while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
     if start_game:
-        pass
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if StartScene.change:
+                        StartScene.change = False
+                    elif not StartScene.change:
+                        start_game = False
+                        start_part = True
+                        sound.START_AUDIO.play()
+                        for e in group_draw:
+                            e.kill()
+                        button.clear()
+                        Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
+                        group_draw.add(Scene)
 
-    if KPK:
+        screen.fill((255, 255, 255))
+        if (time.process_time() - StartScene.time) <= 4 and StartScene.change != False:
+            StartScene.upd(True)
+        elif (time.process_time() - StartScene.time) <= 4 and StartScene.change == False:
+            #start_part = True
+            StartScene.upd(False)
+
+        elif (time.process_time() - StartScene.time) > 4 and StartScene.change == False:
+            start_game = False
+            start_part = True
+            sound.START_AUDIO.play()
+            for e in group_draw:
+                e.kill()
+            button.clear()
+            Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
+            group_draw.add(Scene)
+        else:
+            if StartScene.change != False:
+                StartScene.change = False
+                StartScene.time = time.process_time()
+        if start_game:
+            start_game_gr.draw(screen)
+            window.blit(screen, middle)
+            pygame.display.flip()
+            clock.tick(60)
+
+
+    elif KPK:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -633,6 +685,7 @@ while running:
 
 
 
+
     elif loading:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -646,35 +699,19 @@ while running:
         screen.fill((255, 255, 255))
 
         group_draw.draw(screen)
-        font = pygame.font.Font('pixle_font.ttf', 72)
-        txt = font.render('Загрузка...', 1, (0, 0, 0))
-        screen.blit(txt, (WIDTH//3, 250))
-        window.blit(screen, middle)
-        kpk_width = 850
-        menu_width = 100
+        kpk_width = 900
+        menu_width = 20
         all_height = 60
-        if after_count < 2:
-            after_count+= 1
-            sleep(1)
+        start_game_gr.draw(screen)
+        window.blit(screen, middle)
+        pygame.display.flip()
+        if (time.process_time() - StartScene.time) <= 4:
+            StartScene.upd(True)
         else:
             loading = False
-            if len(game) != 0:
-
-                button.clear()
-                for e in group_draw:
-                    e.kill()
-                for e in group_interface:
-                    e.kill()
-                game.reverse()
-                for i in game:
-                    if type(i) != object.Platform:
-                        group_draw.add(i)
-                interface_bytton()
-
-            else:
-                camera_level('level1')
-                interface_bytton()
-        pygame.display.flip()
+            menu = False
+            camera_level('level1')
+            interface_bytton()
         clock.tick(60)
 
     elif after_words:
@@ -823,16 +860,6 @@ while running:
             screen.fill((255, 255, 255))
             group_draw.draw(screen)
             window.blit(screen, middle)
-            '''if inf and Scene.count not in [1, 4, 5]:
-                if Scene.upd():
-                    sound.START_AUDIO.stop()
-                    menu = True
-                    start_part = False
-                    create_button()
-                    sound.MENU_AUDIO.play(-1)
-            if Scene.count in [1, 4, 5]:
-                print(1)
-                Scene.upd()'''
             if inf:
                 if Scene.upd():
                     sound.START_AUDIO.stop()
@@ -899,6 +926,8 @@ while running:
                         sound.MENU_AUDIO.stop()
                         button.clear()
                         after_count = 0
+                        StartScene.change = True
+                        StartScene.time = time.process_time()
                         for e in group_draw:
                             e.kill()
             if event.type == pygame.MOUSEMOTION:
@@ -918,6 +947,8 @@ while running:
                                 sound.MENU_AUDIO.stop()
                                 button.clear()
                                 after_count = 0
+                                StartScene.change = True
+                                StartScene.time = time.process_time()
                                 for e in group_draw:
                                     e.kill()
 
@@ -928,26 +959,39 @@ while running:
                             if i.name == 'Exit':
                                 running = False
 
+                            if i.name == 'Continue':
+                                menu = False
+                                button.clear()
+                                for e in group_draw:
+                                    e.kill()
+                                for e in group_interface:
+                                    e.kill()
+                                for e in enemy:
+                                    e.kill()
+                                game.reverse()
+                                for i in game:
+                                    if type(i) != object.Platform:  # не понятный баг с исчезновение пауков
+                                        group_draw.add(i)
+                                for i in enemy:
+                                    i.kill()
+                                    group_draw.add(i)
+                                interface_bytton()
+
                             pygame.display.flip()
                             sound.BUTTON.play()
-                            sleep(2)
-
-        screen.fill((255, 255, 255))
-        font = pygame.font.Font('pixle_font.ttf', 72)
-        if not loading:
-            txt = font.render('Spider Gay', 1, (0, 0, 0))
-            screen.blit(txt, (WIDTH//3 -20, 50))
-        group_draw.draw(screen)
-        window.blit(screen, middle)
-        pygame.display.flip()
-        clock.tick(60)
+        if menu:
+            screen.fill((0, 0, 0))
+            group_draw.draw(screen)
+            window.blit(screen, middle)
+            pygame.display.flip()
+            clock.tick(60)
 
     elif map:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_ESCAPE or event.key == pygame.K_m:
                     if len(game) != 0:
                         map = False
                         loading = True
@@ -956,6 +1000,7 @@ while running:
                         after_count = 0
                         for e in group_draw:
                             e.kill()
+
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
                     if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -967,7 +1012,7 @@ while running:
                     for i in button:
                         if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
                             screen.fill((0, 0, 0))
-                            if i.name == 'Exited':
+                            if i.name == 'back':
                                 if len(game) != 0:
                                     map = False
                                     loading = True
@@ -979,12 +1024,11 @@ while running:
 
                             pygame.display.flip()
                             sound.BUTTON.play()
-                            sleep(2)
-
 
 
 
         screen.fill((255, 255, 255))
+        screen.blit(pygame.image.load('data\\МИНИКАРТА\\миникарта.png').convert(), (0, 0))
         group_draw.draw(screen)
         window.blit(screen, middle)
         pygame.display.flip()
@@ -992,7 +1036,7 @@ while running:
 
     else:
         ball = 0
-        if First_on_audio == 0:
+        if First_on_audio == 0:  # пофиксить аудио
             sound.BACK_AUDIO.play(-1)
             sound.BACK2_AUDIO.play()
             First_on_audio += 1
@@ -1034,8 +1078,6 @@ while running:
                     LEFT = False
                 if event.key == pygame.K_d:
                     RIGHT = False
-                if event.key == pygame.K_f:
-                    HERO.film = True
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     Strike = False
@@ -1064,8 +1106,9 @@ while running:
                                 sound.MENU_AUDIO.play(-1)
                             if i.name == 'menu_ink':
                                 menu = True
+                                Strike = False
                                 button.clear()
-                                create_button()
+                                create_button_2()
                                 sound.BACK_AUDIO.stop()
                                 sound.BACK2_AUDIO.stop()
                                 sound.FIGHT_AUDIO.stop()
@@ -1085,19 +1128,29 @@ while running:
         draw()
         take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         health_tab.new_image(HERO.helth)
-        dialog_tab.check(enemy, HERO)
+        #dialog_tab.check(enemy, HERO)
         if Strike_fast:
             for_strike_count_time_when_we_see_text += 1
         if for_strike_count_time_when_we_see_text >= 5:
             Strike_fast = False
             for_strike_count_time_when_we_see_text = 0
+        way = 1000
+        list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, way//2) for i in x]
+        b = list_collide(enemy)
+        d = list_collide(monster)
+        #b.reverse()
+        a = HERO.rect.collidelistall(b)
+        for i in a:
+            enemy[i].AI(HERO, platforms)
+        q = HERO.rect.collidelistall(d)
+        for i in q:
+            monster[i].AI(HERO)
 
-
-        for i in enemy:
+        '''for i in enemy:
             i.AI(HERO, platforms)
 
-        #for i in monster:
-            #i.AI(HERO)
+        for i in monster:
+            i.AI(HERO)'''
         if Boss_spawn:
             BOSS.AI(HERO, platforms)
         if HERO.helth <= 0:
@@ -1123,13 +1176,13 @@ while running:
         if keys[pygame.K_ESCAPE]:
             menu = True
             button.clear()
-            create_button()
+            create_button_2()
             sound.BACK_AUDIO.stop()
             sound.BACK2_AUDIO.stop()
             sound.FIGHT_AUDIO.stop()
             sound.BACK_AFTER_WORDS.stop()
             sound.MENU_AUDIO.play(-1)
-        if keys[pygame.K_j]:
+        if keys[pygame.K_m]:
             map = True
             button.clear()
             create_button_map()
