@@ -244,12 +244,12 @@ class Cutscene(Sprite):
         if self.count == 1:
             if not self.anim:
                 self.image.blit(load(self.filename + '1.png').convert(), (0, 0))
-            if self.animcount >= 29:
+            if self.animcount >= 5:
                 self.anim = True
                 self.animcount = 0
             if not self.anim:
                 self.animcount += 1
-                self.image.blit(self.animation_black[self.animcount // 5], (0, 0))
+                self.image.blit(self.animation_black[self.animcount // 1], (0, 0))
             if self.rect.y + 1528 <= self.end and self.anim:
                 self.count = 2
             else:
@@ -258,8 +258,8 @@ class Cutscene(Sprite):
 
         elif self.count == 4:
             self.animcount += 1
-            self.image.blit(self.animation[self.animcount // 10], (0, 0))
-            if self.animcount >= 29:
+            self.image.blit(self.animation[self.animcount // 5], (0, 0))
+            if self.animcount >= 14:
                 self.animcount = 0
                 self.count += 1
 
@@ -335,13 +335,13 @@ class Sound:
 
 
 class Enemy(Sprite):
-    def __init__(self, x, y, width=108, height=110):
+    def __init__(self, x, y, sound, width=108, height=110):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
-        self.SPIDER_AUDIO = Sound().SPIDER_AUDIO
+        self.SPIDER_AUDIO = sound.SPIDER_AUDIO
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
@@ -449,13 +449,13 @@ class Enemy(Sprite):
         self.yvel = 0
 
 class Enemy2(Sprite):
-    def __init__(self, x, y, width=80, height=46):
+    def __init__(self, x, y, sound, width=80, height=46):
         Sprite.__init__(self)
         #self.image = load('data/паук/стоит/паук_стоит_направо_1.png')
         self.image = Surface((width, height))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
-        self.SPIDER_AUDIO = Sound().SPIDER_AUDIO
+        self.SPIDER_AUDIO = sound.SPIDER_AUDIO
         self.rect.x = x
         self.rect.y = y
         self.yvel = 0
@@ -811,11 +811,11 @@ class Monster(Sprite):
 
 
 class Player(Sprite):
-    def __init__(self, x, y, width=105, height=117):
+    def __init__(self, x, y, sound, width=105, height=117):
         Sprite.__init__(self)
-        self.TAKE_AUDIO = Sound().TAKE_AUDIO
-        self.STEP_AUDIO = Sound().STEP_AUDIO
-        self.STEP2_AUDIO = Sound().STEP2_AUDIO
+        self.take_AUDIO = sound.TAKE_AUDIO
+        self.step_AUDIO = sound.STEP_AUDIO
+        self.step2_AUDIO = sound.STEP2_AUDIO
         self.image = Surface((width, height))
         self.rect = self.image.get_rect()
         self.spawn = '@'
@@ -832,7 +832,7 @@ class Player(Sprite):
         self.xvel = 0
         self.onGround = False
         self.count = 0
-        self.helth = 9
+        self.helth = 10
         self.fight = False
         self.jump = False
         self.serf = False
@@ -932,17 +932,17 @@ class Player(Sprite):
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         # лево право
-        if self.helth < 0:
+        if self.helth <= 0:
             self.film = True
         if not self.film:
             die_anim = False
             if left or right:
                 if self.onGround:
-                    self.STEP_AUDIO.play()
-                    self.STEP2_AUDIO.play()
+                    self.step_AUDIO.play()
+                    self.step2_AUDIO.play()
                 elif not self.onGround:
-                    self.STEP_AUDIO.stop()
-                    self.STEP2_AUDIO.stop()
+                    self.step_AUDIO.stop()
+                    self.step2_AUDIO.stop()
                 if left and right:
                     self.xvel = 0
                 elif left or right:
@@ -1024,8 +1024,8 @@ class Player(Sprite):
             else:
                 self.xvel = 0
                 self.audio_step_count = 0
-                self.STEP_AUDIO.stop()
-                self.STEP2_AUDIO.stop()
+                self.step_AUDIO.stop()
+                self.step2_AUDIO.stop()
                 if up:
                     if self.side == 1:
                         self.resize('jump')
@@ -1080,7 +1080,7 @@ class Player(Sprite):
                         self.death = True
                         self.animcount = 0
                         self.level = 0
-                        self.helth = 3
+                        self.helth = 10
                 elif self.side == -1:
                     self.image.blit(self.animationL[self.animcount // 8], (0, 0))
                     if self.animcount >= end:
@@ -1088,7 +1088,7 @@ class Player(Sprite):
                         self.film = False
                         self.death = True
                         self.level = 0
-                        self.helth = 3
+                        self.helth = 10
 
         # прыжок
         if not self.onGround:
@@ -1100,7 +1100,7 @@ class Player(Sprite):
                 self.count += 1
                 self.yvel = -(JUMP_POWER - 1)**2
 
-        if up and self.onGround and not self.serf and not self.film:
+        if up and self.onGround and not self.film:
             self.jump = True
             self.onGround = False
             self.yvel = -JUMP_POWER**2
@@ -1220,7 +1220,7 @@ class Player(Sprite):
             if collide_rect(self, pl):  # текст не отобравжается
                 if use and not pl.die:
                     pl.use()
-                    self.TAKE_AUDIO.play()
+                    self.take_AUDIO.play()
                     self.trees.append(pl)
                 if pl.die:
                     return False

@@ -2,7 +2,6 @@ import pygame, sys
 from screeninfo import get_monitors
 from level import map as MAP
 import object
-from time import sleep
 import time
 from pyganim import PygAnimation
 from pygame.locals import *
@@ -64,9 +63,9 @@ group_interface = pygame.sprite.Group()
 group_platform = pygame.sprite.Group()
 batton_in_KPK = pygame.sprite.Group()
 start_game_gr = pygame.sprite.Group()
-HERO = object.Player(10, 10)
+HERO = object.Player(10, 10, sound)
 BOSS = object.Boss(10, 10)
-health_tab = object.Health_tab(400, 60)
+health_tab = object.Health_tab(415, 10)
 #dialog_tab = object.Dialog_Tab(0, 0)
 BOSS.new_coord(-100, -100)
 StartScene = object.Start()
@@ -199,11 +198,11 @@ def make_level(level):
                 if col == "?":
                     platform(row, col, object.Teleport_COME)
                 if col == "&":
-                    pl = object.Enemy(x, y)
+                    pl = object.Enemy(x, y, sound)
                     enemy.append(pl)
                     game.append(pl)
                 if col == "$":
-                    pl = object.Enemy2(x, y)
+                    pl = object.Enemy2(x, y, sound)
                     enemy.append(pl)
                     game.append(pl)
                 if col == "$":
@@ -217,6 +216,7 @@ def make_level(level):
         x = 0
     for pl in enemy:
         group_draw.add(pl)
+    game.reverse()
 
 
 middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
@@ -312,12 +312,8 @@ def draw():
         txt = font.render('Заряжается...', 1, white)
         rect = HERO.image.get_rect()
         screen.blit(txt, (WIDTH//2, HEIGHT-40))
-
-    font = pygame.font.Font('pixle_font.ttf', 40)
-    txt = font.render('SCORE:' + str(len(list(HERO.trees))), 1, white)
     group_interface.draw(screen)
     pygame.display.flip()
-    screen.blit(txt, (0, 0)) #WIDTH-200, HEIGHT+100))
     window.blit(screen, middle)
 
 def create_button():
@@ -328,7 +324,7 @@ def create_button():
         e.kill()
     w, h = 302, 64
     button.append(object.Button(328, 145, w, h, 'Play', tag=False))
-    button.append(object.Button(328, 225, w, h, 'Shop', tag=False))
+    button.append(object.Button(328, 230, w, h, 'Shop', tag=False))
     button.append(object.Button(328, 315, w, h, 'Settings', tag=False))
     button.append(object.Button(328, 400, w, h, 'Exit', tag=False))
     group_draw.add(object.Background(0, 0, 'data\МЕНЮ\меню_фон.png'))
@@ -430,8 +426,10 @@ def sound_correct(number, name):
         sound.STRIKE_AUDIO.set_volume(level)
         sound.TAKE_AUDIO.set_volume(level)
         sound.BACK2_AUDIO.set_volume(level)
-        sound.STEP_AUDIO.set_volume(level - 1.5)
-        sound.STEP2_AUDIO.set_volume(level - 1.5)
+        sound.STEP_AUDIO.set_volume(level)
+        sound.STEP2_AUDIO.set_volume(level)
+        HERO.step_AUDIO.set_volume(level)
+        HERO.step2_AUDIO.set_volume(level)
         for i in sound.SPIDER_AUDIO:
             i.set_volume(level)
         sound.BUTTON.set_volume(level)
@@ -505,7 +503,7 @@ def KPK_create():
             group_draw.add(i)
 
 if start_part:
-    sound.START_AUDIO.play()
+    sound.START_AUDIO.play(-1)
     for e in group_draw:
         e.kill()
     button.clear()
@@ -573,7 +571,7 @@ while running:
                     elif not StartScene.change:
                         start_game = False
                         start_part = True
-                        sound.START_AUDIO.play()
+                        sound.START_AUDIO.play(-1)
                         for e in group_draw:
                             e.kill()
                         button.clear()
@@ -590,7 +588,7 @@ while running:
         elif (time.process_time() - StartScene.time) > 4 and StartScene.change == False:
             start_game = False
             start_part = True
-            sound.START_AUDIO.play()
+            sound.START_AUDIO.play(-1)
             for e in group_draw:
                 e.kill()
             button.clear()
@@ -605,6 +603,8 @@ while running:
             window.blit(screen, middle)
             pygame.display.flip()
             clock.tick(60)
+
+
 
 
     elif KPK:
@@ -683,25 +683,17 @@ while running:
         pygame.display.flip()
         clock.tick(60)
 
-
-
-
     elif loading:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-
-
 
         screen.fill((255, 255, 255))
 
         group_draw.draw(screen)
-        kpk_width = 900
-        menu_width = 20
-        all_height = 60
+        kpk_width = 910
+        menu_width = 10
+        all_height = 10
         start_game_gr.draw(screen)
         window.blit(screen, middle)
         pygame.display.flip()
@@ -727,9 +719,7 @@ while running:
         screen.fill((255, 255, 255))
         if after_count < 2:
             after_count+= 1
-            sleep(1)
         if not words.update():
-            sleep(2)
             running = False
         group_draw.draw(screen)
         window.blit(screen, middle)
@@ -896,7 +886,10 @@ while running:
                             if i.name == 'назад':
                                 menu = True
                                 settings = False
-                                create_button()
+                                if len(game) != 0:
+                                    create_button_2()
+                                else:
+                                    create_button()
                             sound.BUTTON.play()
 
 
@@ -922,14 +915,21 @@ while running:
                 if event.key == pygame.K_ESCAPE:
                     if len(game) != 0:
                         menu = False
-                        loading = True
-                        sound.MENU_AUDIO.stop()
                         button.clear()
-                        after_count = 0
-                        StartScene.change = True
-                        StartScene.time = time.process_time()
                         for e in group_draw:
                             e.kill()
+                        for e in group_interface:
+                            e.kill()
+                        for e in enemy:
+                            e.kill()
+                        for i in game:
+                            if type(i) != object.Platform:  # не понятный баг с исчезновение пауков
+                                group_draw.add(i)
+                        for i in enemy:
+                            i.kill()
+                            group_draw.add(i)
+                        interface_bytton()
+                        break
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
                     if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -940,7 +940,6 @@ while running:
                 if event.button == 1 or event.button == 3:
                     for i in button:
                         if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
-                            screen.fill((0, 0, 0))
                             if i.name == 'Play':
                                 menu = False
                                 loading = True
@@ -951,13 +950,16 @@ while running:
                                 StartScene.time = time.process_time()
                                 for e in group_draw:
                                     e.kill()
+                                break
 
                             if i.name == 'Settings':
                                 settings = True
                                 menu = False
                                 create_button_setting()
+                                break
                             if i.name == 'Exit':
                                 running = False
+                                break
 
                             if i.name == 'Continue':
                                 menu = False
@@ -968,7 +970,6 @@ while running:
                                     e.kill()
                                 for e in enemy:
                                     e.kill()
-                                game.reverse()
                                 for i in game:
                                     if type(i) != object.Platform:  # не понятный баг с исчезновение пауков
                                         group_draw.add(i)
@@ -976,15 +977,22 @@ while running:
                                     i.kill()
                                     group_draw.add(i)
                                 interface_bytton()
-
-                            pygame.display.flip()
-                            sound.BUTTON.play()
+                                break
+                            if i.name != 'Shop':
+                                sound.BUTTON.play()
+                                break
         if menu:
             screen.fill((0, 0, 0))
             group_draw.draw(screen)
             window.blit(screen, middle)
             pygame.display.flip()
             clock.tick(60)
+        else:
+            if not settings:
+                sound.MENU_AUDIO.stop()
+                sound.BACK_AUDIO.play(-1)
+                sound.BACK2_AUDIO.play(-1)
+
 
     elif map:
         for event in pygame.event.get():
@@ -994,12 +1002,21 @@ while running:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_m:
                     if len(game) != 0:
                         map = False
-                        loading = True
-                        sound.MENU_AUDIO.stop()
                         button.clear()
-                        after_count = 0
                         for e in group_draw:
                             e.kill()
+                        for e in group_interface:
+                            e.kill()
+                        for e in enemy:
+                            e.kill()
+                        for i in game:
+                            if type(i) != object.Platform:  # не понятный баг с исчезновение пауков
+                                group_draw.add(i)
+                        for i in enemy:
+                            i.kill()
+                            group_draw.add(i)
+                        interface_bytton()
+                        break
 
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
@@ -1036,13 +1053,10 @@ while running:
 
     else:
         ball = 0
-        if First_on_audio == 0:  # пофиксить аудио
-            sound.BACK_AUDIO.play(-1)
-            sound.BACK2_AUDIO.play()
-            First_on_audio += 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     UP = True
@@ -1050,6 +1064,35 @@ while running:
                     LEFT = True
                 if event.key == pygame.K_d:
                     RIGHT = True
+                if event.key == pygame.K_ESCAPE:
+                    menu = True
+                    button.clear()
+                    create_button_2()
+                    sound.BACK_AUDIO.stop()
+                    sound.BACK2_AUDIO.stop()
+                    sound.FIGHT_AUDIO.stop()
+                    sound.BACK_AFTER_WORDS.stop()
+                    sound.MENU_AUDIO.play(-1)
+                if event.key == pygame.K_m:
+                    map = True
+                    button.clear()
+                    create_button_map()
+                    sound.BACK_AUDIO.stop()
+                    sound.BACK2_AUDIO.stop()
+                    sound.FIGHT_AUDIO.stop()
+                    sound.BACK_AFTER_WORDS.stop()
+                    sound.MENU_AUDIO.play(-1)
+
+                if event.key == pygame.K_k:
+                    KPK = True
+                    button.clear()
+                    KPK_create()
+                    sound.BACK_AUDIO.stop()
+                    sound.BACK2_AUDIO.stop()
+                    sound.FIGHT_AUDIO.stop()
+                    sound.BACK_AFTER_WORDS.stop()
+                    sound.MENU_AUDIO.play(-1)
+
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -1060,7 +1103,11 @@ while running:
                         Strike_fast = False
                         first_strike_timer = time.process_time()
                         sound.STRIKE_AUDIO.play()
-                        pl = object.Ball(HERO.rect.x, HERO.rect.y + HERO.rect.width // 2, HERO.side)
+                        if HERO.side == 1:
+                            coord_x = HERO.rect.x + HERO.rect.width
+                        if HERO.side == -1:
+                            coord_x = HERO.rect.x
+                        pl = object.Ball(coord_x, HERO.rect.y + 20, HERO.side)
                         balls.append(pl)
                         group_draw.add(pl)
 
@@ -1117,7 +1164,6 @@ while running:
 
                             pygame.display.flip()
                             sound.BUTTON.play()
-                            #sleep(2)
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
 
 
@@ -1173,34 +1219,6 @@ while running:
 
         pygame.display.flip()
         clock.tick(60)
-        if keys[pygame.K_ESCAPE]:
-            menu = True
-            button.clear()
-            create_button_2()
-            sound.BACK_AUDIO.stop()
-            sound.BACK2_AUDIO.stop()
-            sound.FIGHT_AUDIO.stop()
-            sound.BACK_AFTER_WORDS.stop()
-            sound.MENU_AUDIO.play(-1)
-        if keys[pygame.K_m]:
-            map = True
-            button.clear()
-            create_button_map()
-            sound.BACK_AUDIO.stop()
-            sound.BACK2_AUDIO.stop()
-            sound.FIGHT_AUDIO.stop()
-            sound.BACK_AFTER_WORDS.stop()
-            sound.MENU_AUDIO.play(-1)
-
-        if keys[pygame.K_k]:
-            KPK = True
-            button.clear()
-            KPK_create()
-            sound.BACK_AUDIO.stop()
-            sound.BACK2_AUDIO.stop()
-            sound.FIGHT_AUDIO.stop()
-            sound.BACK_AFTER_WORDS.stop()
-            sound.MENU_AUDIO.play(-1)
 
         if HERO.death:
             sound.BACK_AUDIO.stop()
