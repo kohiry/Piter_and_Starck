@@ -1018,6 +1018,9 @@ while running:
         if menu:
             screen.fill((0, 0, 0))
             group_draw.draw(screen)
+            font = pygame.font.Font('pixle_font.ttf', 10)
+            txt = font.render('V0.5.4a', 1, (255, 255, 255))
+            screen.blit(txt, (35, 10))
             window.blit(screen, middle)
             pygame.display.flip()
             clock.tick(60)
@@ -1199,8 +1202,8 @@ while running:
                             pygame.display.flip()
                             sound.BUTTON.play()
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
-        draw()
         take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
+        draw()
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)
         if Strike_fast:
