@@ -303,23 +303,17 @@ def draw():
     for e in group_draw:
         coord = camera.apply(e)
         obl = 600
-
         if pygame.Rect(HERO.rect.topleft[0]-obl, HERO.rect.topleft[1]-obl, 2*obl, 2*obl).colliderect(e.rect):
             screen.blit(e.image, coord)
 
     white = (255, 255, 255)
+    group_interface.draw(screen)
     if take_barries:
         font = pygame.font.Font('pixle_font.ttf', 20)
-        txt = font.render('нажми на ПКМ чтобы собрать плоды', 1, white)
-        screen.blit(txt, (50, 50))
-    if Strike_fast:
-        font = pygame.font.Font('pixle_font.ttf', 40)
-        txt = font.render('Заряжается...', 1, white)
-        rect = HERO.image.get_rect()
-        screen.blit(txt, (WIDTH//2, HEIGHT-40))
-    group_interface.draw(screen)
-    pygame.display.flip()
+        txt = font.render('ПКМ - собрать плоды', 1, white)
+        screen.blit(txt, (255, 800))
     window.blit(screen, middle)
+    pygame.display.flip()
 
 def create_button():
     button.clear()

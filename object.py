@@ -897,7 +897,7 @@ class Player(Sprite):
         self.data_wh = {
             'go': (105, 117),
             'strike': (99, 108),
-            'stay': (76, 108),
+            'stay': (99, 108),
             'jump': (88, 90),
             'climb': (47, 144),
             'go_strike': (120, 117),
@@ -1100,7 +1100,7 @@ class Player(Sprite):
 
                         elif self.side == -1 and strike and not use:
                             self.resize('strike')
-                            self.AnimeStrikeLeft.blit(self.image, (-25, 0))
+                            self.AnimeStrikeLeft.blit(self.image, (0, 0))
 
 
         else:
