@@ -52,6 +52,7 @@ settings = False
 after_words = False
 KPK = False
 scene_enemy2 = False
+pre_alpha_scene = False
 
 # map
 location = 1
@@ -66,6 +67,7 @@ start_game_gr = pygame.sprite.Group()
 HERO = object.Player(10, 10, sound)
 BOSS = object.Boss(10, 10)
 health_tab = object.Health_tab(415, 10)
+black_theme = object.BlackTheme()
 #dialog_tab = object.Dialog_Tab(0, 0)
 BOSS.new_coord(-100, -100)
 StartScene = object.Start()
@@ -119,7 +121,7 @@ def make_level(level):
             if col == ' ':
                 all_obj.append('')
             else:
-                if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'l']:
+                if col in ['-', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'l', 'b']:
                     if col == 'q':
                         pl = object.Background(x, y, 'data/фоны/начало.png')
                         group_draw.add(pl)
@@ -131,6 +133,10 @@ def make_level(level):
                         game.append(pl)
                     if col == 'e':
                         pl = object.Background(x, y, 'data/фоны/горизонталь_2.png')
+                        group_draw.add(pl)
+                        game.append(pl)
+                    if col == "b":
+                        pl = object.Background(x, y + 180, 'end_phrase.jpg')
                         group_draw.add(pl)
                         game.append(pl)
                     if col == 'l':
@@ -158,10 +164,10 @@ def make_level(level):
                         pl = object.Background(x, y, 'data/фоны/овраг.png')
                         group_draw.add(pl)
                         game.append(pl)
-                        pl2 = object.Monster(x+lens*3, y+lens*6)
-                        game.append(pl2)
-                        group_draw.add(pl2)
-                        monster.append(pl2)
+                        #pl2 = object.Monster(x+lens*3, y+lens*6)
+                        #game.append(pl2)
+                        #group_draw.add(pl2)
+                        #monster.append(pl2)
                     if col == 'i':
                         pl = object.Background(x, y, 'data/фоны/вертикаль.png')
                         group_draw.add(pl)
@@ -219,11 +225,11 @@ def make_level(level):
     game.reverse()
 
 
-middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-#size = width, height = 1080, 720
-#window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+size = width, height = 1080, 720
+window = pygame.display.set_mode(size)
+#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -275,7 +281,6 @@ def camera_level(place):
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)
     make_level(MAP[place])
-    MAP.clear()
     if place == 'level69':
         group_draw.add(BOSS)
         Boss_spawn = True
@@ -579,13 +584,13 @@ while running:
                         group_draw.add(Scene)
 
         screen.fill((255, 255, 255))
-        if (time.process_time() - StartScene.time) <= 4 and StartScene.change != False:
+        if (time.process_time() - StartScene.time) <= 5 and StartScene.change != False:
             StartScene.upd(True)
-        elif (time.process_time() - StartScene.time) <= 4 and StartScene.change == False:
+        elif (time.process_time() - StartScene.time) <= 3 and StartScene.change == False:
             #start_part = True
             StartScene.upd(False)
 
-        elif (time.process_time() - StartScene.time) > 4 and StartScene.change == False:
+        elif (time.process_time() - StartScene.time) > 3 and StartScene.change == False:
             start_game = False
             start_part = True
             sound.START_AUDIO.play(-1)
@@ -726,59 +731,98 @@ while running:
         pygame.display.flip()
         clock.tick(60)
 
+    elif pre_alpha_scene:
+        inf = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEMOTION:
+                pass
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    sound.START_AUDIO.stop()
+                    menu = True
+                    pre_alpha_scene = False
+                    game.clear()
+                    for e in group_draw:
+                        e.kill()
+                    for e in group_interface:
+                        e.kill()
+                    platforms.clear()
+                    teleports.clear()
+                    enemy.clear()
+                    tree.clear()
+                    monster.clear()
+                    button.clear()
+                    HERO.who_kill.clear()
+                    create_button()
+                    HERO.helth = 10
+                    HERO.death = False
+                    sound.clear()
+                    sound.MENU_AUDIO.play(-1)
+
+                    #inf = True
+
+
+
+        screen.fill((255, 255, 255))
+        screen.blit(pygame.image.load('end_phrase.jpg').convert(),(0, 0))
+        black_theme.draw(screen)
+        window.blit(screen, middle)
+        #group_draw.draw(screen)
+        #Scene.upd()
+
+        pygame.display.flip()
+        pygame.time.Clock().tick(60)
+
     elif scene_enemy:
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
             if event.type == pygame.MOUSEMOTION:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 and black_count > 47:
-                    running = False
+                if event.button == 1:
+                    pre_alpha_scene = True
+                    scene_enemy = False
+                    black_count = 0
+                    black_theme.zero()
                     #inf = True
 
 
 
         screen.fill((255, 255, 255))
         screen.blit(pygame.image.load('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png').convert(),(0, 0))
-        #group_draw.draw(screen)
-        black_count += 1
-        if black_count <= 47:
-            screen.blit(animation_balck[black_count // 8], (0, 0))
+        black_theme.draw(screen)
         window.blit(screen, middle)
+        #group_draw.draw(screen)
         #Scene.upd()
 
         pygame.display.flip()
-        pygame.time.Clock().tick(60)
+        clock.tick(60)
 
     elif scene_enemy2:
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
             if event.type == pygame.MOUSEMOTION:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 and black_count > 47:
-                    running = False
+                if event.button == 1:
+                    pre_alpha_scene = True
+                    scene_enemy2 = False
+                    black_theme.zero()
                     #inf = True
 
 
 
         screen.fill((255, 255, 255))
         screen.blit(pygame.image.load('data\\катсцены\\6 ёж\\ёж_проигрыш.png').convert(),(0, 0))
-        black_count += 1
-        if black_count <= 47:
-            screen.blit(animation_balck[black_count // 8], (0, 0))
-        group_draw.draw(screen)
+        black_theme.draw(screen)
         window.blit(screen, middle)
+        #group_draw.draw(screen)
         #Scene.upd()
 
         pygame.display.flip()
@@ -789,15 +833,13 @@ while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
             if event.type == pygame.MOUSEMOTION:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1 and black_count > 47:
-                    running = False
-                    #inf = True
+                if event.button == 1:
+                    pre_alpha_scene = True
+                    scene_enemy3 = False
+                    black_count = 0
 
 
 
@@ -805,11 +847,9 @@ while running:
         screen.fill((255, 255, 255))
 
         screen.blit(pygame.image.load('data\\катсцены\\2 тентакли\\тентакли.png').convert(), (0, 0))
-        black_count += 1
-        if black_count <= 47:
-            screen.blit(animation_balck[black_count // 8], (0, 0))
-        #group_draw.draw(screen)
+        black_theme.draw(screen)
         window.blit(screen, middle)
+        #group_draw.draw(screen)
         #Scene.upd()
 
         pygame.display.flip()
@@ -1165,12 +1205,6 @@ while running:
                             pygame.display.flip()
                             sound.BUTTON.play()
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
-
-
-        """for i in range(ball):
-            pl = object.Ball(200, 200, HERO.side)
-            #balls.append(pl)
-            #group_draw.add(pl) Потом исправлю фигню с фризом, когда создаю объект болл"""
         draw()
         take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         health_tab.new_image(HERO.helth)
@@ -1180,23 +1214,17 @@ while running:
         if for_strike_count_time_when_we_see_text >= 5:
             Strike_fast = False
             for_strike_count_time_when_we_see_text = 0
-        way = 1000
-        list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, way//2) for i in x]
+        way = 1100
+        list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
         b = list_collide(enemy)
-        d = list_collide(monster)
+        #d = list_collide(monster)
         #b.reverse()
         a = HERO.rect.collidelistall(b)
         for i in a:
             enemy[i].AI(HERO, platforms)
-        q = HERO.rect.collidelistall(d)
-        for i in q:
-            monster[i].AI(HERO)
-
-        '''for i in enemy:
-            i.AI(HERO, platforms)
-
-        for i in monster:
-            i.AI(HERO)'''
+        #q = HERO.rect.collidelistall(d)
+        #for i in q:
+        #    monster[i].AI(HERO)
         if Boss_spawn:
             BOSS.AI(HERO, platforms)
         if HERO.helth <= 0:
@@ -1215,17 +1243,18 @@ while running:
             sound.BACK2_AUDIO.play(-1)
             sound.BACK_AUDIO.play(-1)
             sound.FIGHT_AUDIO.stop()
+        elif not HERO.fight and not fight:
+            if sound.BACK_AUDIO.get_num_channels() <= 0 or sound.BACK2_AUDIO.get_num_channels() <= 0:
+                sound.clear()
+                sound.BACK2_AUDIO.play()
+                sound.BACK_AUDIO.play()
 
 
         pygame.display.flip()
         clock.tick(60)
 
         if HERO.death:
-            sound.BACK_AUDIO.stop()
-            sound.BACK2_AUDIO.stop()
-            sound.FIGHT_AUDIO.stop()
-            sound.BACK_AFTER_WORDS.stop()
-            sound.MENU_AUDIO.stop()
+            sound.clear()
             sound.CUTSCENE_AUDIO.play(-1)
             black_count = 0
             if len(HERO.who_kill) != 0:

@@ -113,6 +113,31 @@ ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, Fa
 
 ANIMATION_START = add_sprite('data\\ЗАСТАВКА\\', 9)
 
+class BlackTheme:
+    def __init__(self):
+        set_mode()
+        self.count = 0
+        self.one_sprite = 2
+        self.all_count = 12
+        self.black_list = []
+        # затемнение для катсцен
+        for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in range(1, 7)]:
+            self.black_list.append(load(i))
+        self.black_list_r = self.black_list.copy()
+
+    def zero(self):
+        self.count = 0
+
+    def draw(self, screen, reverse=False):
+        self.count += 1
+        print(self.count <= self.all_count-1)
+        if self.count <= self.all_count-1:
+            if reverse:
+                screen.blit(self.black_list_r[self.count // self.one_sprite], (0, 0))
+            else:
+                screen.blit(self.black_list[self.count // self.one_sprite], (0, 0))
+
+
 class Start(Sprite):
     def __init__(self):
         Sprite.__init__(self)
@@ -271,8 +296,6 @@ class Cutscene(Sprite):
         elif self.count + 1 > 7:
             return True
 
-
-
 class After_words(Sprite):
     def __init__(self, end):
         Sprite.__init__(self)
@@ -301,7 +324,6 @@ class After_words(Sprite):
         else:
             self.rect.y -= 1
             return True
-
 
 class Sound:
     def __init__(self):
@@ -333,6 +355,24 @@ class Sound:
         self.STRIKE_AUDIO.set_volume(0.1)
         self.TAKE_AUDIO.set_volume(0.5)
 
+    def clear(self):
+        # audio
+        self.BACK_AUDIO.stop()
+        self.START_AUDIO.stop()
+        self.USE_AUDIO.stop()
+        self.MENU_AUDIO.stop()
+        self.CUTSCENE_AUDIO.stop()
+        self.FIGHT_AUDIO.stop()
+        self.DAMAGE_AUDIO.stop()
+        self.STRIKE_AUDIO.stop()
+        self.TAKE_AUDIO.stop()
+        self.BACK2_AUDIO.stop()
+        self.STEP_AUDIO.stop()
+        self.STEP2_AUDIO.stop()
+        self.BACK_AFTER_WORDS.stop()
+        for i in self.SPIDER_AUDIO:
+            i.stop()
+        self.BUTTON.stop()
 
 class Enemy(Sprite):
     def __init__(self, x, y, sound, width=108, height=110):
@@ -371,7 +411,7 @@ class Enemy(Sprite):
         self.AnimeEnemyDieRight.play()
 
     def AI(self, hero, platforms):
-        way = 1000
+        way = 1100
         if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
             self.update(False, True, platforms)
         elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
@@ -832,7 +872,7 @@ class Player(Sprite):
         self.xvel = 0
         self.onGround = False
         self.count = 0
-        self.helth = 10
+        self.helth = 1
         self.fight = False
         self.jump = False
         self.serf = False
