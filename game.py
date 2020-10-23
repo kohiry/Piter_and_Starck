@@ -311,7 +311,7 @@ def draw():
     if take_barries:
         font = pygame.font.Font('pixle_font.ttf', 20)
         txt = font.render('ПКМ - собрать плоды', 1, white)
-        screen.blit(txt, (255, 800))
+        screen.blit(txt, (420, 500))
     window.blit(screen, middle)
     pygame.display.flip()
 
@@ -482,17 +482,17 @@ def KPK_create():
         e.kill()
     button.clear()
     button.append(object.Button(x_1, 140, w, h, '1', tag=False))
-    button.append(object.Button(x_1, 230, w, h, '2', tag=False))
+    """button.append(object.Button(x_1, 230, w, h, '2', tag=False))
     button.append(object.Button(x_1, 320, w, h, '3', tag=False))
-    button.append(object.Button(x_1, 408, w, h, '4', tag=False))
+    button.append(object.Button(x_1, 408, w, h, '4', tag=False))"""
     button.append(object.Button(x_2, 140, w, h, '5', tag=False))
-    button.append(object.Button(x_2, 230, w, h, '6', tag=False))
+    """button.append(object.Button(x_2, 230, w, h, '6', tag=False))
     button.append(object.Button(x_2, 320, w, h, '7', tag=False))
     button.append(object.Button(x_2, 408, w, h, '8', tag=False))
     button.append(object.Button(x_3, 140, w, h, '9', tag=False))
     button.append(object.Button(x_3, 230, w, h, '10', tag=False))
     button.append(object.Button(x_3, 320, w, h, '11', tag=False))
-    button.append(object.Button(x_3, 408, w, h, '12', tag=False))
+    button.append(object.Button(x_3, 408, w, h, '12', tag=False))"""
     pl = object.Button(20, 10, 48, 48, 'back', tag=False)
     batton_in_KPK.add(pl)
     button.append(pl)
@@ -612,25 +612,45 @@ while running:
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    KPK = False
-                    loading = True
-                    sound.MENU_AUDIO.stop()
-                    button.clear()
-                    after_count = 0
-                    for e in group_draw:
-                        e.kill()
-                    for e in group_interface:
-                        e.kill()
+                    if len(game) != 0:
+                        KPK = False
+                        button.clear()
+                        for e in group_draw:
+                            e.kill()
+                        for e in group_interface:
+                            e.kill()
+                        for e in enemy:
+                            e.kill()
+                        for e in batton_in_KPK:
+                            e.kill()
+                        for i in game:
+                            if type(i) != object.Platform:  # не понятный баг с исчезновение пауков
+                                group_draw.add(i)
+                        for i in enemy:
+                            i.kill()
+                            group_draw.add(i)
+                        interface_bytton()
+                        break
                 if event.key == pygame.K_k:
-                    KPK = False
-                    loading = True
-                    sound.MENU_AUDIO.stop()
-                    button.clear()
-                    after_count = 0
-                    for e in group_draw:
-                        e.kill()
-                    for e in group_interface:
-                        e.kill()
+                    if len(game) != 0:
+                        KPK = False
+                        button.clear()
+                        for e in group_draw:
+                            e.kill()
+                        for e in group_interface:
+                            e.kill()
+                        for e in batton_in_KPK:
+                            e.kill()
+                        for e in enemy:
+                            e.kill()
+                        for i in game:
+                            if type(i) != object.Platform:  # не понятный баг с исчезновение пауков
+                                group_draw.add(i)
+                        for i in enemy:
+                            i.kill()
+                            group_draw.add(i)
+                        interface_bytton()
+                        break
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
                     if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -648,16 +668,25 @@ while running:
                                     info.append(pl)
                                     group_draw.add(pl)
                                 else:
-                                    KPK = False
-                                    loading = True
-                                    sound.MENU_AUDIO.stop()
-                                    button.clear()
-                                    after_count = 0
-                                    for e in group_draw:
-                                        e.kill()
-                                    for e in group_interface:
-                                        e.kill()
-                                    i.kill()
+                                    if len(game) != 0:
+                                        KPK = False
+                                        button.clear()
+                                        for e in group_draw:
+                                            e.kill()
+                                        for e in group_interface:
+                                            e.kill()
+                                        for e in batton_in_KPK:
+                                            e.kill()
+                                        for e in enemy:
+                                            e.kill()
+                                        for i in game:
+                                            if type(i) != object.Platform:  # не понятный баг с исчезновение пауков
+                                                group_draw.add(i)
+                                        for i in enemy:
+                                            i.kill()
+                                            group_draw.add(i)
+                                        interface_bytton()
+                                        break
                     else:
                         for i in batton_in_KPK:
                             if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -671,16 +700,16 @@ while running:
                         info[0].life_die(False)
                     info.clear()
 
-
-        screen.fill((255, 255, 255))
-        if len(info) > 0:
-            if not info[0].life_die(True):
-                info.clear()
-        group_draw.draw(screen)
-        batton_in_KPK.draw(screen)
-        window.blit(screen, middle)
-        pygame.display.flip()
-        clock.tick(60)
+        if KPK:
+            screen.fill((255, 255, 255))
+            if len(info) > 0:
+                if not info[0].life_die(True):
+                    info.clear()
+            group_draw.draw(screen)
+            batton_in_KPK.draw(screen)
+            window.blit(screen, middle)
+            pygame.display.flip()
+            clock.tick(60)
 
     elif loading:
         for event in pygame.event.get():
@@ -1019,7 +1048,7 @@ while running:
             screen.fill((0, 0, 0))
             group_draw.draw(screen)
             font = pygame.font.Font('pixle_font.ttf', 10)
-            txt = font.render('V0.5.4a', 1, (255, 255, 255))
+            txt = font.render('V0.5.7a', 1, (255, 255, 255))
             screen.blit(txt, (35, 10))
             window.blit(screen, middle)
             pygame.display.flip()
@@ -1136,7 +1165,7 @@ while running:
                     Strike = True
                     ball += 1
 
-                    if int(time.process_time()) - first_strike_timer >= 1:
+                    if int(time.process_time()) - first_strike_timer >= 0.4:
                         Strike_fast = False
                         first_strike_timer = time.process_time()
                         sound.STRIKE_AUDIO.play()

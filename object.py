@@ -429,7 +429,7 @@ class Enemy(Sprite):
 
     def update(self, left, right, platforms):
         # лево право
-        SPEED = 2
+        SPEED = 5
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         if not self.isdie:
@@ -1432,17 +1432,17 @@ class Button(Sprite):
         self.number = [str(i) for i in range(1, 13)]
         self.image.set_colorkey((0, 0, 0))
         if self.name in self.number:
-            self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
+            #self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
             if self.name == "1":
-                self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
-            elif self.name == "2":
+                self.image.blit(load('data\\КПК\\1\\грибной_паук_выкл.png').convert(), (0, 0))
+            elif self.name == "5":
+                self.image.blit(load('data\\КПК\\1\\ёж_выкл.png').convert(), (0, 0))
+            """elif self.name == "2":
                 self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
             elif self.name == "3":
                 self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
             elif self.name == "4":
-                self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
-            elif self.name == "5":
-                self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
+                self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
 
         elif self.name == 'Exit':
             self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
@@ -1482,17 +1482,17 @@ class Button(Sprite):
 
         if around:
             if self.name in self.number:
-                self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
+                #self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
                 if self.name == "1":
-                    self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
-                elif self.name == "2":
+                    self.image.blit(load('data\\КПК\\1\\грибной_паук_выкл.png').convert(), (0, 0))
+                elif self.name == "5":
+                    self.image.blit(load('data\\КПК\\1\\ёж_выкл.png').convert(), (0, 0))
+                """elif self.name == "2":
                     self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
                 elif self.name == "3":
                     self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
                 elif self.name == "4":
-                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
-                elif self.name == "5":
-                    self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
+                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
             elif self.name == 'Exit':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
             elif self.name == 'Play':
@@ -1533,17 +1533,17 @@ class Button(Sprite):
                 rect(self.image, self.WHITE, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
         else:
             if self.name in self.number:
-                self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_вкл.png').convert(), (0, 0))
+                #self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_вкл.png').convert(), (0, 0))
                 if self.name == "1":
-                    self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
-                elif self.name == "2":
+                    self.image.blit(load('data\\КПК\\1\\грибной_паук_вкл.png').convert(), (0, 0))
+                elif self.name == "5":
+                    self.image.blit(load('data\\КПК\\1\\ёж_вкл.png').convert(), (0, 0))
+                """elif self.name == "2":
                     self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
                 elif self.name == "3":
                     self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
                 elif self.name == "4":
-                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
-                elif self.name == "5":
-                    self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
+                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
             elif self.name == 'Exit':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_выход_вкл.png').convert(), (0, 0))
             elif self.name == 'Play':
