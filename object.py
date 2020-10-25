@@ -7,6 +7,7 @@ from pyganim import PygAnimation
 from random import choice
 from pygame.font import Font
 from pygame import Rect
+from pygame.Rect import colliderect
 from pygame import mixer
 from pygame import sprite
 from pygame.display import set_mode
@@ -662,7 +663,7 @@ class Boss(Sprite):
 
 
 class Ball(Sprite):
-    def __init__(self, x, y, side, r=20):
+    def __init__(self, x, y, side):
         Sprite.__init__(self)
         self.damage_audio = Sound().DAMAGE_AUDIO
         self.image = load('data\\штуки\\выстрел_паутины.png')
@@ -671,12 +672,11 @@ class Ball(Sprite):
         self.side = side
         self.rect.x = x
         self.rect.y = y
-        self.yvel = 0
         self.xvel = 0
         self.die = False
         #self.ball =
 
-    def update(self, platforms, enemys, BOSS):
+    def update(self, hero, enemys, BOSS):
         SPEED = 20
         # лево право
         if self.side == -1:
@@ -685,14 +685,9 @@ class Ball(Sprite):
             self.xvel = SPEED * 4
 
         self.rect.x += self.xvel
-        self.collide(platforms, enemys, BOSS)
-        self.rect.y += self.yvel
+        self.collide(hero, enemys, BOSS)
 
-    def collide(self, platforms, enemys, BOSS):
-        for pl in platforms:
-            if collide_rect(self, pl):
-                self.kill()
-                self.die = True
+    def collide(self, HERO, enemys, BOSS):
         for pl in enemys:
             if collide_rect(self, pl):
                 self.damage_audio.play()
@@ -704,13 +699,18 @@ class Ball(Sprite):
                 self.die = True
                 self.kill()
                 break
-        if collide_rect(self, BOSS):
+        else:
+            if not self.rect.colliderect(Rect(HERO.rect.x-1100, HERO.rect.y-200, 2200, 400)):
+                    self.kill()
+                    self.die = True
+
+        """if collide_rect(self, BOSS):
             BOSS.hit()
             BOSS.helth -= 1
             if BOSS.helth < 0:
                 BOSS.die()
             self.kill()
-            self.die = True
+            self.die = True""" # всё равноне работаю ещё с боссом
 
 class Monster(Sprite):
     def __init__(self, x, y, width=522, height=486):

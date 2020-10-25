@@ -1160,49 +1160,13 @@ while running:
                     sound.MENU_AUDIO.play(-1)
 
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    Strike = True
-                    ball += 1
-
-                    if int(time.process_time()) - first_strike_timer >= 0.4:
-                        Strike_fast = False
-                        first_strike_timer = time.process_time()
-                        sound.STRIKE_AUDIO.play()
-                        if HERO.side == 1:
-                            coord_x = HERO.rect.x + HERO.rect.width
-                        if HERO.side == -1:
-                            coord_x = HERO.rect.x
-                        pl = object.Ball(coord_x, HERO.rect.y + 20, HERO.side)
-                        balls.append(pl)
-                        group_draw.add(pl)
-
-                    else:
-                        Strike_fast = True
-                if event.button == 3:
-                    sound.USE_AUDIO.play()
-                    E = True
-                    Strike = False
-
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_SPACE:
-                    UP = False
-                if event.key == pygame.K_a:
-                    LEFT = False
-                if event.key == pygame.K_d:
-                    RIGHT = False
-            if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
-                    Strike = False
-                if event.button == 3:
-                    E = False
-
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
                     if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
                         i.mouse(False)
                     else:
                         i.mouse(True)
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 or event.button == 3:
                     for i in button:
@@ -1230,6 +1194,44 @@ while running:
 
                             pygame.display.flip()
                             sound.BUTTON.play()
+                    else:
+                        if event.button == 1:
+                            Strike = True
+                            ball += 1
+
+                            #if int(time.process_time()) - first_strike_timer >= 0.4:
+                            Strike_fast = False
+                            first_strike_timer = time.process_time()
+                            sound.STRIKE_AUDIO.play()
+                            if HERO.side == 1:
+                                coord_x = HERO.rect.x + HERO.rect.width
+                            if HERO.side == -1:
+                                coord_x = HERO.rect.x
+                            pl = object.Ball(coord_x, HERO.rect.y + 20, HERO.side)
+                            balls.append(pl)
+                            group_draw.add(pl)
+
+                            """else:
+                                Strike_fast = True"""
+                    if event.button == 3:
+                        sound.USE_AUDIO.play()
+                        E = True
+                        Strike = False
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    UP = False
+                if event.key == pygame.K_a:
+                    LEFT = False
+                if event.key == pygame.K_d:
+                    RIGHT = False
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    Strike = False
+                if event.button == 3:
+                    E = False
+
+
         keys = pygame.key.get_pressed()  # движения персонажей под зажим\
         take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         draw()
@@ -1256,7 +1258,7 @@ while running:
         if HERO.helth <= 0:
             HERO.respawn()
         for i in balls:
-            i.update(platforms, enemy, BOSS)
+            i.update(HERO, enemy, BOSS)
             if i.die:
                 del balls[balls.index(i)]
         if HERO.fight and not fight:
