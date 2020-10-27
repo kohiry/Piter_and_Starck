@@ -1257,8 +1257,9 @@ while running:
         b = list_collide(enemy)
         #d = list_collide(monster)
         #b.reverse()
-        for i in Bullet:
-            i.update(HERO, enemy)
+        Bullet.update(HERO, enemy)
+        #for i in Bullet:
+        #    i.update(HERO, enemy)
         a = HERO.rect.collidelistall(b)
         for i in a:
             enemy[i].AI(HERO, platforms)
