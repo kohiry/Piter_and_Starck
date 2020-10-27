@@ -1329,7 +1329,6 @@ class Platform(Sprite):
         Sprite.__init__(self)
         self.name = '-'
         self.image = Surface((width, height))
-        self.image.fill((200, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

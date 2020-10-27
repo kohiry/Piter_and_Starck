@@ -73,7 +73,6 @@ black_theme = object.BlackTheme()
 BOSS.new_coord(-100, -100)
 StartScene = object.Start()
 start_game_gr.add(StartScene)
-platforms = []
 teleports = []
 enemy = []
 all_obj = []
@@ -110,7 +109,6 @@ def make_level(level):
         #group_draw.add(pl)
         if object.Platform == obj:
             group_platform.add(pl)
-            platforms.append(pl)
             game.append(pl)
         else:
             teleports.append(pl)
@@ -270,7 +268,6 @@ def camera_level(place):
         e.kill()
     for e in group_interface:
         e.kill()
-    platforms.clear()
     teleports.clear()
     enemy.clear()
     tree.clear()
@@ -514,7 +511,6 @@ if start_part:
 def scene_enemy_def():
     for e in group_draw:
         e.kill()
-    platforms.clear()
     teleports.clear()
     enemy.clear()
     tree.clear()
@@ -529,7 +525,6 @@ def scene_enemy_def():
 def scene_moster():
     for e in group_draw:
         e.kill()
-    platforms.clear()
     teleports.clear()
     enemy.clear()
     tree.clear()
@@ -787,7 +782,6 @@ while running:
                         e.kill()
                     for e in group_interface:
                         e.kill()
-                    platforms.clear()
                     teleports.clear()
                     enemy.clear()
                     tree.clear()
@@ -1262,13 +1256,13 @@ while running:
         #    i.update(HERO, enemy)
         a = HERO.rect.collidelistall(b)
         for i in a:
-            enemy[i].AI(HERO, platforms)
+            enemy[i].AI(HERO, group_platform)
 
         #q = HERO.rect.collidelistall(d)
         #for i in q:
         #    monster[i].AI(HERO)
         if Boss_spawn:
-            BOSS.AI(HERO, platforms)
+            BOSS.AI(HERO, group_platform)
         if HERO.helth <= 0:
             HERO.respawn()
         if HERO.fight and not fight:
