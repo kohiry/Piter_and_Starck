@@ -64,6 +64,7 @@ group_interface = pygame.sprite.Group()
 group_platform = pygame.sprite.Group()
 batton_in_KPK = pygame.sprite.Group()
 start_game_gr = pygame.sprite.Group()
+Bullet = pygame.sprite.Group()
 HERO = object.Player(10, 10, sound)
 BOSS = object.Boss(10, 10)
 health_tab = object.Health_tab(415, 10)
@@ -308,6 +309,7 @@ def draw():
 
     white = (255, 255, 255)
     group_interface.draw(screen)
+    Bullet.draw(screen)
     if take_barries:
         font = pygame.font.Font('pixle_font.ttf', 20)
         txt = font.render('ПКМ - собрать плоды', 1, white)
@@ -549,6 +551,20 @@ def interface_bytton():
     group_interface.add(health_tab)
     #group_interface.add(dialog_tab)
     group_draw.add(HERO)
+
+def damage():
+    info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
+    keys_bullet = info.keys()
+    for i in keys_bullet:
+        for j in info[i]:
+            print(j)
+            sound.DAMAGE_AUDIO.play()
+            j.helth -= 1
+            j.damage = True
+            j.hit()
+            if j.helth < 0:
+                j.die()
+            break
 
 if start_game:
     StartScene.time = time.process_time()
@@ -1196,11 +1212,6 @@ while running:
                             sound.BUTTON.play()
                     else:
                         if event.button == 1:
-                            Strike = True
-                            ball += 1
-
-                            #if int(time.process_time()) - first_strike_timer >= 0.4:
-                            Strike_fast = False
                             first_strike_timer = time.process_time()
                             sound.STRIKE_AUDIO.play()
                             if HERO.side == 1:
@@ -1208,11 +1219,8 @@ while running:
                             if HERO.side == -1:
                                 coord_x = HERO.rect.x
                             pl = object.Ball(coord_x, HERO.rect.y + 20, HERO.side)
-                            balls.append(pl)
+                            Bullet.add(pl)
                             group_draw.add(pl)
-
-                            """else:
-                                Strike_fast = True"""
                     if event.button == 3:
                         sound.USE_AUDIO.play()
                         E = True
@@ -1243,13 +1251,18 @@ while running:
             Strike_fast = False
             for_strike_count_time_when_we_see_text = 0
         way = 1100
+        damage()
+
         list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
         b = list_collide(enemy)
         #d = list_collide(monster)
         #b.reverse()
+        for i in Bullet:
+            i.update(HERO, enemy)
         a = HERO.rect.collidelistall(b)
         for i in a:
             enemy[i].AI(HERO, platforms)
+
         #q = HERO.rect.collidelistall(d)
         #for i in q:
         #    monster[i].AI(HERO)
@@ -1257,10 +1270,6 @@ while running:
             BOSS.AI(HERO, platforms)
         if HERO.helth <= 0:
             HERO.respawn()
-        for i in balls:
-            i.update(HERO, enemy, BOSS)
-            if i.die:
-                del balls[balls.index(i)]
         if HERO.fight and not fight:
             fight = True
             sound.BACK_AUDIO.stop()

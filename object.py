@@ -7,7 +7,6 @@ from pyganim import PygAnimation
 from random import choice
 from pygame.font import Font
 from pygame import Rect
-from pygame.Rect import colliderect
 from pygame import mixer
 from pygame import sprite
 from pygame.display import set_mode
@@ -131,7 +130,6 @@ class BlackTheme:
 
     def draw(self, screen, reverse=False):
         self.count += 1
-        print(self.count <= self.all_count-1)
         if self.count <= self.all_count-1:
             if reverse:
                 screen.blit(self.black_list_r[self.count // self.one_sprite], (0, 0))
@@ -667,7 +665,6 @@ class Ball(Sprite):
         Sprite.__init__(self)
         self.damage_audio = Sound().DAMAGE_AUDIO
         self.image = load('data\\штуки\\выстрел_паутины.png')
-        self.image.fill((125, 125, 125))
         self.rect = self.image.get_rect()
         self.side = side
         self.rect.x = x
@@ -676,7 +673,7 @@ class Ball(Sprite):
         self.die = False
         #self.ball =
 
-    def update(self, hero, enemys, BOSS):
+    def update(self, hero, enemys):
         SPEED = 20
         # лево право
         if self.side == -1:
@@ -685,7 +682,7 @@ class Ball(Sprite):
             self.xvel = SPEED * 4
 
         self.rect.x += self.xvel
-        self.collide(hero, enemys, BOSS)
+        #self.collide(hero, enemys, BOSS)
 
     def collide(self, HERO, enemys, BOSS):
         for pl in enemys:
@@ -699,10 +696,6 @@ class Ball(Sprite):
                 self.die = True
                 self.kill()
                 break
-        else:
-            if not self.rect.colliderect(Rect(HERO.rect.x-1100, HERO.rect.y-200, 2200, 400)):
-                    self.kill()
-                    self.die = True
 
         """if collide_rect(self, BOSS):
             BOSS.hit()
@@ -872,7 +865,7 @@ class Player(Sprite):
         self.xvel = 0
         self.onGround = False
         self.count = 0
-        self.helth = 1
+        self.helth = 10
         self.fight = False
         self.jump = False
         self.serf = False
