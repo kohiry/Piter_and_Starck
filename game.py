@@ -306,7 +306,7 @@ def draw():
 
     white = (255, 255, 255)
     group_interface.draw(screen)
-    Bullet.draw(screen)
+    #Bullet.draw(screen)
     if take_barries:
         font = pygame.font.Font('pixle_font.ttf', 20)
         txt = font.render('ПКМ - собрать плоды', 1, white)
@@ -549,7 +549,9 @@ def interface_bytton():
 
 def damage():
     info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
+    pygame.sprite.groupcollide(Bullet, group_platform, True, False)
     keys_bullet = info.keys()
+    Bullet.update(HERO, enemy)
     for i in keys_bullet:
         for j in info[i]:
             print(j)
@@ -1058,7 +1060,7 @@ while running:
             screen.fill((0, 0, 0))
             group_draw.draw(screen)
             font = pygame.font.Font('pixle_font.ttf', 10)
-            txt = font.render('V0.5.7a', 1, (255, 255, 255))
+            txt = font.render('V0.5.7.5a', 1, (255, 255, 255))
             screen.blit(txt, (35, 10))
             window.blit(screen, middle)
             pygame.display.flip()
@@ -1206,19 +1208,22 @@ while running:
                             sound.BUTTON.play()
                     else:
                         if event.button == 1:
+                            Strike = True
+                            E = False
                             first_strike_timer = time.process_time()
                             sound.STRIKE_AUDIO.play()
                             if HERO.side == 1:
                                 coord_x = HERO.rect.x + HERO.rect.width
-                            if HERO.side == -1:
+                            elif HERO.side == -1:
                                 coord_x = HERO.rect.x
+
                             pl = object.Ball(coord_x, HERO.rect.y + 20, HERO.side)
                             Bullet.add(pl)
                             group_draw.add(pl)
-                    if event.button == 3:
-                        sound.USE_AUDIO.play()
-                        E = True
-                        Strike = False
+                        if event.button == 3:
+                            sound.USE_AUDIO.play()
+                            E = True
+                            Strike = False
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
@@ -1239,11 +1244,6 @@ while running:
         draw()
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)
-        if Strike_fast:
-            for_strike_count_time_when_we_see_text += 1
-        if for_strike_count_time_when_we_see_text >= 5:
-            Strike_fast = False
-            for_strike_count_time_when_we_see_text = 0
         way = 1100
         damage()
 
@@ -1251,7 +1251,6 @@ while running:
         b = list_collide(enemy)
         #d = list_collide(monster)
         #b.reverse()
-        Bullet.update(HERO, enemy)
         #for i in Bullet:
         #    i.update(HERO, enemy)
         a = HERO.rect.collidelistall(b)

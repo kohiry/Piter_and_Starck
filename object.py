@@ -663,8 +663,10 @@ class Boss(Sprite):
 class Ball(Sprite):
     def __init__(self, x, y, side):
         Sprite.__init__(self)
-        self.damage_audio = Sound().DAMAGE_AUDIO
-        self.image = load('data\\штуки\\выстрел_паутины.png')
+        #self.damage_audio = Sound().DAMAGE_AUDIO
+        set_mode()
+        self.image = load('data\\штуки\\выстрел_паутины.png').convert()
+        #self.image = Surface((10, 10))
         self.rect = self.image.get_rect()
         self.side = side
         self.rect.x = x
@@ -677,9 +679,9 @@ class Ball(Sprite):
         SPEED = 20
         # лево право
         if self.side == -1:
-            self.xvel = -SPEED * 4
+            self.xvel = -SPEED * 1
         if self.side == 1:
-            self.xvel = SPEED * 4
+            self.xvel = SPEED * 1
 
         self.rect.x += self.xvel
         #self.collide(hero, enemys, BOSS)
