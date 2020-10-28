@@ -67,11 +67,12 @@ batton_in_KPK = pygame.sprite.Group()
 start_game_gr = pygame.sprite.Group()
 Bullet = pygame.sprite.Group()
 HERO = object.Player(10, 10, sound)
-BOSS = object.Boss(10, 10)
+#BOSS = object.Boss(10, 10)
+BOSS = 1
 health_tab = object.Health_tab(415, 10)
 black_theme = object.BlackTheme()
 #dialog_tab = object.Dialog_Tab(0, 0)
-BOSS.new_coord(-100, -100)
+#BOSS.new_coord(-100, -100)
 StartScene = object.Start()
 start_game_gr.add(StartScene)
 teleports = []
@@ -211,9 +212,9 @@ def make_level(level):
                     pl = object.Enemy2(x, y, sound)
                     enemy.append(pl)
                     game.append(pl)
-                if col == "$":
-                    BOSS.new_coord(x, y)
-                    BOSS.isdie = False
+                #if col == "$":
+                #    BOSS.new_coord(x, y)
+                #    BOSS.isdie = False
                 if col == "_":
                     pass
 
@@ -274,15 +275,17 @@ def camera_level(place):
     tree.clear()
     monster.clear()
     button.clear()
-    BOSS.isdie = True
+    #BOSS.isdie = True
     Boss_spawn = False
     total_level_width = len(MAP[place][0])*lens
     total_level_height = len(MAP[place])*lens
     camera.new(total_level_width, total_level_height)
     make_level(MAP[place])
+    '''
     if place == 'level69':
         group_draw.add(BOSS)
         Boss_spawn = True
+    '''
     group_draw.add(HERO)
 
 def draw():
@@ -1268,8 +1271,10 @@ while running:
         #q = HERO.rect.collidelistall(d)
         #for i in q:
         #    monster[i].AI(HERO)
+        '''
         if Boss_spawn:
             BOSS.AI(HERO, group_platform)
+        '''
         if HERO.helth <= 0:
             HERO.respawn()
         if HERO.fight and not fight and game_or_not:
