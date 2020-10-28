@@ -7,7 +7,7 @@ from pyganim import PygAnimation
 from pygame.locals import *
 import asyncio
 
-
+#pygame.locals()
 pygame.init()
 
 # audio
@@ -331,6 +331,8 @@ def create_button():
 
 def create_button_2():
     button.clear()
+    sound.BACK_AUDIO.pause()
+    sound.BACK2_AUDIO.pause()
     for e in group_draw:
         e.kill()
     for e in group_interface:
@@ -776,7 +778,7 @@ while running:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    sound.START_AUDIO.stop()
+                    sound.START_AUDIO.pause()
                     menu = True
                     pre_alpha_scene = False
                     game.clear()
@@ -916,7 +918,7 @@ while running:
                     inf = True
 
         if skip:
-            sound.START_AUDIO.stop()
+            sound.START_AUDIO.pause()
             menu = True
             start_part = False
             create_button()
@@ -927,7 +929,7 @@ while running:
             window.blit(screen, middle)
             if inf:
                 if Scene.upd():
-                    sound.START_AUDIO.stop()
+                    sound.START_AUDIO.pause()
                     menu = True
                     start_part = False
                     create_button()
@@ -1018,7 +1020,7 @@ while running:
                             if i.name == 'Play':
                                 menu = False
                                 loading = True
-                                sound.MENU_AUDIO.stop()
+                                sound.MENU_AUDIO.pause()
                                 button.clear()
                                 after_count = 0
                                 StartScene.change = True
@@ -1067,7 +1069,7 @@ while running:
             clock.tick(60)
         else:
             if not settings:
-                sound.MENU_AUDIO.stop()
+                sound.MENU_AUDIO.pause()
                 sound.BACK_AUDIO.play(-1)
                 sound.BACK2_AUDIO.play(-1)
 
@@ -1111,7 +1113,7 @@ while running:
                                 if len(game) != 0:
                                     map = False
                                     loading = True
-                                    sound.MENU_AUDIO.stop()
+                                    sound.MENU_AUDIO.pause()
                                     button.clear()
                                     after_count = 0
                                     for e in group_draw:
@@ -1144,31 +1146,29 @@ while running:
                     RIGHT = True
                 if event.key == pygame.K_ESCAPE:
                     menu = True
+                    sound.clear()
                     button.clear()
                     create_button_2()
-                    sound.BACK_AUDIO.stop()
-                    sound.BACK2_AUDIO.stop()
-                    sound.FIGHT_AUDIO.stop()
-                    sound.BACK_AFTER_WORDS.stop()
                     sound.MENU_AUDIO.play(-1)
                 if event.key == pygame.K_m:
                     map = True
+                    sound.clear()
                     button.clear()
                     create_button_map()
-                    sound.BACK_AUDIO.stop()
-                    sound.BACK2_AUDIO.stop()
-                    sound.FIGHT_AUDIO.stop()
-                    sound.BACK_AFTER_WORDS.stop()
+                    sound.BACK_AUDIO.pause()
+                    sound.BACK2_AUDIO.pause()
+                    sound.FIGHT_AUDIO.pause()
+                    sound.BACK_AFTER_WORDS.pause()
                     sound.MENU_AUDIO.play(-1)
 
                 if event.key == pygame.K_k:
                     KPK = True
                     button.clear()
                     KPK_create()
-                    sound.BACK_AUDIO.stop()
-                    sound.BACK2_AUDIO.stop()
-                    sound.FIGHT_AUDIO.stop()
-                    sound.BACK_AFTER_WORDS.stop()
+                    sound.BACK_AUDIO.pause()
+                    sound.BACK2_AUDIO.pause()
+                    sound.FIGHT_AUDIO.pause()
+                    sound.BACK_AFTER_WORDS.pause()
                     sound.MENU_AUDIO.play(-1)
 
 
@@ -1186,22 +1186,16 @@ while running:
                             screen.fill((0, 0, 0))
                             if i.name == 'KPK':
                                 KPK = True
+                                sound.clear()
                                 button.clear()
                                 KPK_create()
-                                sound.BACK_AUDIO.stop()
-                                sound.BACK2_AUDIO.stop()
-                                sound.FIGHT_AUDIO.stop()
-                                sound.BACK_AFTER_WORDS.stop()
                                 sound.MENU_AUDIO.play(-1)
                             if i.name == 'menu_ink':
                                 menu = True
                                 Strike = False
                                 button.clear()
+                                sound.clear()
                                 create_button_2()
-                                sound.BACK_AUDIO.stop()
-                                sound.BACK2_AUDIO.stop()
-                                sound.FIGHT_AUDIO.stop()
-                                sound.BACK_AFTER_WORDS.stop()
                                 sound.MENU_AUDIO.play(-1)
 
                             pygame.display.flip()
@@ -1266,19 +1260,18 @@ while running:
             HERO.respawn()
         if HERO.fight and not fight:
             fight = True
-            sound.BACK_AUDIO.stop()
+            sound.clear()
             sound.FIGHT_AUDIO.play(-1)
-            sound.BACK2_AUDIO.stop()
         elif not HERO.fight and fight:
             fight = False
+            sound.clear()
             sound.BACK2_AUDIO.play(-1)
             sound.BACK_AUDIO.play(-1)
-            sound.FIGHT_AUDIO.stop()
         elif not HERO.fight and not fight:
             if sound.BACK_AUDIO.get_num_channels() <= 0 or sound.BACK2_AUDIO.get_num_channels() <= 0:
                 sound.clear()
-                sound.BACK2_AUDIO.play()
-                sound.BACK_AUDIO.play()
+                sound.BACK2_AUDIO.play(-1)
+                sound.BACK_AUDIO.play(-1)
 
 
         pygame.display.flip()
