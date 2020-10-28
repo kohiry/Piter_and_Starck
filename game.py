@@ -1186,6 +1186,7 @@ while running:
                             screen.fill((0, 0, 0))
                             if i.name == 'KPK':
                                 KPK = True
+                                Strike = False
                                 button.clear()
                                 KPK_create()
                                 sound.BACK_AUDIO.stop()
