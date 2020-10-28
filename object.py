@@ -113,6 +113,30 @@ ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, Fa
 
 ANIMATION_START = add_sprite('data\\ЗАСТАВКА\\', 9)
 
+class BlackTheme:
+    def __init__(self):
+        set_mode()
+        self.count = 0
+        self.one_sprite = 2
+        self.all_count = 12
+        self.black_list = []
+        # затемнение для катсцен
+        for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in range(1, 7)]:
+            self.black_list.append(load(i))
+        self.black_list_r = self.black_list.copy()
+
+    def zero(self):
+        self.count = 0
+
+    def draw(self, screen, reverse=False):
+        self.count += 1
+        if self.count <= self.all_count-1:
+            if reverse:
+                screen.blit(self.black_list_r[self.count // self.one_sprite], (0, 0))
+            else:
+                screen.blit(self.black_list[self.count // self.one_sprite], (0, 0))
+
+
 class Start(Sprite):
     def __init__(self):
         Sprite.__init__(self)
@@ -199,7 +223,8 @@ class Dialog_Tab(Sprite):
 class Health_tab(Sprite):
     def __init__(self, x, y):
         Sprite.__init__(self)
-        self.image = load('data\\интерфейс\\иконки и кнопки\\жизни\\жизни_10.png')
+        set_mode()
+        self.image = load('data\\интерфейс\\иконки и кнопки\\жизни\\жизни_10.png').convert()
         self.image.fill((0, 0, 0))
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
@@ -208,11 +233,12 @@ class Health_tab(Sprite):
 
     def new_image(self, helth):
         self.image.fill((0, 0, 0))
-        self.image.set_colorkey((0, 0, 0))
         if helth >= 0:
-            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_{helth}.png')
+            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_{helth}.png').convert()
         else:
-            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_0.png')
+            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_0.png').convert()
+
+        self.image.set_colorkey((0, 0, 0))
 
 class Cutscene(Sprite):
     def __init__(self, filename, end, name):
@@ -271,8 +297,6 @@ class Cutscene(Sprite):
         elif self.count + 1 > 7:
             return True
 
-
-
 class After_words(Sprite):
     def __init__(self, end):
         Sprite.__init__(self)
@@ -301,7 +325,6 @@ class After_words(Sprite):
         else:
             self.rect.y -= 1
             return True
-
 
 class Sound:
     def __init__(self):
@@ -333,6 +356,24 @@ class Sound:
         self.STRIKE_AUDIO.set_volume(0.1)
         self.TAKE_AUDIO.set_volume(0.5)
 
+    def clear(self):
+        # audio
+        self.BACK_AUDIO.stop()
+        self.START_AUDIO.stop()
+        self.USE_AUDIO.stop()
+        self.MENU_AUDIO.stop()
+        self.CUTSCENE_AUDIO.stop()
+        self.FIGHT_AUDIO.stop()
+        self.DAMAGE_AUDIO.stop()
+        self.STRIKE_AUDIO.stop()
+        self.TAKE_AUDIO.stop()
+        self.BACK2_AUDIO.stop()
+        self.STEP_AUDIO.stop()
+        self.STEP2_AUDIO.stop()
+        self.BACK_AFTER_WORDS.stop()
+        for i in self.SPIDER_AUDIO:
+            i.stop()
+        self.BUTTON.stop()
 
 class Enemy(Sprite):
     def __init__(self, x, y, sound, width=108, height=110):
@@ -371,7 +412,7 @@ class Enemy(Sprite):
         self.AnimeEnemyDieRight.play()
 
     def AI(self, hero, platforms):
-        way = 1000
+        way = 1100
         if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
             self.update(False, True, platforms)
         elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
@@ -389,7 +430,7 @@ class Enemy(Sprite):
 
     def update(self, left, right, platforms):
         # лево право
-        SPEED = 2
+        SPEED = 5
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
         if not self.isdie:
@@ -622,55 +663,29 @@ class Boss(Sprite):
 
 
 class Ball(Sprite):
-    def __init__(self, x, y, side, r=20):
+    def __init__(self, x, y, side):
         Sprite.__init__(self)
-        self.damage_audio = Sound().DAMAGE_AUDIO
-        self.image = load('data\\штуки\\выстрел_паутины.png')
-        self.image.fill((125, 125, 125))
+        #self.damage_audio = Sound().DAMAGE_AUDIO
+        set_mode()
+        self.image = load('data\\штуки\\выстрел_паутины.png').convert_alpha()
+        #self.image = Surface((10, 10))
         self.rect = self.image.get_rect()
         self.side = side
         self.rect.x = x
         self.rect.y = y
-        self.yvel = 0
         self.xvel = 0
         self.die = False
         #self.ball =
 
-    def update(self, platforms, enemys, BOSS):
-        SPEED = 20
+    def update(self, hero, enemys):
+        SPEED = 35
         # лево право
         if self.side == -1:
-            self.xvel = -SPEED * 4
+            self.xvel = -SPEED * 1
         if self.side == 1:
-            self.xvel = SPEED * 4
+            self.xvel = SPEED * 1
 
         self.rect.x += self.xvel
-        self.collide(platforms, enemys, BOSS)
-        self.rect.y += self.yvel
-
-    def collide(self, platforms, enemys, BOSS):
-        for pl in platforms:
-            if collide_rect(self, pl):
-                self.kill()
-                self.die = True
-        for pl in enemys:
-            if collide_rect(self, pl):
-                self.damage_audio.play()
-                pl.helth -= 1
-                pl.damage = True
-                pl.hit()
-                if pl.helth < 0:
-                    pl.die()
-                self.die = True
-                self.kill()
-                break
-        if collide_rect(self, BOSS):
-            BOSS.hit()
-            BOSS.helth -= 1
-            if BOSS.helth < 0:
-                BOSS.die()
-            self.kill()
-            self.die = True
 
 class Monster(Sprite):
     def __init__(self, x, y, width=522, height=486):
@@ -846,18 +861,19 @@ class Player(Sprite):
         self.who_kill = []
         self.old_time_on = 0
         self.death = False
+        set_mode()
         for i in ANIMATION_HERO_LOSE_RIGHT:
             #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
-            self.animationR.append(load(i))
+            self.animationR.append(load(i).convert())
         for i in ANIMATION_HERO_LOSE_LEFT:
             #im = load(i).convert_alpha()
-            self.animationL.append(load(i))
+            self.animationL.append(load(i).convert())
         self.animcount = 0
 
         self.data_wh = {
             'go': (105, 117),
             'strike': (99, 108),
-            'stay': (76, 108),
+            'stay': (99, 108),
             'jump': (88, 90),
             'climb': (47, 144),
             'go_strike': (120, 117),
@@ -1060,7 +1076,7 @@ class Player(Sprite):
 
                         elif self.side == -1 and strike and not use:
                             self.resize('strike')
-                            self.AnimeStrikeLeft.blit(self.image, (-25, 0))
+                            self.AnimeStrikeLeft.blit(self.image, (0, 0))
 
 
         else:
@@ -1295,8 +1311,7 @@ class Platform(Sprite):
     def __init__(self, x, y, width, height):
         Sprite.__init__(self)
         self.name = '-'
-        self.image = Surface((width, height))
-        self.image.fill((200, 0, 0))
+        self.image = Surface((width, height)).convert()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -1392,17 +1407,17 @@ class Button(Sprite):
         self.number = [str(i) for i in range(1, 13)]
         self.image.set_colorkey((0, 0, 0))
         if self.name in self.number:
-            self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
+            #self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
             if self.name == "1":
-                self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
-            elif self.name == "2":
+                self.image.blit(load('data\\КПК\\1\\грибной_паук_выкл.png').convert(), (0, 0))
+            elif self.name == "5":
+                self.image.blit(load('data\\КПК\\1\\ёж_выкл.png').convert(), (0, 0))
+            """elif self.name == "2":
                 self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
             elif self.name == "3":
                 self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
             elif self.name == "4":
-                self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
-            elif self.name == "5":
-                self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
+                self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
 
         elif self.name == 'Exit':
             self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
@@ -1442,17 +1457,17 @@ class Button(Sprite):
 
         if around:
             if self.name in self.number:
-                self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
+                #self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_выкл.png').convert(), (0, 0))
                 if self.name == "1":
-                    self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
-                elif self.name == "2":
+                    self.image.blit(load('data\\КПК\\1\\грибной_паук_выкл.png').convert(), (0, 0))
+                elif self.name == "5":
+                    self.image.blit(load('data\\КПК\\1\\ёж_выкл.png').convert(), (0, 0))
+                """elif self.name == "2":
                     self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
                 elif self.name == "3":
                     self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
                 elif self.name == "4":
-                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
-                elif self.name == "5":
-                    self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
+                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
             elif self.name == 'Exit':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_выход_выкл.png').convert(), (0, 0))
             elif self.name == 'Play':
@@ -1493,17 +1508,17 @@ class Button(Sprite):
                 rect(self.image, self.WHITE, (self.rect.x+3, self.rect.y+3, self.rect.width-3, self.rect.height-3), 3)
         else:
             if self.name in self.number:
-                self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_вкл.png').convert(), (0, 0))
+                #self.image.blit(load(f'data\\КПК\\1\\ячейки пустые\\ячейка_{self.name}_вкл.png').convert(), (0, 0))
                 if self.name == "1":
-                    self.image.blit(load('data\\КПК\\1\\текст\\грибной_паук.png').convert(), (0, 0))
-                elif self.name == "2":
+                    self.image.blit(load('data\\КПК\\1\\грибной_паук_вкл.png').convert(), (0, 0))
+                elif self.name == "5":
+                    self.image.blit(load('data\\КПК\\1\\ёж_вкл.png').convert(), (0, 0))
+                """elif self.name == "2":
                     self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
                 elif self.name == "3":
                     self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
                 elif self.name == "4":
-                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))
-                elif self.name == "5":
-                    self.image.blit(load('data\\КПК\\1\\текст\\ёж.png').convert(), (0, 0))
+                    self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
             elif self.name == 'Exit':
                 self.image.blit(load('data\\МЕНЮ\\кнопка_выход_вкл.png').convert(), (0, 0))
             elif self.name == 'Play':
