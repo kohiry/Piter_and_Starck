@@ -362,22 +362,22 @@ class Sound:
 
     def clear(self):
         # audio
-        self.BACK_AUDIO.pause()
-        self.START_AUDIO.pause()
-        self.USE_AUDIO.pause()
-        self.MENU_AUDIO.pause()
-        self.CUTSCENE_AUDIO.pause()
-        self.FIGHT_AUDIO.pause()
-        self.DAMAGE_AUDIO.pause()
-        self.STRIKE_AUDIO.pause()
-        self.TAKE_AUDIO.pause()
-        self.BACK2_AUDIO.pause()
-        self.STEP_AUDIO.pause()
-        self.STEP2_AUDIO.pause()
-        self.BACK_AFTER_WORDS.pause()
+        self.BACK_AUDIO.stop()
+        self.START_AUDIO.stop()
+        self.USE_AUDIO.stop()
+        self.MENU_AUDIO.stop()
+        self.CUTSCENE_AUDIO.stop()
+        self.FIGHT_AUDIO.stop()
+        self.DAMAGE_AUDIO.stop()
+        self.STRIKE_AUDIO.stop()
+        self.TAKE_AUDIO.stop()
+        self.BACK2_AUDIO.stop()
+        self.STEP_AUDIO.stop()
+        self.STEP2_AUDIO.stop()
+        self.BACK_AFTER_WORDS.stop()
         for i in self.SPIDER_AUDIO:
-            i.pause()
-        self.BUTTON.pause()
+            i.stop()
+        self.BUTTON.stop()
 
 
 
@@ -930,8 +930,8 @@ class Player(Sprite):
                     self.step_AUDIO.play()
                     self.step2_AUDIO.play()
                 elif not self.onGround:
-                    self.step_AUDIO.pause()
-                    self.step2_AUDIO.pause()
+                    self.step_AUDIO.stop()
+                    self.step2_AUDIO.stop()
                 if left and right:
                     self.xvel = 0
                 elif left or right:
@@ -1013,8 +1013,8 @@ class Player(Sprite):
             else:
                 self.xvel = 0
                 self.audio_step_count = 0
-                self.step_AUDIO.pause()
-                self.step2_AUDIO.pause()
+                self.step_AUDIO.stop()
+                self.step2_AUDIO.stop()
                 if up:
                     if self.side == 1:
                         self.resize('jump')
