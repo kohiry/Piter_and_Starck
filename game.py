@@ -979,10 +979,10 @@ while running:
         screen.fill((255, 255, 255))
         group_draw.draw(screen)
         font = pygame.font.Font('pixle_font.ttf', 50)
-        txt = font.render('Music', 1, (255, 255, 255))
+        txt = font.render('Музыка', 1, (255, 255, 255))
         screen.blit(txt, (WIDTH//3 - 250, 20))
         font = pygame.font.Font('pixle_font.ttf', 50)
-        txt = font.render('Sound', 1, (255, 255, 255))
+        txt = font.render('Звуки', 1, (255, 255, 255))
         screen.blit(txt, (WIDTH//3 - 250, 270))
 
         window.blit(screen, middle)
