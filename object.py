@@ -866,10 +866,10 @@ class Player(Sprite):
         set_mode()
         for i in ANIMATION_HERO_LOSE_RIGHT:
             #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
-            self.animationR.append(load(i).convert())
+            self.animationR.append(load(i))
         for i in ANIMATION_HERO_LOSE_LEFT:
             #im = load(i).convert_alpha()
-            self.animationL.append(load(i).convert())
+            self.animationL.append(load(i))
         self.animcount = 0
 
         self.data_wh = {
