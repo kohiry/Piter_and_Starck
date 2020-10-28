@@ -1,0 +1,5 @@
+pygame==1.9.6
+Pyganim==0.9.2
+pyinstaller==4.0
+pyinstaller-hooks-contrib==2020.8
+screeninfo==0.6.5
