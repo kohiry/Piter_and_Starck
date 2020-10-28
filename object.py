@@ -11,9 +11,13 @@ from pygame import mixer
 from pygame import sprite
 from pygame.display import set_mode
 from time import process_time
+from pygame import HWSURFACE, DOUBLEBUF, FULLSCREEN
+
 mixer.init()
 
 
+
+set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 SPEED = 8
 GRAVITY = 1
 JUMP_POWER = 5
@@ -115,7 +119,7 @@ ANIMATION_START = add_sprite('data\\ЗАСТАВКА\\', 9)
 
 class BlackTheme:
     def __init__(self):
-        set_mode()
+        #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.count = 0
         self.one_sprite = 2
         self.all_count = 12
@@ -140,7 +144,7 @@ class BlackTheme:
 class Start(Sprite):
     def __init__(self):
         Sprite.__init__(self)
-        set_mode()
+        #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
 
         #self.image = load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png')
@@ -162,7 +166,7 @@ class Dialog_Tab(Sprite):
         Sprite.__init__(self)
 
         self.image = load('data\\интерфейс\\диалоговая_полоса.png')
-        set_mode()
+        #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.image.fill((0, 255, 0))
         self.image.set_colorkey((0, 255, 0))
         self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
@@ -223,7 +227,7 @@ class Dialog_Tab(Sprite):
 class Health_tab(Sprite):
     def __init__(self, x, y):
         Sprite.__init__(self)
-        set_mode()
+        #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.image = load('data\\интерфейс\\иконки и кнопки\\жизни\\жизни_10.png').convert()
         self.image.fill((0, 0, 0))
         self.image.set_colorkey((0, 0, 0))
@@ -517,45 +521,13 @@ class Enemy2(Sprite):
 
 
     def AI(self, hero, platforms):
-        self.update(platforms)
-
-
-    def update(self, platforms):
         # лево право
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
 
         self.AnimeEnemyStay.blit(self.image, (0, 0))
 
-        if not self.onGround:
-            self.yvel += GRAVITY
 
-        self.onGround = False
-        self.collide(self.xvel, 0, platforms)
-        self.collide(0, self.yvel, platforms)
-
-
-    def collide(self, xvel, yvel, platforms):
-        for pl in platforms:
-            if collide_rect(self, pl):
-                #self.serf = True
-                if yvel > 0:
-                    self.onGround = True
-                    self.rect.bottom = pl.rect.top
-                if yvel < 0:
-                    self.yvel = 0
-                    self.rect.top = pl.rect.bottom
-                if xvel < 0:
-                    self.yvel = 0
-                    self.rect.left = pl.rect.right
-                if xvel > 0:
-                    self.yvel = 0
-                    self.rect.right = pl.rect.left
-
-    def die(self):
-        self.isdie = True  # включу запутанного моба
-        self.xvel = 0
-        self.yvel = 0
 
 
 class Boss(Sprite):
@@ -668,7 +640,7 @@ class Ball(Sprite):
     def __init__(self, x, y, side):
         Sprite.__init__(self)
         #self.damage_audio = Sound().DAMAGE_AUDIO
-        set_mode()
+        #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.image = load('data\\штуки\\выстрел_паутины.png').convert_alpha()
         #self.image = Surface((10, 10))
         self.rect = self.image.get_rect()
@@ -863,7 +835,6 @@ class Player(Sprite):
         self.who_kill = []
         self.old_time_on = 0
         self.death = False
-        set_mode()
         for i in ANIMATION_HERO_LOSE_RIGHT:
             #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
             self.animationR.append(load(i))
