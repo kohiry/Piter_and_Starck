@@ -375,6 +375,8 @@ class Sound:
             i.stop()
         self.BUTTON.stop()
 
+
+
 class Enemy(Sprite):
     def __init__(self, x, y, sound, width=108, height=110):
         Sprite.__init__(self)
