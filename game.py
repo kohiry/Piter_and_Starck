@@ -21,6 +21,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 
 FONT = "pixle_font.ttf"
+VERSION = 'V0.5.9a'
 UP = False
 ball = 0
 LEFT = False
@@ -1060,7 +1061,7 @@ while running:
             screen.fill((0, 0, 0))
             group_draw.draw(screen)
             font = pygame.font.Font('pixle_font.ttf', 10)
-            txt = font.render('V0.5.7.5a', 1, (255, 255, 255))
+            txt = font.render(VERSION, 1, (255, 255, 255))
             screen.blit(txt, (35, 10))
             window.blit(screen, middle)
             pygame.display.flip()
