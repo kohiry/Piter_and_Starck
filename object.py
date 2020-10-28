@@ -223,7 +223,8 @@ class Dialog_Tab(Sprite):
 class Health_tab(Sprite):
     def __init__(self, x, y):
         Sprite.__init__(self)
-        self.image = load('data\\интерфейс\\иконки и кнопки\\жизни\\жизни_10.png')
+        set_mode()
+        self.image = load('data\\интерфейс\\иконки и кнопки\\жизни\\жизни_10.png').convert()
         self.image.fill((0, 0, 0))
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect()
@@ -232,11 +233,12 @@ class Health_tab(Sprite):
 
     def new_image(self, helth):
         self.image.fill((0, 0, 0))
-        self.image.set_colorkey((0, 0, 0))
         if helth >= 0:
-            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_{helth}.png')
+            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_{helth}.png').convert()
         else:
-            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_0.png')
+            self.image = load(f'data\\интерфейс\\иконки и кнопки\\жизни\\жизни_0.png').convert()
+
+        self.image.set_colorkey((0, 0, 0))
 
 class Cutscene(Sprite):
     def __init__(self, filename, end, name):
@@ -665,7 +667,7 @@ class Ball(Sprite):
         Sprite.__init__(self)
         #self.damage_audio = Sound().DAMAGE_AUDIO
         set_mode()
-        self.image = load('data\\штуки\\выстрел_паутины.png').convert()
+        self.image = load('data\\штуки\\выстрел_паутины.png').convert_alpha()
         #self.image = Surface((10, 10))
         self.rect = self.image.get_rect()
         self.side = side
@@ -676,7 +678,7 @@ class Ball(Sprite):
         #self.ball =
 
     def update(self, hero, enemys):
-        SPEED = 20
+        SPEED = 35
         # лево право
         if self.side == -1:
             self.xvel = -SPEED * 1
@@ -684,28 +686,6 @@ class Ball(Sprite):
             self.xvel = SPEED * 1
 
         self.rect.x += self.xvel
-        #self.collide(hero, enemys, BOSS)
-
-    def collide(self, HERO, enemys, BOSS):
-        for pl in enemys:
-            if collide_rect(self, pl):
-                self.damage_audio.play()
-                pl.helth -= 1
-                pl.damage = True
-                pl.hit()
-                if pl.helth < 0:
-                    pl.die()
-                self.die = True
-                self.kill()
-                break
-
-        """if collide_rect(self, BOSS):
-            BOSS.hit()
-            BOSS.helth -= 1
-            if BOSS.helth < 0:
-                BOSS.die()
-            self.kill()
-            self.die = True""" # всё равноне работаю ещё с боссом
 
 class Monster(Sprite):
     def __init__(self, x, y, width=522, height=486):
@@ -881,12 +861,13 @@ class Player(Sprite):
         self.who_kill = []
         self.old_time_on = 0
         self.death = False
+        set_mode()
         for i in ANIMATION_HERO_LOSE_RIGHT:
             #im = load(i).convert_alpha()  # ВТФ почему я не могу конвертировать
-            self.animationR.append(load(i))
+            self.animationR.append(load(i).convert())
         for i in ANIMATION_HERO_LOSE_LEFT:
             #im = load(i).convert_alpha()
-            self.animationL.append(load(i))
+            self.animationL.append(load(i).convert())
         self.animcount = 0
 
         self.data_wh = {
@@ -1330,7 +1311,7 @@ class Platform(Sprite):
     def __init__(self, x, y, width, height):
         Sprite.__init__(self)
         self.name = '-'
-        self.image = Surface((width, height))
+        self.image = Surface((width, height)).convert()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
