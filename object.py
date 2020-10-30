@@ -914,7 +914,7 @@ class Player(Sprite):
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
 
-    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):
+    async def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):
         global SPEED
 
         # animation

@@ -7,8 +7,11 @@ from pyganim import PygAnimation
 from pygame.locals import *
 import asyncio
 
+
+
 #pygame.locals()
 pygame.init()
+
 
 # audio
 sound = object.Sound()
@@ -566,6 +569,10 @@ def damage():
 
 if start_game:
     StartScene.time = time.process_time()
+
+
+async def AI():
+    
 
 running = True
 clock = pygame.time.Clock()
@@ -1264,6 +1271,12 @@ while running:
         a = HERO.rect.collidelistall(b)
         for i in a:
             enemy[i].AI(HERO, group_platform)
+
+
+        # асинхронн
+        event_loop = asyncio.get_event_loop()
+        event_loop.run_until_complete(asyncio.gather(*))
+        event_loop.close()
 
         #q = HERO.rect.collidelistall(d)
         #for i in q:
