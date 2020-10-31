@@ -571,8 +571,8 @@ if start_game:
     StartScene.time = time.process_time()
 
 
-async def AI():
-    
+#async def AI():
+
 
 running = True
 clock = pygame.time.Clock()
@@ -1274,9 +1274,9 @@ while running:
 
 
         # асинхронн
-        event_loop = asyncio.get_event_loop()
-        event_loop.run_until_complete(asyncio.gather(*))
-        event_loop.close()
+        #event_loop = asyncio.get_event_loop()
+        #event_loop.run_until_complete(asyncio.gather(*))
+        #event_loop.close()
 
         #q = HERO.rect.collidelistall(d)
         #for i in q:
