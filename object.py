@@ -736,6 +736,10 @@ class Monster(Sprite):
                 if not hero.film:
                     hero.films()
                     hero.moster = True
+                    if hero.side == -1:
+                        self.rect = self.rect.move(-50, -307)
+                    if hero.side == 1:
+                        self.rect = self.rect.move(-290, -307)
                 if hero.side == -1:
                     self.resize('Go', hero)
                     self.animcount += 1
@@ -1128,8 +1132,8 @@ class Player(Sprite):
     def fight_find(self, enemy):
         for i in enemy:
             if not i.isdie:
-                if (i.rect.x <= self.rect.x and self.rect.x - i.rect.x <= 1200) or (i.rect.x >= self.rect.x and i.rect.x - self.rect.x <= 1200):
-                    if (i.rect.y <= self.rect.y and self.rect.y - i.rect.y <= 200) or (i.rect.y >= self.rect.y and i.rect.y - self.rect.y <= 200):
+                if (i.rect.x <= self.rect.x and self.rect.x - i.rect.x <= 900) or (i.rect.x >= self.rect.x and i.rect.x - self.rect.x <= 900):
+                    if (i.rect.y <= self.rect.y and self.rect.y - i.rect.y <= 500) or (i.rect.y >= self.rect.y and i.rect.y - self.rect.y <= 500):
                         self.fight = True
                         break
                     else:
