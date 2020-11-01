@@ -24,7 +24,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 
 FONT = "pixle_font.ttf"
-VERSION = 'V0.5.9a'
+VERSION = 'V0.5.9.2a'
 UP = False
 ball = 0
 LEFT = False
@@ -57,6 +57,7 @@ after_words = False
 KPK = False
 scene_enemy2 = False
 pre_alpha_scene = False
+die_end = False
 
 # map
 location = 1
@@ -167,10 +168,10 @@ def make_level(level):
                         pl = object.Background(x, y, 'data/фоны/овраг.png')
                         group_draw.add(pl)
                         game.append(pl)
-                        #pl2 = object.Monster(x+lens*3, y+lens*6)
-                        #game.append(pl2)
-                        #group_draw.add(pl2)
-                        #monster.append(pl2)
+                        pl2 = object.Monster(x+lens*3, y+lens*6)
+                        game.append(pl2)
+                        group_draw.add(pl2)
+                        monster.append(pl2)
                     if col == 'i':
                         pl = object.Background(x, y, 'data/фоны/вертикаль.png')
                         group_draw.add(pl)
@@ -228,11 +229,11 @@ def make_level(level):
     game.reverse()
 
 
-#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-size = width, height = 1080, 720
-window = pygame.display.set_mode(size)
-#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+#size = width, height = 1080, 720
+#window = pygame.display.set_mode(size)
+window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -748,6 +749,9 @@ while running:
         menu_width = 10
         all_height = 10
         start_game_gr.draw(screen)
+        font = pygame.font.Font('pixle_font.ttf', 15)
+        txt = font.render('Чтобы   пройти   щупальцехвата,   киньте   в   него   ягодой,   на   ПКМ', 1, (255, 255, 255))
+        screen.blit(txt, (230, 500))
         window.blit(screen, middle)
         pygame.display.flip()
         if (time.process_time() - StartScene.time) <= 4:
@@ -822,6 +826,49 @@ while running:
         pygame.display.flip()
         pygame.time.Clock().tick(60)
 
+    elif die_end:
+        inf = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEMOTION:
+                pass
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    #sound.clear()
+                    pre_alpha_scene = True
+                    die_end = False
+                    game.clear()
+                    for e in group_draw:
+                        e.kill()
+                    for e in group_interface:
+                        e.kill()
+                    teleports.clear()
+                    enemy.clear()
+                    tree.clear()
+                    monster.clear()
+                    button.clear()
+                    HERO.who_kill.clear()
+                    create_button()
+                    HERO.helth = 10
+                    HERO.death = False
+                    #sound.clear()
+                    #sound.MENU_AUDIO.play(-1)
+
+                    #inf = True
+
+
+
+        screen.fill((255, 255, 255))
+        screen.blit(pygame.image.load('data\катсцены\экран_проигрыш_вы_всрали.png').convert(),(0, 0))
+        black_theme.draw(screen)
+        window.blit(screen, middle)
+        #group_draw.draw(screen)
+        #Scene.upd()
+
+        pygame.display.flip()
+        pygame.time.Clock().tick(60)
+
     elif scene_enemy:
         inf = False
         for event in pygame.event.get():
@@ -831,7 +878,7 @@ while running:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    pre_alpha_scene = True
+                    die_end = True
                     scene_enemy = False
                     black_count = 0
                     black_theme.zero()
@@ -858,7 +905,7 @@ while running:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    pre_alpha_scene = True
+                    die_end = True
                     scene_enemy2 = False
                     black_theme.zero()
                     #inf = True
@@ -884,7 +931,7 @@ while running:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    pre_alpha_scene = True
+                    die_end = True
                     scene_enemy3 = False
                     black_count = 0
 
@@ -957,7 +1004,12 @@ while running:
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    running = False
+                    menu = True
+                    settings = False
+                    if len(game) != 0:
+                        create_button_2()
+                    else:
+                        create_button()
             if event.type == pygame.MOUSEMOTION:
                 for i in button:
                     if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):  # добавить залипание выбранной кнопки звука
@@ -1259,12 +1311,12 @@ while running:
         draw()
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)
-        way = 1100
+        way = 1200
         damage()
 
         list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
         b = list_collide(enemy)
-        #d = list_collide(monster)
+
         #b.reverse()
         #for i in Bullet:
         #    i.update(HERO, enemy)
@@ -1277,10 +1329,10 @@ while running:
         #event_loop = asyncio.get_event_loop()
         #event_loop.run_until_complete(asyncio.gather(*))
         #event_loop.close()
-
-        #q = HERO.rect.collidelistall(d)
-        #for i in q:
-        #    monster[i].AI(HERO)
+        d = list_collide(monster)
+        q = HERO.rect.collidelistall(d)
+        for i in q:
+            monster[i].AI(HERO)
         if Boss_spawn:
             BOSS.AI(HERO, group_platform)
         if HERO.helth <= 0:

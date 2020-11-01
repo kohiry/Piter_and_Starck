@@ -736,6 +736,10 @@ class Monster(Sprite):
                 if not hero.film:
                     hero.films()
                     hero.moster = True
+                    if hero.side == -1:
+                        self.rect = self.rect.move(-50, -307)
+                    if hero.side == 1:
+                        self.rect = self.rect.move(-290, -307)
                 if hero.side == -1:
                     self.resize('Go', hero)
                     self.animcount += 1
