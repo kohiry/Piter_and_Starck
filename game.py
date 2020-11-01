@@ -169,7 +169,7 @@ def make_level(level):
                         pl = object.Background(x, y, 'data/фоны/овраг.png')
                         group_draw.add(pl)
                         game.append(pl)
-                        pl2 = object.Monster(x+lens*3, y+lens*6)
+                        pl2 = object.Monster(x+lens*3, y+lens*6-20)
                         game.append(pl2)
                         group_draw.add(pl2)
                         monster.append(pl2)
@@ -1301,7 +1301,7 @@ while running:
         draw()
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)
-        way = 1200
+        way = 1300
         damage()
 
         list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
@@ -1314,15 +1314,15 @@ while running:
         for i in a:
             enemy[i].AI(HERO, group_platform)
 
+        d = list_collide(monster)
+        q = HERO.rect.collidelistall(d)
+        for i in q:
+            monster[i].AI(HERO)
 
         # асинхронн
         #event_loop = asyncio.get_event_loop()
         #event_loop.run_until_complete(asyncio.gather(*))
         #event_loop.close()
-        d = list_collide(monster)
-        q = HERO.rect.collidelistall(d)
-        for i in q:
-            monster[i].AI(HERO)
         if Boss_spawn:
             BOSS.AI(HERO, group_platform)
         if HERO.helth <= 0:

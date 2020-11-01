@@ -718,6 +718,9 @@ class Monster(Sprite):
         self.AnimeEnemyDieLeft.play()
         self.AnimeEnemyDieRight.play()
 
+        self.image.fill((0, 255, 0))
+        self.image.set_colorkey((0, 255, 0))
+
 
     def new_coord(self, x, y):
         self.rect.x = x
