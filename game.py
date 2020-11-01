@@ -71,11 +71,12 @@ batton_in_KPK = pygame.sprite.Group()
 start_game_gr = pygame.sprite.Group()
 Bullet = pygame.sprite.Group()
 HERO = object.Player(10, 10, sound)
-BOSS = object.Boss(10, 10)
+#BOSS = object.Boss(10, 10)
+BOSS = 1
 health_tab = object.Health_tab(415, 10)
 black_theme = object.BlackTheme()
 #dialog_tab = object.Dialog_Tab(0, 0)
-BOSS.new_coord(-100, -100)
+#BOSS.new_coord(-100, -100)
 StartScene = object.Start()
 start_game_gr.add(StartScene)
 teleports = []
@@ -215,9 +216,9 @@ def make_level(level):
                     pl = object.Enemy2(x, y, sound)
                     enemy.append(pl)
                     game.append(pl)
-                if col == "$":
+                '''if col == "$":
                     BOSS.new_coord(x, y)
-                    BOSS.isdie = False
+                    BOSS.isdie = False'''
                 if col == "_":
                     pass
 
@@ -278,7 +279,7 @@ def camera_level(place):
     tree.clear()
     monster.clear()
     button.clear()
-    BOSS.isdie = True
+    #BOSS.isdie = True
     Boss_spawn = False
     total_level_width = len(MAP[place][0])*lens
     total_level_height = len(MAP[place])*lens
@@ -487,12 +488,12 @@ def KPK_create():
         e.kill()
     button.clear()
     button.append(object.Button(x_1, 140, w, h, '1', tag=False))
-    """button.append(object.Button(x_1, 230, w, h, '2', tag=False))
+    #"""button.append(object.Button(x_1, 230, w, h, '2', tag=False))"""
     button.append(object.Button(x_1, 320, w, h, '3', tag=False))
-    button.append(object.Button(x_1, 408, w, h, '4', tag=False))"""
+    #button.append(object.Button(x_1, 408, w, h, '4', tag=False))"""
     button.append(object.Button(x_2, 140, w, h, '5', tag=False))
-    """button.append(object.Button(x_2, 230, w, h, '6', tag=False))
-    button.append(object.Button(x_2, 320, w, h, '7', tag=False))
+    button.append(object.Button(x_2, 230, w, h, '6', tag=False))
+    """button.append(object.Button(x_2, 320, w, h, '7', tag=False))
     button.append(object.Button(x_2, 408, w, h, '8', tag=False))
     button.append(object.Button(x_3, 140, w, h, '9', tag=False))
     button.append(object.Button(x_3, 230, w, h, '10', tag=False))
@@ -536,7 +537,7 @@ def scene_moster():
     tree.clear()
     monster.clear()
     button.clear()
-    BOSS.isdie = True
+    #BOSS.isdie = True
     Boss_spawn = False
     button.clear()
     #Scene = object.Cutscene('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png', HEIGHT, 'enemy')
@@ -794,6 +795,7 @@ while running:
                 if event.button == 1:
                     sound.clear()
                     menu = True
+                    black_theme.zero()
                     pre_alpha_scene = False
                     game.clear()
                     for e in group_draw:
@@ -838,20 +840,7 @@ while running:
                     #sound.clear()
                     pre_alpha_scene = True
                     die_end = False
-                    game.clear()
-                    for e in group_draw:
-                        e.kill()
-                    for e in group_interface:
-                        e.kill()
-                    teleports.clear()
-                    enemy.clear()
-                    tree.clear()
-                    monster.clear()
-                    button.clear()
-                    HERO.who_kill.clear()
-                    create_button()
-                    HERO.helth = 10
-                    HERO.death = False
+                    black_theme.zero()
                     #sound.clear()
                     #sound.MENU_AUDIO.play(-1)
 
@@ -934,6 +923,7 @@ while running:
                     die_end = True
                     scene_enemy3 = False
                     black_count = 0
+                    black_theme.zero()
 
 
 
@@ -1368,11 +1358,14 @@ while running:
             if len(HERO.who_kill) != 0:
                 if type(HERO.who_kill[0]) == object.Enemy:
                     scene_enemy = True
+                    black_theme.zero()
                 elif type(HERO.who_kill[0]) == object.Enemy2:
                     scene_enemy2 = True
+                    black_theme.zero()
                     scene_enemy_def()
                 elif type(HERO.who_kill[0]) == object.Monster:
                     scene_enemy3 = True
+                    black_theme.zero()
                     scene_moster()
 
 

@@ -83,14 +83,14 @@ ANIMATION_ENEMY1_DIE_LEFT = add_sprite('data\враги\грибной паук\
 ANIMATION_ENEMY2_STAY = add_sprite('data\враги\ёж\ёж_', 3)
 
 #enemy3
-'''
+
 ANIMATION_ENEMY3_STAY_LEFT = add_sprite('data\враги\тентаклемонстр\тентакли_налево_', 5)
 ANIMATION_ENEMY3_STAY_RIGHT = add_sprite('data\враги\тентаклемонстр\тентакли_направо_', 5)
 ANIMATION_ENEMY3_GO_RIGHT = add_sprite('data\враги\тентаклемонстр\схвачен_тентаклями_направо_', 9)
 ANIMATION_ENEMY3_GO_LEFT = add_sprite('data\враги\тентаклемонстр\схвачен_тентаклями_налево_', 9)
 ANIMATION_ENEMY3_DIE_LEFT = add_sprite('data\враги\тентаклемонстр\тентакли_спрятались_налево_', 4)
 ANIMATION_ENEMY3_DIE_RIGHT = add_sprite('data\враги\тентаклемонстр\тентакли_спрятались_направо_', 4)
-
+'''
 #Tony Stark
 ANIMATION_TONY = add_sprite('data\Тони\тони_', 3)
 
@@ -107,14 +107,15 @@ ANIMATION_AFTER_WORDS = add_sprite('data\\ТИТРЫ\КАДРЫ\\', 49)
 '''
 # info
 ANIMATION_INFO_SPIDER = add_sprite('data\\КПК\\2\\грибной_паук_', 3)
+ANIMATION_INFO_TENTACLE = add_sprite('data\\КПК\\2\\овраговый_щупалцехват_', 5)
 '''
 ANIMATION_INFO_BIGSPIDER = add_sprite('data\\КПК\\2\\грибная_королева_', 3)
-ANIMATION_INFO_TENTACLE = add_sprite('data\\КПК\\2\\овраговый_щупалцехват_', 5)
 ANIMATION_INFO_PIDOR = add_sprite('data\\КПК\\2\\сучий_жук_', 3)
 '''
 ANIMATION_INFO_ESJH = add_sprite('data\\КПК\\2\\ёж_', 3)
-'''
+
 ANIMATION_INFO_YELLOW = add_sprite('data\\КПК\\2\\жёлтая_ягода', 2, False)
+'''
 ANIMATION_INFO_BLUE = add_sprite('data\\КПК\\2\\потолочный_гриб', 2, False)
 ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, False)
 '''
