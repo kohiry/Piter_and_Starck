@@ -288,10 +288,13 @@ class Cutscene(Sprite):
 
         elif self.count == 4:
             self.animcount += 1
-            self.image.blit(self.animation[self.animcount // 5], (0, 0))
-            if self.animcount >= 14:
-                self.animcount = 0
-                self.count += 1
+            if self.animcount < 48:
+                self.image = load(self.filename + str(self.count) + '.png').convert()
+            else:
+                self.image.blit(self.animation[(self.animcount - 47) // 5], (0, 0))
+                if self.animcount - 47 >= 14:
+                    self.animcount = 0
+                    self.count += 1
 
         elif self.count + 1 <= 7 and self.lock == 1:
             self.rect.y = 0
