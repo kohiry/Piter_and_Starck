@@ -24,7 +24,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 
 FONT = "pixle_font.ttf"
-VERSION = 'V0.6.2.5a'
+VERSION = 'V0.6.2.5.3a'
 UP = False
 ball = 0
 LEFT = False
@@ -313,9 +313,9 @@ def draw():
     group_interface.draw(screen)
     #Bullet.draw(screen)
     if take_barries:
-        font = pygame.font.Font('pixle_font.ttf', 20)
-        txt = font.render('ПКМ - собрать плоды', 1, white)
-        screen.blit(txt, (420, 500))
+        font = pygame.font.Font('pixle_font.ttf', 22)
+        txt = font.render('ПКМ - собрать\бросить плоды', 1, white)
+        screen.blit(txt, (365, 500))
     window.blit(screen, middle)
     pygame.display.flip()
 
@@ -369,7 +369,7 @@ def create_button_setting():
     for e in group_interface:
         e.kill()
     w, h = 113, 59
-    music = 100
+    music = 130
     sound = 350
     name_a = 'music'
     name_b = 'sound'
@@ -748,13 +748,13 @@ while running:
         screen.fill((255, 255, 255))
 
         group_draw.draw(screen)
-        kpk_width = 910
+        kpk_width = 904
         menu_width = 10
         all_height = 10
         start_game_gr.draw(screen)
         font = pygame.font.Font('pixle_font.ttf', 15)
         txt = font.render('Чтобы   пройти   щупальцехвата,   киньте   в   него   ягодой,   на   ПКМ', 1, (255, 255, 255))
-        screen.blit(txt, (230, 500))
+        screen.blit(txt, (245, 500))
         window.blit(screen, middle)
         pygame.display.flip()
         if (time.process_time() - StartScene.time) <= 4:
@@ -1037,12 +1037,12 @@ while running:
 
         screen.fill((255, 255, 255))
         group_draw.draw(screen)
-        font = pygame.font.Font('pixle_font.ttf', 50)
-        txt = font.render('Music', 1, (255, 255, 255))
-        screen.blit(txt, (WIDTH//3 - 250, 20))
-        font = pygame.font.Font('pixle_font.ttf', 50)
-        txt = font.render('Sound', 1, (255, 255, 255))
-        screen.blit(txt, (WIDTH//3 - 250, 270))
+        font = pygame.font.Font('pixle_font.ttf', 30)
+        txt = font.render('Музыка', 1, (255, 255, 255))
+        screen.blit(txt, (WIDTH//3 - 140, 65))
+        font = pygame.font.Font('pixle_font.ttf', 30)
+        txt = font.render('Звуки', 1, (255, 255, 255))
+        screen.blit(txt, (WIDTH//3 - 140, 285))
 
         window.blit(screen, middle)
         pygame.display.flip()
