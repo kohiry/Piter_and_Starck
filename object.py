@@ -1389,6 +1389,11 @@ class Button(Sprite):
                 self.image.blit(load('data\\КПК\\1\\грибной_паук_выкл.png').convert(), (0, 0))
             elif self.name == "5":
                 self.image.blit(load('data\\КПК\\1\\ёж_выкл.png').convert(), (0, 0))
+            elif self.name == "3":
+                self.image.blit(load('data\\КПК\\1\\щупальцехват_выкл.png').convert(), (0, 0))
+
+            elif self.name == "6":
+                self.image.blit(load('data\\КПК\\1\\\ячейки пустые\\ячейка_6_выкл.png').convert(), (0, 0))
             """elif self.name == "2":
                 self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
             elif self.name == "3":
@@ -1439,6 +1444,11 @@ class Button(Sprite):
                     self.image.blit(load('data\\КПК\\1\\грибной_паук_выкл.png').convert(), (0, 0))
                 elif self.name == "5":
                     self.image.blit(load('data\\КПК\\1\\ёж_выкл.png').convert(), (0, 0))
+                elif self.name == "3":
+                    self.image.blit(load('data\\КПК\\1\\щупальцехват_выкл.png').convert(), (0, 0))
+
+                elif self.name == "6":
+                    self.image.blit(load('data\\КПК\\1\\\ячейки пустые\\ячейка_6_выкл.png').convert(), (0, 0))
                 """elif self.name == "2":
                     self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
                 elif self.name == "3":
@@ -1490,6 +1500,11 @@ class Button(Sprite):
                     self.image.blit(load('data\\КПК\\1\\грибной_паук_вкл.png').convert(), (0, 0))
                 elif self.name == "5":
                     self.image.blit(load('data\\КПК\\1\\ёж_вкл.png').convert(), (0, 0))
+                elif self.name == "3":
+                    self.image.blit(load('data\\КПК\\1\\щупальцехват_вкл.png').convert(), (0, 0))
+                elif self.name == "6":
+                    self.image.blit(load('data\\КПК\\1\\\ячейки пустые\\ячейка_6_вкл.png').convert(), (0, 0))
+
                 """elif self.name == "2":
                     self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
                 elif self.name == "3":
@@ -1552,22 +1567,22 @@ class Info(Sprite):
 
         try:
             if name == "1":
-                self.Anime = PygAnimation(Work(ANIMATION_INFO_SPIDER))
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_SPIDER, True, 500))
             elif name == "2":
-                self.Anime = PygAnimation(Work(ANIMATION_INFO_BIGSPIDER))
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_BIGSPIDER, True, 500))
             elif name == "3":
-                self.Anime = PygAnimation(Work(ANIMATION_INFO_TENTACLE))
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_TENTACLE, True, 500))
             elif name == "4":
-                self.Anime = PygAnimation(Work(ANIMATION_INFO_PIDOR))
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_PIDOR, True, 500))
             elif name == "5":
-                self.Anime = PygAnimation(Work(ANIMATION_INFO_ESJH))
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_ESJH, True, 500))
                 self.txt = 'data\\КПК\\1\\текст\\ёж.png'
             elif name == "6":
-                self.Anime = PygAnimation(Work(ANIMATION_INFO_YELLOW))
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_YELLOW, True, 500))
             elif name == "7":
-                self.Anime = PygAnimation(Work(ANIMATION_INFO_BLUE))
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_BLUE, True, 500))
             elif name == "8":
-                self.Anime = PygAnimation(Work(ANIMATION_INFO_LIFE))
+                self.Anime = PygAnimation(Work(ANIMATION_INFO_LIFE, True, 500))
 
             self.Anime.play()
         except AttributeError:

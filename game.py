@@ -24,7 +24,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 
 FONT = "pixle_font.ttf"
-VERSION = 'V0.5.9.2a'
+VERSION = 'V0.6.2.5a'
 UP = False
 ball = 0
 LEFT = False
@@ -229,11 +229,11 @@ def make_level(level):
     game.reverse()
 
 
-middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-#size = width, height = 1080, 720
-#window = pygame.display.set_mode(size)
-window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+size = width, height = 1080, 720
+window = pygame.display.set_mode(size)
+#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -487,17 +487,17 @@ def KPK_create():
         e.kill()
     button.clear()
     button.append(object.Button(x_1, 140, w, h, '1', tag=False))
-    """button.append(object.Button(x_1, 230, w, h, '2', tag=False))
+    #"""button.append(object.Button(x_1, 230, w, h, '2', tag=False))
     button.append(object.Button(x_1, 320, w, h, '3', tag=False))
-    button.append(object.Button(x_1, 408, w, h, '4', tag=False))"""
-    button.append(object.Button(x_2, 140, w, h, '5', tag=False))
-    """button.append(object.Button(x_2, 230, w, h, '6', tag=False))
-    button.append(object.Button(x_2, 320, w, h, '7', tag=False))
-    button.append(object.Button(x_2, 408, w, h, '8', tag=False))
-    button.append(object.Button(x_3, 140, w, h, '9', tag=False))
-    button.append(object.Button(x_3, 230, w, h, '10', tag=False))
-    button.append(object.Button(x_3, 320, w, h, '11', tag=False))
-    button.append(object.Button(x_3, 408, w, h, '12', tag=False))"""
+    #button.append(object.Button(x_1, 408, w, h, '4', tag=False))"""
+    button.append(object.Button(x_1, 230, w, h, '5', tag=False))
+    button.append(object.Button(x_2, 230, w, h, '6', tag=False))
+    #button.append(object.Button(x_2, 320, w, h, '7', tag=False))
+    #button.append(object.Button(x_2, 408, w, h, '8', tag=False))
+    #button.append(object.Button(x_3, 140, w, h, '9', tag=False))
+    #button.append(object.Button(x_3, 230, w, h, '10', tag=False))
+    #button.append(object.Button(x_3, 320, w, h, '11', tag=False))
+    #button.append(object.Button(x_3, 408, w, h, '12', tag=False))"""
     pl = object.Button(20, 10, 48, 48, 'back', tag=False)
     batton_in_KPK.add(pl)
     button.append(pl)
@@ -681,7 +681,7 @@ while running:
                         i.mouse(True)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-
+                    print(info)
                     if len(info) == 0:
                         for i in button:
                             if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -733,6 +733,9 @@ while running:
             pygame.display.flip()
             clock.tick(60)
         else:
+            if len(info) > 0:
+                info[0].life_die(False)
+            info.clear()
             sound.clear()
             sound.BACK_AUDIO.play(-1)
             sound.BACK2_AUDIO.play(-1)
@@ -1223,12 +1226,22 @@ while running:
                 if event.key == pygame.K_ESCAPE:
                     menu = True
                     Strike = False
+                    UP = False
+                    LEFT = False
+                    RIGHT = False
+                    E = False
                     button.clear()
                     create_button_2()
                     sound.clear()
                     sound.MENU_AUDIO.play(-1)
                 if event.key == pygame.K_m:
                     map = True
+
+                    Strike = False
+                    UP = False
+                    LEFT = False
+                    RIGHT = False
+                    E = False
                     sound.clear()
                     button.clear()
                     create_button_map()
@@ -1236,6 +1249,12 @@ while running:
 
                 if event.key == pygame.K_k:
                     KPK = True
+
+                    Strike = False
+                    UP = False
+                    LEFT = False
+                    RIGHT = False
+                    E = False
                     button.clear()
                     KPK_create()
                     sound.clear()
@@ -1257,6 +1276,10 @@ while running:
                             if i.name == 'KPK':
                                 KPK = True
                                 Strike = False
+                                UP = False
+                                LEFT = False
+                                RIGHT = False
+                                E = False
                                 button.clear()
                                 KPK_create()
                                 sound.clear()
@@ -1264,6 +1287,10 @@ while running:
                             if i.name == 'menu_ink':
                                 menu = True
                                 Strike = False
+                                UP = False
+                                LEFT = False
+                                RIGHT = False
+                                E = False
                                 button.clear()
                                 create_button_2()
                                 sound.clear()
