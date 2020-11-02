@@ -1134,7 +1134,7 @@ class Player(Sprite):
 
     def fight_find(self, enemy):
         for i in enemy:
-            if not i.isdie:
+            if not i.isdie and type(i) != Enemy2:
                 if (i.rect.x <= self.rect.x and self.rect.x - i.rect.x <= 900) or (i.rect.x >= self.rect.x and i.rect.x - self.rect.x <= 900):
                     if (i.rect.y <= self.rect.y and self.rect.y - i.rect.y <= 500) or (i.rect.y >= self.rect.y and i.rect.y - self.rect.y <= 500):
                         self.fight = True
