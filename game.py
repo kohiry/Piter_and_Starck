@@ -254,7 +254,7 @@ class Camera:
         self.state = self.camera_func(self.state, target.rect)
 
 def camera_func(camera, target_rect):
-    l = -target_rect.x + SIZE[0]//2
+    l = -target_rect.x + SIZE[0]//2+20
     t = -target_rect.y + SIZE[1]//2
     w, h = camera.width, camera.height
 
