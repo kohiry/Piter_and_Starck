@@ -644,7 +644,7 @@ class Ball(Sprite):
         Sprite.__init__(self)
         #self.damage_audio = Sound().DAMAGE_AUDIO
         #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
-        if side == -1:
+        if side == 1:
             self.image = load('data\\штуки\\выстрел_паутины_R.png').convert_alpha()
         else:
             self.image = load('data\\штуки\\выстрел_паутины_L.png').convert_alpha()
