@@ -5,8 +5,8 @@ import object
 import time
 from pyganim import PygAnimation
 from pygame.locals import *
-import asyncio
-
+#import asyncio
+import threading
 
 
 #pygame.locals()
@@ -50,6 +50,7 @@ loading = False
 start_part = False
 menu = False
 map = False
+#GAME = False
 scene_enemy = False
 scene_enemy3 = False
 settings = False
@@ -58,6 +59,9 @@ KPK = False
 scene_enemy2 = False
 pre_alpha_scene = False
 die_end = False
+#Thread
+updai_bool = True
+updBullet_ai = True
 
 # map
 location = 1
@@ -96,6 +100,58 @@ animation_balck = []
 for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in range(1, 7)]:
     animation_balck.append(pygame.image.load(i))
 
+
+# Потоки
+def damage():
+    while updBullet_ai:
+        try:
+            info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
+            keys_bullet = info.keys()
+            if GAME and len(keys_bullet) != 0:
+                pygame.sprite.groupcollide(Bullet, group_platform, True, False)
+                Bullet.update(HERO, enemy)
+                for i in keys_bullet:
+                    for j in info[i]:
+                        sound.DAMAGE_AUDIO.play()
+                        j.helth -= 1
+                        j.damage = True
+                        j.hit()
+                        if j.helth < 0:
+                            j.die()
+                        break
+                #clock.tick(60)
+        except Exception as e:
+            with open('config.txt', 'w') as f:
+                f.write('Third Thread: ' + str(e))
+    print('Third Thread end.')
+
+
+
+def UpdAI():
+    while updai_bool:
+        try:
+            if GAME:
+                list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
+                b = list_collide(enemy)
+                a = HERO.rect.collidelistall(b)
+                for i in a:
+                    enemy[i].AI(HERO, group_platform)
+                d = list_collide(monster)
+                q = HERO.rect.collidelistall(d)
+                for i in q:
+                    monster[i].AI(HERO)
+                if Boss_spawn:
+                    BOSS.AI(HERO, group_platform)
+                clock.tick(60)
+        except Exception as e:
+            with open('config.txt', 'w') as f:
+                f.write('Second Thread: ' + str(e))
+    print('Second Thread end.')
+
+
+clock = pygame.time.Clock()
+threading.Thread(target=UpdAI).start()
+#threading.Thread(target=damage).start()
 
 
 
@@ -553,35 +609,26 @@ def interface_bytton():
     #group_interface.add(dialog_tab)
     group_draw.add(HERO)
 
-def damage():
-    info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
-    pygame.sprite.groupcollide(Bullet, group_platform, True, False)
-    keys_bullet = info.keys()
-    Bullet.update(HERO, enemy)
-    for i in keys_bullet:
-        for j in info[i]:
-            sound.DAMAGE_AUDIO.play()
-            j.helth -= 1
-            j.damage = True
-            j.hit()
-            if j.helth < 0:
-                j.die()
-            break
+
 
 if start_game:
     StartScene.time = time.process_time()
+
+
+
 
 
 #async def AI():
 
 
 running = True
-clock = pygame.time.Clock()
 pygame.init()
 
 while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
     if start_game:
+
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -629,6 +676,8 @@ while running:
 
 
     elif KPK:
+
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -741,6 +790,7 @@ while running:
             sound.BACK2_AUDIO.play(-1)
 
     elif loading:
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -767,6 +817,7 @@ while running:
         clock.tick(60)
 
     elif after_words:
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -787,6 +838,7 @@ while running:
         clock.tick(60)
 
     elif pre_alpha_scene:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -830,6 +882,7 @@ while running:
         pygame.time.Clock().tick(60)
 
     elif die_end:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -873,6 +926,7 @@ while running:
         pygame.time.Clock().tick(60)
 
     elif scene_enemy:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -900,6 +954,7 @@ while running:
         clock.tick(60)
 
     elif scene_enemy2:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -926,6 +981,7 @@ while running:
         pygame.time.Clock().tick(60)
 
     elif scene_enemy3:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -953,6 +1009,7 @@ while running:
         pygame.time.Clock().tick(60)
 
     elif start_part:
+        GAME = False
         inf = False
         skip = False
         for event in pygame.event.get():
@@ -1001,6 +1058,7 @@ while running:
             pygame.time.Clock().tick(60)
 
     elif settings:
+        GAME = False
         First_on_audio = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1049,6 +1107,7 @@ while running:
         clock.tick(60)
 
     elif menu:
+        GAME = False
         First_on_audio = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1140,6 +1199,7 @@ while running:
 
 
     elif map:
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -1211,6 +1271,7 @@ while running:
         clock.tick(60)
 
     else:
+        GAME = True
         ball = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1339,29 +1400,6 @@ while running:
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)
         way = 1200
-        damage()
-
-        list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
-        b = list_collide(enemy)
-
-        #b.reverse()
-        #for i in Bullet:
-        #    i.update(HERO, enemy)
-        a = HERO.rect.collidelistall(b)
-        for i in a:
-            enemy[i].AI(HERO, group_platform)
-
-
-        # асинхронн
-        #event_loop = asyncio.get_event_loop()
-        #event_loop.run_until_complete(asyncio.gather(*))
-        #event_loop.close()
-        d = list_collide(monster)
-        q = HERO.rect.collidelistall(d)
-        for i in q:
-            monster[i].AI(HERO)
-        if Boss_spawn:
-            BOSS.AI(HERO, group_platform)
         if HERO.helth <= 0:
             HERO.respawn()
         if HERO.fight and not fight and game_or_not:
@@ -1403,6 +1441,9 @@ while running:
                     scene_moster()
 
 
+
+updai_bool = False
+updBullet_ai = False
 pygame.quit()
 quit()
 sys.exit()
