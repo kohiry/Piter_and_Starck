@@ -50,7 +50,7 @@ loading = False
 start_part = False
 menu = False
 map = False
-#GAME = False
+GAME = False
 scene_enemy = False
 scene_enemy3 = False
 settings = False
@@ -62,6 +62,7 @@ die_end = False
 #Thread
 updai_bool = True
 updBullet_ai = True
+updHERO_ai = True
 
 # map
 location = 1
@@ -105,9 +106,9 @@ for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in 
 def damage():
     while updBullet_ai:
         try:
-            info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
-            keys_bullet = info.keys()
-            if GAME and len(keys_bullet) != 0:
+            if GAME:
+                info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
+                keys_bullet = info.keys()
                 pygame.sprite.groupcollide(Bullet, group_platform, True, False)
                 Bullet.update(HERO, enemy)
                 for i in keys_bullet:
@@ -119,7 +120,7 @@ def damage():
                         if j.helth < 0:
                             j.die()
                         break
-                #clock.tick(60)
+                clock.tick(60)
         except Exception as e:
             with open('config.txt', 'w') as f:
                 f.write('Third Thread: ' + str(e))
@@ -149,9 +150,23 @@ def UpdAI():
     print('Second Thread end.')
 
 
+def updHERO_ai():
+    while updHERO_ai:
+        try:
+            if GAME:
+                take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
+                clock.tick(60)
+        except Exception as e:
+            with open('config.txt', 'w') as f:
+                f.write('First Thread: ' + str(e))
+    print('First Thread end.')
+
+
+
 clock = pygame.time.Clock()
 threading.Thread(target=UpdAI).start()
-#threading.Thread(target=damage).start()
+threading.Thread(target=damage).start()
+threading.Thread(target=updHERO_ai).start()
 
 
 
@@ -1394,8 +1409,6 @@ while running:
         # состояния
         game_or_not = (not menu and not map and not scene_enemy and not scene_enemy2 and not scene_enemy3 and not settings and not KPK and not pre_alpha_scene)
 
-        keys = pygame.key.get_pressed()  # движения персонажей под зажим\
-        take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         draw()
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)
@@ -1444,6 +1457,7 @@ while running:
 
 updai_bool = False
 updBullet_ai = False
+updHERO_ai = False
 pygame.quit()
 quit()
 sys.exit()
