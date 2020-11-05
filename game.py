@@ -24,7 +24,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 
 FONT = "pixle_font.ttf"
-VERSION = 'V0.6.2.5.3a'
+VERSION = 'V0.6.5a'
 UP = False
 ball = 0
 LEFT = False
@@ -164,8 +164,8 @@ def updHERO_ai():
 
 
 clock = pygame.time.Clock()
-threading.Thread(target=UpdAI).start()
-threading.Thread(target=damage).start()
+#threading.Thread(target=UpdAI).start()
+#threading.Thread(target=damage).start()
 threading.Thread(target=updHERO_ai).start()
 
 
@@ -278,14 +278,14 @@ def make_level(level):
                     platform(row, col, object.Teleport_BOSS)
                 if col == "?":
                     platform(row, col, object.Teleport_COME)
-                if col == "&":
+                """if col == "&":
                     pl = object.Enemy(x, y, sound)
                     enemy.append(pl)
-                    game.append(pl)
-                if col == "$":
+                    game.append(pl)"""
+                """if col == "$":
                     pl = object.Enemy2(x, y, sound)
                     enemy.append(pl)
-                    game.append(pl)
+                    game.append(pl)"""
                 if col == "$":
                     BOSS.new_coord(x, y)
                     BOSS.isdie = False
@@ -1454,7 +1454,30 @@ while running:
                     scene_moster()
 
 
+for i in group_draw:
+    i.kill()
+for i in group_interface:
+    i.kill()
+for i in group_platform:
+    i.kill()
+for i in batton_in_KPK:
+    i.kill()
+for i in start_game_gr:
+    i.kill()
+for i in Bullet:
+    i.kill()
 
+teleports.clear()
+enemy.clear()
+all_obj.clear()
+matrix.clear()
+tree.clear()
+balls.clear()
+game.clear()
+monster.clear()
+info.clear()
+button.clear()
+animation_balck.clear()
 updai_bool = False
 updBullet_ai = False
 updHERO_ai = False
