@@ -83,14 +83,13 @@ ANIMATION_ENEMY1_DIE_LEFT = add_sprite('data\враги\грибной паук\
 ANIMATION_ENEMY2_STAY = add_sprite('data\враги\ёж\ёж_', 3)
 
 #enemy3
-
 ANIMATION_ENEMY3_STAY_LEFT = add_sprite('data\враги\тентаклемонстр\тентакли_налево_', 5)
 ANIMATION_ENEMY3_STAY_RIGHT = add_sprite('data\враги\тентаклемонстр\тентакли_направо_', 5)
 ANIMATION_ENEMY3_GO_RIGHT = add_sprite('data\враги\тентаклемонстр\схвачен_тентаклями_направо_', 9)
 ANIMATION_ENEMY3_GO_LEFT = add_sprite('data\враги\тентаклемонстр\схвачен_тентаклями_налево_', 9)
 ANIMATION_ENEMY3_DIE_LEFT = add_sprite('data\враги\тентаклемонстр\тентакли_спрятались_налево_', 4)
 ANIMATION_ENEMY3_DIE_RIGHT = add_sprite('data\враги\тентаклемонстр\тентакли_спрятались_направо_', 4)
-'''
+
 #Tony Stark
 ANIMATION_TONY = add_sprite('data\Тони\тони_', 3)
 
@@ -104,21 +103,18 @@ ANIMATION_BOSS_DIE_RIGHT = add_sprite('data\враги\королева\коро
 
 # титры
 ANIMATION_AFTER_WORDS = add_sprite('data\\ТИТРЫ\КАДРЫ\\', 49)
-'''
+
 # info
 ANIMATION_INFO_SPIDER = add_sprite('data\\КПК\\2\\грибной_паук_', 3)
-ANIMATION_INFO_TENTACLE = add_sprite('data\\КПК\\2\\овраговый_щупалцехват_', 5)
-'''
 ANIMATION_INFO_BIGSPIDER = add_sprite('data\\КПК\\2\\грибная_королева_', 3)
+ANIMATION_INFO_TENTACLE = add_sprite('data\\КПК\\2\\овраговый_щупалцехват_', 5)
 ANIMATION_INFO_PIDOR = add_sprite('data\\КПК\\2\\сучий_жук_', 3)
-'''
 ANIMATION_INFO_ESJH = add_sprite('data\\КПК\\2\\ёж_', 3)
 
 ANIMATION_INFO_YELLOW = add_sprite('data\\КПК\\2\\жёлтая_ягода', 2, False)
-'''
 ANIMATION_INFO_BLUE = add_sprite('data\\КПК\\2\\потолочный_гриб', 2, False)
 ANIMATION_INFO_LIFE = add_sprite('data\\КПК\\2\\ягода_жизни', 2, False)
-'''
+
 ANIMATION_START = add_sprite('data\\ЗАСТАВКА\\', 9)
 
 class BlackTheme:
@@ -292,10 +288,13 @@ class Cutscene(Sprite):
 
         elif self.count == 4:
             self.animcount += 1
-            self.image.blit(self.animation[self.animcount // 5], (0, 0))
-            if self.animcount >= 14:
-                self.animcount = 0
-                self.count += 1
+            if self.animcount < 48:
+                self.image = load(self.filename + str(self.count) + '.png').convert()
+            else:
+                self.image.blit(self.animation[(self.animcount - 47) // 5], (0, 0))
+                if self.animcount - 47 >= 14:
+                    self.animcount = 0
+                    self.count += 1
 
         elif self.count + 1 <= 7 and self.lock == 1:
             self.rect.y = 0
@@ -645,7 +644,10 @@ class Ball(Sprite):
         Sprite.__init__(self)
         #self.damage_audio = Sound().DAMAGE_AUDIO
         #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
-        self.image = load('data\\штуки\\выстрел_паутины.png').convert_alpha()
+        if side == 1:
+            self.image = load('data\\штуки\\выстрел_паутины_R.png').convert_alpha()
+        else:
+            self.image = load('data\\штуки\\выстрел_паутины_L.png').convert_alpha()
         #self.image = Surface((10, 10))
         self.rect = self.image.get_rect()
         self.side = side
@@ -717,9 +719,6 @@ class Monster(Sprite):
         self.AnimeEnemyStayRight.play()
         self.AnimeEnemyDieLeft.play()
         self.AnimeEnemyDieRight.play()
-
-        self.image.fill((0, 255, 0))
-        self.image.set_colorkey((0, 255, 0))
 
 
     def new_coord(self, x, y):
@@ -1119,7 +1118,7 @@ class Player(Sprite):
 
         self.enemys(enemy)
 
-        #self.Boss(BOSS)
+        self.Boss(BOSS)
 
         self.monsters(monster, use)
 
@@ -1138,7 +1137,7 @@ class Player(Sprite):
 
     def fight_find(self, enemy):
         for i in enemy:
-            if not i.isdie:
+            if not i.isdie and type(i) != Enemy2:
                 if (i.rect.x <= self.rect.x and self.rect.x - i.rect.x <= 900) or (i.rect.x >= self.rect.x and i.rect.x - self.rect.x <= 900):
                     if (i.rect.y <= self.rect.y and self.rect.y - i.rect.y <= 500) or (i.rect.y >= self.rect.y and i.rect.y - self.rect.y <= 500):
                         self.fight = True
@@ -1398,10 +1397,13 @@ class Button(Sprite):
                 self.image.blit(load('data\\КПК\\1\\ёж_выкл.png').convert(), (0, 0))
             elif self.name == "3":
                 self.image.blit(load('data\\КПК\\1\\щупальцехват_выкл.png').convert(), (0, 0))
+
             elif self.name == "6":
                 self.image.blit(load('data\\КПК\\1\\\ячейки пустые\\ячейка_6_выкл.png').convert(), (0, 0))
             """elif self.name == "2":
                 self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
+            elif self.name == "3":
+                self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
             elif self.name == "4":
                 self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
 
@@ -1455,6 +1457,8 @@ class Button(Sprite):
                     self.image.blit(load('data\\КПК\\1\\\ячейки пустые\\ячейка_6_выкл.png').convert(), (0, 0))
                 """elif self.name == "2":
                     self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
+                elif self.name == "3":
+                    self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
                 elif self.name == "4":
                     self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
             elif self.name == 'Exit':
@@ -1509,6 +1513,8 @@ class Button(Sprite):
 
                 """elif self.name == "2":
                     self.image.blit(load('data\\КПК\\1\\текст\\грибная_королева.png').convert(), (0, 0))
+                elif self.name == "3":
+                    self.image.blit(load('data\\КПК\\1\\текст\\овраговый_щупальцехват.png').convert(), (0, 0))
                 elif self.name == "4":
                     self.image.blit(load('data\\КПК\\1\\текст\\сучий_жук.png').convert(), (0, 0))"""
             elif self.name == 'Exit':
