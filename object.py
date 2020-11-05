@@ -288,10 +288,13 @@ class Cutscene(Sprite):
 
         elif self.count == 4:
             self.animcount += 1
-            self.image.blit(self.animation[self.animcount // 5], (0, 0))
-            if self.animcount >= 14:
-                self.animcount = 0
-                self.count += 1
+            if self.animcount < 48:
+                self.image = load(self.filename + str(self.count) + '.png').convert()
+            else:
+                self.image.blit(self.animation[(self.animcount - 47) // 5], (0, 0))
+                if self.animcount - 47 >= 14:
+                    self.animcount = 0
+                    self.count += 1
 
         elif self.count + 1 <= 7 and self.lock == 1:
             self.rect.y = 0
@@ -641,7 +644,10 @@ class Ball(Sprite):
         Sprite.__init__(self)
         #self.damage_audio = Sound().DAMAGE_AUDIO
         #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
-        self.image = load('data\\штуки\\выстрел_паутины.png').convert_alpha()
+        if side == 1:
+            self.image = load('data\\штуки\\выстрел_паутины_R.png').convert_alpha()
+        else:
+            self.image = load('data\\штуки\\выстрел_паутины_L.png').convert_alpha()
         #self.image = Surface((10, 10))
         self.rect = self.image.get_rect()
         self.side = side
@@ -1131,7 +1137,7 @@ class Player(Sprite):
 
     def fight_find(self, enemy):
         for i in enemy:
-            if not i.isdie:
+            if not i.isdie and type(i) != Enemy2:
                 if (i.rect.x <= self.rect.x and self.rect.x - i.rect.x <= 900) or (i.rect.x >= self.rect.x and i.rect.x - self.rect.x <= 900):
                     if (i.rect.y <= self.rect.y and self.rect.y - i.rect.y <= 500) or (i.rect.y >= self.rect.y and i.rect.y - self.rect.y <= 500):
                         self.fight = True

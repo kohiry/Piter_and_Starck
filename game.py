@@ -5,8 +5,8 @@ import object
 import time
 from pyganim import PygAnimation
 from pygame.locals import *
-import asyncio
-
+#import asyncio
+import threading
 
 
 #pygame.locals()
@@ -24,7 +24,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 
 FONT = "pixle_font.ttf"
-VERSION = 'V0.6.2.5a'
+VERSION = 'V0.6.5a'
 UP = False
 ball = 0
 LEFT = False
@@ -50,6 +50,7 @@ loading = False
 start_part = False
 menu = False
 map = False
+GAME = False
 scene_enemy = False
 scene_enemy3 = False
 settings = False
@@ -58,6 +59,10 @@ KPK = False
 scene_enemy2 = False
 pre_alpha_scene = False
 die_end = False
+#Thread
+updai_bool = True
+updBullet_ai = True
+updHERO_ai = True
 
 # map
 location = 1
@@ -96,6 +101,72 @@ animation_balck = []
 for i in [f'data\\интерфейс\\затенение_{str(j)}.png' for j in range(1, 7)]:
     animation_balck.append(pygame.image.load(i))
 
+
+# Потоки
+def damage():
+    while updBullet_ai:
+        try:
+            if GAME:
+                info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
+                keys_bullet = info.keys()
+                pygame.sprite.groupcollide(Bullet, group_platform, True, False)
+                Bullet.update(HERO, enemy)
+                for i in keys_bullet:
+                    for j in info[i]:
+                        sound.DAMAGE_AUDIO.play()
+                        j.helth -= 1
+                        j.damage = True
+                        j.hit()
+                        if j.helth < 0:
+                            j.die()
+                        break
+                clock.tick(60)
+        except Exception as e:
+            with open('config.txt', 'w') as f:
+                f.write('Third Thread: ' + str(e))
+    print('Third Thread end.')
+
+
+
+def UpdAI():
+    while updai_bool:
+        try:
+            if GAME:
+                list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
+                b = list_collide(enemy)
+                a = HERO.rect.collidelistall(b)
+                for i in a:
+                    enemy[i].AI(HERO, group_platform)
+                d = list_collide(monster)
+                q = HERO.rect.collidelistall(d)
+                for i in q:
+                    monster[i].AI(HERO)
+                if Boss_spawn:
+                    BOSS.AI(HERO, group_platform)
+                clock.tick(60)
+        except Exception as e:
+            with open('config.txt', 'w') as f:
+                f.write('Second Thread: ' + str(e))
+    print('Second Thread end.')
+
+
+def updHERO_ai():
+    while updHERO_ai:
+        try:
+            if GAME:
+                take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
+                clock.tick(60)
+        except Exception as e:
+            with open('config.txt', 'w') as f:
+                f.write('First Thread: ' + str(e))
+    print('First Thread end.')
+
+
+
+clock = pygame.time.Clock()
+#threading.Thread(target=UpdAI).start()
+#threading.Thread(target=damage).start()
+threading.Thread(target=updHERO_ai).start()
 
 
 
@@ -168,10 +239,10 @@ def make_level(level):
                         pl = object.Background(x, y, 'data/фоны/овраг.png')
                         group_draw.add(pl)
                         game.append(pl)
-                        pl2 = object.Monster(x+lens*3, y+lens*6)
-                        game.append(pl2)
-                        group_draw.add(pl2)
-                        monster.append(pl2)
+                        #pl2 = object.Monster(x+lens*3, y+lens*6)
+                        #game.append(pl2)
+                        #group_draw.add(pl2)
+                        #monster.append(pl2)
                     if col == 'i':
                         pl = object.Background(x, y, 'data/фоны/вертикаль.png')
                         group_draw.add(pl)
@@ -207,14 +278,14 @@ def make_level(level):
                     platform(row, col, object.Teleport_BOSS)
                 if col == "?":
                     platform(row, col, object.Teleport_COME)
-                if col == "&":
+                """if col == "&":
                     pl = object.Enemy(x, y, sound)
                     enemy.append(pl)
-                    game.append(pl)
-                if col == "$":
+                    game.append(pl)"""
+                """if col == "$":
                     pl = object.Enemy2(x, y, sound)
                     enemy.append(pl)
-                    game.append(pl)
+                    game.append(pl)"""
                 if col == "$":
                     BOSS.new_coord(x, y)
                     BOSS.isdie = False
@@ -229,11 +300,11 @@ def make_level(level):
     game.reverse()
 
 
-#middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
-middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-size = width, height = 1080, 720
-window = pygame.display.set_mode(size)
-#window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+middle = ((int(get_monitors()[0].width) - WIDTH)//2, (int(get_monitors()[0].height) - HEIGHT)//2)
+#middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
+#size = width, height = 1080, 720
+#window = pygame.display.set_mode(size)
+window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
 screen = pygame.Surface(SIZE)
 pygame.display.set_caption('Gay game')
 
@@ -254,7 +325,7 @@ class Camera:
         self.state = self.camera_func(self.state, target.rect)
 
 def camera_func(camera, target_rect):
-    l = -target_rect.x + SIZE[0]//2
+    l = -target_rect.x + SIZE[0]//2-30
     t = -target_rect.y + SIZE[1]//2
     w, h = camera.width, camera.height
 
@@ -313,9 +384,9 @@ def draw():
     group_interface.draw(screen)
     #Bullet.draw(screen)
     if take_barries:
-        font = pygame.font.Font('pixle_font.ttf', 20)
-        txt = font.render('ПКМ - собрать плоды', 1, white)
-        screen.blit(txt, (420, 500))
+        font = pygame.font.Font('pixle_font.ttf', 22)
+        txt = font.render('ПКМ - собрать\бросить плоды', 1, white)
+        screen.blit(txt, (365, 500))
     window.blit(screen, middle)
     pygame.display.flip()
 
@@ -369,7 +440,7 @@ def create_button_setting():
     for e in group_interface:
         e.kill()
     w, h = 113, 59
-    music = 100
+    music = 130
     sound = 350
     name_a = 'music'
     name_b = 'sound'
@@ -553,35 +624,26 @@ def interface_bytton():
     #group_interface.add(dialog_tab)
     group_draw.add(HERO)
 
-def damage():
-    info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
-    pygame.sprite.groupcollide(Bullet, group_platform, True, False)
-    keys_bullet = info.keys()
-    Bullet.update(HERO, enemy)
-    for i in keys_bullet:
-        for j in info[i]:
-            sound.DAMAGE_AUDIO.play()
-            j.helth -= 1
-            j.damage = True
-            j.hit()
-            if j.helth < 0:
-                j.die()
-            break
+
 
 if start_game:
     StartScene.time = time.process_time()
+
+
+
 
 
 #async def AI():
 
 
 running = True
-clock = pygame.time.Clock()
 pygame.init()
 
 while running:
     #pygame.mouse.set_visible(False)  # скрывает мышь
     if start_game:
+
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -629,6 +691,8 @@ while running:
 
 
     elif KPK:
+
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -741,6 +805,7 @@ while running:
             sound.BACK2_AUDIO.play(-1)
 
     elif loading:
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -748,13 +813,13 @@ while running:
         screen.fill((255, 255, 255))
 
         group_draw.draw(screen)
-        kpk_width = 910
+        kpk_width = 904
         menu_width = 10
         all_height = 10
         start_game_gr.draw(screen)
         font = pygame.font.Font('pixle_font.ttf', 15)
         txt = font.render('Чтобы   пройти   щупальцехвата,   киньте   в   него   ягодой,   на   ПКМ', 1, (255, 255, 255))
-        screen.blit(txt, (230, 500))
+        screen.blit(txt, (245, 500))
         window.blit(screen, middle)
         pygame.display.flip()
         if (time.process_time() - StartScene.time) <= 4:
@@ -767,6 +832,7 @@ while running:
         clock.tick(60)
 
     elif after_words:
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -787,6 +853,7 @@ while running:
         clock.tick(60)
 
     elif pre_alpha_scene:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -830,6 +897,7 @@ while running:
         pygame.time.Clock().tick(60)
 
     elif die_end:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -873,6 +941,7 @@ while running:
         pygame.time.Clock().tick(60)
 
     elif scene_enemy:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -900,6 +969,7 @@ while running:
         clock.tick(60)
 
     elif scene_enemy2:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -926,6 +996,7 @@ while running:
         pygame.time.Clock().tick(60)
 
     elif scene_enemy3:
+        GAME = False
         inf = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -953,6 +1024,7 @@ while running:
         pygame.time.Clock().tick(60)
 
     elif start_part:
+        GAME = False
         inf = False
         skip = False
         for event in pygame.event.get():
@@ -1001,6 +1073,7 @@ while running:
             pygame.time.Clock().tick(60)
 
     elif settings:
+        GAME = False
         First_on_audio = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1037,18 +1110,19 @@ while running:
 
         screen.fill((255, 255, 255))
         group_draw.draw(screen)
-        font = pygame.font.Font('pixle_font.ttf', 50)
-        txt = font.render('Music', 1, (255, 255, 255))
-        screen.blit(txt, (WIDTH//3 - 250, 20))
-        font = pygame.font.Font('pixle_font.ttf', 50)
-        txt = font.render('Sound', 1, (255, 255, 255))
-        screen.blit(txt, (WIDTH//3 - 250, 270))
+        font = pygame.font.Font('pixle_font.ttf', 30)
+        txt = font.render('Музыка', 1, (255, 255, 255))
+        screen.blit(txt, (WIDTH//3 - 140, 65))
+        font = pygame.font.Font('pixle_font.ttf', 30)
+        txt = font.render('Звуки', 1, (255, 255, 255))
+        screen.blit(txt, (WIDTH//3 - 140, 285))
 
         window.blit(screen, middle)
         pygame.display.flip()
         clock.tick(60)
 
     elif menu:
+        GAME = False
         First_on_audio = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1140,6 +1214,7 @@ while running:
 
 
     elif map:
+        GAME = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -1211,6 +1286,7 @@ while running:
         clock.tick(60)
 
     else:
+        GAME = True
         ball = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1333,35 +1409,10 @@ while running:
         # состояния
         game_or_not = (not menu and not map and not scene_enemy and not scene_enemy2 and not scene_enemy3 and not settings and not KPK and not pre_alpha_scene)
 
-        keys = pygame.key.get_pressed()  # движения персонажей под зажим\
-        take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         draw()
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)
         way = 1200
-        damage()
-
-        list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
-        b = list_collide(enemy)
-
-        #b.reverse()
-        #for i in Bullet:
-        #    i.update(HERO, enemy)
-        a = HERO.rect.collidelistall(b)
-        for i in a:
-            enemy[i].AI(HERO, group_platform)
-
-
-        # асинхронн
-        #event_loop = asyncio.get_event_loop()
-        #event_loop.run_until_complete(asyncio.gather(*))
-        #event_loop.close()
-        d = list_collide(monster)
-        q = HERO.rect.collidelistall(d)
-        for i in q:
-            monster[i].AI(HERO)
-        if Boss_spawn:
-            BOSS.AI(HERO, group_platform)
         if HERO.helth <= 0:
             HERO.respawn()
         if HERO.fight and not fight and game_or_not:
@@ -1403,6 +1454,33 @@ while running:
                     scene_moster()
 
 
+for i in group_draw:
+    i.kill()
+for i in group_interface:
+    i.kill()
+for i in group_platform:
+    i.kill()
+for i in batton_in_KPK:
+    i.kill()
+for i in start_game_gr:
+    i.kill()
+for i in Bullet:
+    i.kill()
+
+teleports.clear()
+enemy.clear()
+all_obj.clear()
+matrix.clear()
+tree.clear()
+balls.clear()
+game.clear()
+monster.clear()
+info.clear()
+button.clear()
+animation_balck.clear()
+updai_bool = False
+updBullet_ai = False
+updHERO_ai = False
 pygame.quit()
 quit()
 sys.exit()
