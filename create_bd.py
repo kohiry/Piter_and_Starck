@@ -17,7 +17,7 @@ sql.execute("""
     text_10 TEXT,
     text_2_end TEXT,
     text_6_end TEXT,
-    text_8_end TEXT,
+    text_8_end TEXT
     )
 """)
 
@@ -28,7 +28,8 @@ sql.execute("""
     text_2 TEXT,
     text_3 TEXT,
     text_4 TEXT,
-    text_5 TEXT
+    text_5 TEXT,
+    text_end TEXT
     )""")
 
 db.commit()
@@ -103,10 +104,44 @@ SPIDER_TEXT_8_END = """
 
 SPIDER_TEXT = [SPIDER_TEXT_1, SPIDER_TEXT_2, SPIDER_TEXT_3,
                SPIDER_TEXT_4, SPIDER_TEXT_5, SPIDER_TEXT_6,
-               SPIDER_TEXT_7, SPIDER_TEXT_8, SPIDER_TEXT_9, SPIDER_TEXT_10]
+               SPIDER_TEXT_7, SPIDER_TEXT_8, SPIDER_TEXT_9, SPIDER_TEXT_10,
+               SPIDER_TEXT_2_END, SPIDER_TEXT_6_END, SPIDER_TEXT_8_END]
 sql.execute('SELECT * FROM spider')
 if sql.fetchone() is None:
-    sql.execute(f'INSERT INTO spider VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (*SPIDER_TEXT))
+    sql.execute(f'INSERT INTO spider VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (SPIDER_TEXT))
     db.commit()
 else:
-    print('Уже записывали.')
+    print('Уже записывали паука.')
+
+MONSTER_TEXT_1 = '''
+Ну привет... Что-то длинное и вихляющее... Растение? Животное? От чего-то у меня сейчас чутье завопило пониже спины...
+'''
+
+MONSTER_TEXT_2 = '''
+Держи, это должно тебе понравится... только не ешь меня... или что ты там собирался делать... бррр (кидает ягоду)
+'''
+
+MONSTER_TEXT_3 = '''
+Лови вкусняшку. Эх сейчас бы пиццы... У вас тут случайно нет подземной доставки? (кидает ягоду)
+'''
+
+MONSTER_TEXT_4 = '''
+Твоё любимое, без сахара, соли, и с критическим содержанием фтора. (кидает ягоду)
+'''
+
+MONSTER_TEXT_5 = '''
+Твоё любимое, без сахара, соли, и с критическим содержанием фтора. (кидает ягоду)
+'''
+
+MONSTER_TEXT_END = """
+ЕБ ТВОЮ МААА....(проигрыш, обнуление)
+"""
+
+MONSTER_TEXT = [MONSTER_TEXT_1, MONSTER_TEXT_2, MONSTER_TEXT_3, MONSTER_TEXT_4,
+                MONSTER_TEXT_5, MONSTER_TEXT_END]
+sql.execute('SELECT * FROM monster')
+if sql.fetchone() is None:
+    sql.execute(f'INSERT INTO monster VALUES (?, ?, ?, ?, ?, ?)', (MONSTER_TEXT))
+    db.commit()
+else:
+    print('Уже записывали тентакли.')
