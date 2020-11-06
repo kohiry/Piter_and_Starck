@@ -24,7 +24,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 200, 0)
 
 FONT = "pixle_font.ttf"
-VERSION = 'V0.6.5a'
+VERSION = 'V0.6.9a'
 UP = False
 ball = 0
 LEFT = False

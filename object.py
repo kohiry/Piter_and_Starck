@@ -161,6 +161,17 @@ class Start(Sprite):
         else:
             self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
 
+class DialogWindowSpawner(Sprite):
+    def __init__(self, x, y, number):
+        Sprite.__init__(self)
+        self.number = number
+        self.image = Surface((2, 550)).convert()
+        #self.image = load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
 class Dialog_Tab(Sprite):
     def __init__(self, x, y):
         Sprite.__init__(self)
@@ -198,31 +209,9 @@ class Dialog_Tab(Sprite):
         self.image.blit(self.data['piter_neitral'], (0, 414))  # ещё не перешёл в интеграцию в игру
 
 
-    def check(self, enemys, hero):
-        obl = 600
-
-        for i in enemys:
-            if Rect(hero.rect.topleft[0]-obl, hero.rect.topleft[1]-obl, 2*obl, 2*obl).colliderect(i.rect) and not i.phrase:
-                if self.art_now == self.old_art and self.art_now not in ['spider', 'esh', 'Boss']:
-                    self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
-                    name = ''
-                    if type(i) == Enemy:
-                        name = 'spider'
-                        self.image.blit(self.data['spider'], (0, 414))
-                    elif type(i) == Enemy2:
-                        name = 'esh'
-                        self.image.blit(self.data['esh'], (0, 414))
-                    elif type(i) == Boss:
-                        name = 'Boss'
-                        self.image.blit(self.data['Boss'], (0, 414))
-                    self.old_art = self.art_now
-                    self.art_now = name
-                break
-        else:
-            if self.art_now in ['spider', 'esh', 'Boss']:
-                self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
-                self.image.blit(self.data['piter_neitral'], (0, 414))
-            self.old_art = self.art_now = 'piter_neitral'
+    def check(self, number, skip):
+        if number == 1:
+            pass
 
 class Health_tab(Sprite):
     def __init__(self, x, y):
