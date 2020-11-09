@@ -12,7 +12,8 @@ from pygame import sprite
 from pygame.display import set_mode
 from time import process_time
 from pygame import HWSURFACE, DOUBLEBUF, FULLSCREEN
-
+from sqlite3  import connect
+import add_info_into_config
 mixer.init()
 
 
@@ -173,9 +174,10 @@ class DialogWindowSpawner(Sprite):
 
 
 class Dialog_Tab(Sprite):
+    draw = True
     def __init__(self, x, y):
         Sprite.__init__(self)
-
+        self.data = ''
         self.image = load('data\\интерфейс\\диалоговая_полоса.png')
         #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.image.fill((0, 255, 0))
@@ -185,6 +187,9 @@ class Dialog_Tab(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.who = []
+        self.my_phrase = []
+        self.phrase = 0
         self.old_art = 'piter_neitral'
         self.art_now = 'piter_neitral'
         self.data = {
@@ -205,13 +210,94 @@ class Dialog_Tab(Sprite):
             'esh': load('data\\интерфейс\\иконки и кнопки\\морды\\ёж.png').convert(),
         }
         for i in self.data.keys():
-            self.data[i].set_colorkey((0, 0, 0))
-        self.image.blit(self.data['piter_neitral'], (0, 414))  # ещё не перешёл в интеграцию в игру
+            self.data[i].set_colorkey((0, 255, 0))
+        #self.image.blit(self.data['piter_neitral'], (0, 414))  # ещё не перешёл в интеграцию в игру
 
 
-    def check(self, number, skip):
-        if number == 1:
-            pass
+    def dialog_with(self, info): # info = (таблица, столбец) for example: (spider, text_1)
+
+
+        def find_who(text_list):
+
+            for i in range(len(text_list)):  # смотрю по первому символу диалога
+                first_sumbol = text_list[i][0][0][0]
+                if first_sumbol == 'П':
+                    self.who.append('Человек Паук')
+                if first_sumbol == 'Ж':
+                    self.who.append('Железный человек')
+                text_list[i][0][0] = text_list[i][0][0][1:]
+
+
+        def format_text(text):
+            new_text = ''
+            count_word = text.split()
+            list_text = []
+            cow_text = []
+            word = 13
+            for i in range(len(count_word)):
+                #print(cow_text)
+                cow_text.append(count_word[i])
+                if (i+1) % word == 0:
+                    list_text.append(cow_text.copy())
+                    cow_text.clear()
+                if i == len(count_word) -1:
+                    list_text.append(cow_text.copy())
+                    cow_text.clear()
+            assert type(list_text) == type(list())
+            return list_text
+
+
+        db = connect('game.db')
+        sql = db.cursor()
+        draw = True
+        for i in sql.execute(f"SELECT {info[1]} FROM {info[0]}"):
+            self.data = i[0].split(';')
+        for i in self.data:
+            self.my_phrase.append(format_text(i))
+
+        find_who(self.my_phrase)
+        self.check(False)
+        db.close()
+
+
+    def clear(self, all=False):
+        self.phrase = 0
+        if all:
+            self.data = ''
+            self.my_phrase = []
+
+
+    def check(self, skip):
+
+
+        if len(self.data) > self.phrase:
+            if skip:
+                self.phrase += 1
+                self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
+            draw = True
+            white = (255, 255, 255)
+            font = Font('pixle_font.ttf', 18)
+            if self.phrase == 0:
+                my_phrase = ['']
+                who = ''
+            else:
+                who = self.who[self.phrase - 1]
+                my_phrase = self.my_phrase[self.phrase - 1]
+            y = 467
+            font2 = Font('pixle_font.ttf', 25)
+            txt = font2.render(who, 1, (0, 0, 0))
+            self.image.blit(txt, (139, 419))
+            font2 = Font('pixle_font.ttf', 25)
+            txt = font2.render(who, 1, (80, 200, 120))
+            self.image.blit(txt, (140, 420))
+            for i in my_phrase:
+                txt = font.render((' ').join(i), 1, white)
+                self.image.blit(txt, (170, y))
+                y += 25
+
+        else:
+            draw = False
+
 
 class Health_tab(Sprite):
     def __init__(self, x, y):

@@ -7,6 +7,7 @@ from pyganim import PygAnimation
 from pygame.locals import *
 #import asyncio
 import threading
+import add_info_into_config
 
 
 #pygame.locals()
@@ -27,6 +28,7 @@ FONT = "pixle_font.ttf"
 VERSION = 'V0.6.9a'
 UP = False
 ball = 0
+dialog_start_part = 1
 LEFT = False
 RIGHT = False
 E = False
@@ -79,7 +81,7 @@ HERO = object.Player(10, 10, sound)
 BOSS = object.Boss(10, 10)
 health_tab = object.Health_tab(415, 10)
 black_theme = object.BlackTheme()
-#dialog_tab = object.Dialog_Tab(0, 0)
+dialog_tab = object.Dialog_Tab(0, 0)
 BOSS.new_coord(-100, -100)
 StartScene = object.Start()
 start_game_gr.add(StartScene)
@@ -122,8 +124,7 @@ def damage():
                         break
                 clock.tick(60)
         except Exception as e:
-            with open('config.txt', 'w') as f:
-                f.write('Third Thread: ' + str(e))
+            add_info_into_config.main('Third Thread: ' + str(e))
     print('Third Thread end.')
 
 
@@ -145,8 +146,7 @@ def UpdAI():
                     BOSS.AI(HERO, group_platform)
                 clock.tick(60)
         except Exception as e:
-            with open('config.txt', 'w') as f:
-                f.write('Second Thread: ' + str(e))
+            add_info_into_config.main('Second Thread: ' + str(e))
     print('Second Thread end.')
 
 
@@ -157,8 +157,7 @@ def updHERO_ai():
                 take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
                 clock.tick(60)
         except Exception as e:
-            with open('config.txt', 'w') as f:
-                f.write('First Thread: ' + str(e))
+            add_info_into_config.main('First Thread: ' + str(e))
     print('First Thread end.')
 
 
@@ -166,7 +165,7 @@ def updHERO_ai():
 clock = pygame.time.Clock()
 #threading.Thread(target=UpdAI).start()
 #threading.Thread(target=damage).start()
-threading.Thread(target=updHERO_ai).start()
+#threading.Thread(target=updHERO_ai).start()
 
 
 
@@ -658,6 +657,7 @@ while running:
                         for e in group_draw:
                             e.kill()
                         button.clear()
+                        dialog_tab.dialog_with(('FirstPhraseInDange', 'text_1'))
                         Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
                         group_draw.add(Scene)
 
@@ -676,6 +676,7 @@ while running:
                 e.kill()
             button.clear()
             Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
+            dialog_tab.dialog_with(('FirstPhraseInDange', 'text_1'))
             group_draw.add(Scene)
         else:
             if StartScene.change != False:
@@ -683,6 +684,7 @@ while running:
                 StartScene.time = time.process_time()
         if start_game:
             start_game_gr.draw(screen)
+
             window.blit(screen, middle)
             pygame.display.flip()
             clock.tick(60)
@@ -745,7 +747,6 @@ while running:
                         i.mouse(True)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    print(info)
                     if len(info) == 0:
                         for i in button:
                             if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
@@ -1027,6 +1028,8 @@ while running:
         GAME = False
         inf = False
         skip = False
+        next_dialog = False
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -1041,6 +1044,7 @@ while running:
                         Scene.animcount = 0
                         Scene.image = pygame.image.load('data\\катсцены\\1 начало\\начало_1.png').convert()
                         Scene.image.fill((0,0,0))
+                        dialog_tab.clear()
                 if event.key == pygame.K_d:
                     Scene.lock = 1
                     inf = True
@@ -1048,6 +1052,8 @@ while running:
                 if event.button == 1:
                     Scene.lock = 1
                     inf = True
+                if event.button == 3:
+                    next_dialog = True
 
         if skip:
             sound.clear()
@@ -1057,17 +1063,37 @@ while running:
             sound.MENU_AUDIO.play(-1)
         else:
             screen.fill((255, 255, 255))
+            if (Scene.count == 3 or Scene.count == 4 or Scene.count == 5) and next_dialog:
+                pass
             group_draw.draw(screen)
+            if dialog_tab.draw:
+                screen.blit(dialog_tab.image, (0, 0))
             window.blit(screen, middle)
             if inf:
-                if Scene.upd():
-                    sound.clear()
-                    menu = True
-                    start_part = False
-                    create_button()
-                    sound.MENU_AUDIO.play(-1)
+                if Scene.count not in [1] and (dialog_start_part < 2 and Scene.count != 3):
+                    dialog_tab.check(True)
+                #if Scene.count == 4:
+                    #dialog_tab.check(True)
+                if Scene.count == 5:
+                    dialog_tab.check(True)
+                if Scene.count == 6:
+                    dialog_tab.check(True)
+                if Scene.count == 7:
+                    dialog_tab.clear()
+                if dialog_start_part < 2 and Scene.count == 3:
+                    dialog_start_part += 1
+                    dialog_tab.check(True)
+                else:
+                    if Scene.upd():
+                        sound.clear()
+                        menu = True
+                        start_part = False
+                        create_button()
+                        sound.MENU_AUDIO.play(-1)
             if Scene.count in [1, 4]:
                 Scene.upd()
+                if Scene.count == 5:
+                    dialog_tab.check(True)
 
             pygame.display.flip()
             pygame.time.Clock().tick(60)
@@ -1481,8 +1507,10 @@ animation_balck.clear()
 updai_bool = False
 updBullet_ai = False
 updHERO_ai = False
+import delete_trash
 pygame.quit()
 quit()
 sys.exit()
+import delete_trash
 
     # иногда реально ненавижу git hub, снова для нового коммита
