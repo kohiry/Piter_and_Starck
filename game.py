@@ -151,6 +151,7 @@ def UpdAI():
 
 
 def updHERO_ai():
+    global take_barries
     while updHERO_ai:
         try:
             if GAME:
@@ -1404,16 +1405,16 @@ while running:
                         if event.button == 1:
                             Strike = True
                             E = False
-                            first_strike_timer = time.process_time()
+                            #first_strike_timer = time.process_time()
                             sound.STRIKE_AUDIO.play()
                             if HERO.side == 1:
                                 coord_x = HERO.rect.x + HERO.rect.width
                             elif HERO.side == -1:
                                 coord_x = HERO.rect.x
-
-                            pl = object.Ball(coord_x, HERO.rect.y + 20, HERO.side)
-                            Bullet.add(pl)
-                            group_draw.add(pl)
+                            if HERO.fight:
+                                pl = object.Ball(coord_x, HERO.rect.y + 20, HERO.side)
+                                Bullet.add(pl)
+                                group_draw.add(pl)
                         if event.button == 3:
                             sound.USE_AUDIO.play()
                             E = True
