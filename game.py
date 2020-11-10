@@ -271,7 +271,7 @@ def make_level(level):
                 if (col == '@' and HERO.spawn == '@') or (col == '#' and HERO.spawn == '#') or (col == '%' and HERO.spawn == '%'):
                     HERO.new_coord(x, y)
                 if col == "^":
-                    platform(row, col, object.Teleport_A)
+                    object.DialogWindowSpawner(x, y, '')
                 if col == "v":
                     platform(row, col, object.Teleport_B)
                 if col == "!":
@@ -658,7 +658,7 @@ while running:
                         for e in group_draw:
                             e.kill()
                         button.clear()
-                        dialog_tab.dialog_with(('FirstPhraseInDange', 'text_1'))
+                        dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
                         Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
                         group_draw.add(Scene)
 
@@ -677,7 +677,7 @@ while running:
                 e.kill()
             button.clear()
             Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
-            dialog_tab.dialog_with(('FirstPhraseInDange', 'text_1'))
+            dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
             group_draw.add(Scene)
         else:
             if StartScene.change != False:
@@ -1071,7 +1071,7 @@ while running:
                 screen.blit(dialog_tab.image, (0, 0))
             window.blit(screen, middle)
             if inf:
-                if Scene.count not in [1] and (dialog_start_part < 2 and Scene.count != 3):
+                if Scene.count not in [1] and (dialog_start_part < 5 and Scene.count != 3):
                     dialog_tab.check(True)
                 #if Scene.count == 4:
                     #dialog_tab.check(True)
@@ -1081,7 +1081,7 @@ while running:
                     dialog_tab.check(True)
                 if Scene.count == 7:
                     dialog_tab.clear()
-                if dialog_start_part < 2 and Scene.count == 3:
+                if dialog_start_part < 5 and Scene.count == 3:
                     dialog_start_part += 1
                     dialog_tab.check(True)
                 else:
@@ -1093,8 +1093,8 @@ while running:
                         sound.MENU_AUDIO.play(-1)
             if Scene.count in [1, 4]:
                 Scene.upd()
-                if Scene.count == 5:
-                    dialog_tab.check(True)
+                #if Scene.count == 5:
+                    #dialog_tab.check(True)
 
             pygame.display.flip()
             pygame.time.Clock().tick(60)
@@ -1435,7 +1435,7 @@ while running:
 
         # состояния
         game_or_not = (not menu and not map and not scene_enemy and not scene_enemy2 and not scene_enemy3 and not settings and not KPK and not pre_alpha_scene)
-
+        take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
         draw()
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)

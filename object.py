@@ -163,7 +163,7 @@ class Start(Sprite):
             self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
 
 class DialogWindowSpawner(Sprite):
-    def __init__(self, x, y, number):
+    def __init__(self, x, y, name):
         Sprite.__init__(self)
         self.number = number
         self.image = Surface((2, 550)).convert()
@@ -256,6 +256,7 @@ class Dialog_Tab(Sprite):
             self.my_phrase.append(format_text(i))
 
         find_who(self.my_phrase)
+        print(self.who)
         self.check(False)
         db.close()
 
