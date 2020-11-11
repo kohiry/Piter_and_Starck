@@ -77,6 +77,7 @@ group_platform = pygame.sprite.Group()
 batton_in_KPK = pygame.sprite.Group()
 start_game_gr = pygame.sprite.Group()
 Bullet = pygame.sprite.Group()
+dialog = pygame.sprite.Group()
 HERO = object.Player(10, 10, sound)
 BOSS = object.Boss(10, 10)
 health_tab = object.Health_tab(415, 10)
@@ -271,7 +272,7 @@ def make_level(level):
                 if (col == '@' and HERO.spawn == '@') or (col == '#' and HERO.spawn == '#') or (col == '%' and HERO.spawn == '%'):
                     HERO.new_coord(x, y)
                 if col == "^":
-                    object.DialogWindowSpawner(x, y, '')
+                    dialog.add(object.DialogWindowSpawner(x, y, 'FirstPhraseInDange', 'text_1'))
                 if col == "v":
                     platform(row, col, object.Teleport_B)
                 if col == "!":
@@ -381,6 +382,10 @@ def draw():
             screen.blit(e.image, coord)
 
     white = (255, 255, 255)
+    if HERO.chat:
+        if dialog_tab.phrase == 0:
+             dialog_tab.phrase += 1
+        dialog_tab.check(False)
     group_interface.draw(screen)
     #Bullet.draw(screen)
     if take_barries:
@@ -621,7 +626,7 @@ def interface_bytton():
     group_interface.add(pl)
     group_interface.add(pl2)
     group_interface.add(health_tab)
-    #group_interface.add(dialog_tab)
+    group_interface.add(dialog_tab)
     group_draw.add(HERO)
 
 
@@ -658,6 +663,7 @@ while running:
                         for e in group_draw:
                             e.kill()
                         button.clear()
+                        dialog_tab.clear(True)
                         dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
                         Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
                         group_draw.add(Scene)
@@ -677,6 +683,7 @@ while running:
                 e.kill()
             button.clear()
             Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', HEIGHT, 'spawn')
+            dialog_tab.clear(True)
             dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
             group_draw.add(Scene)
         else:
@@ -1045,7 +1052,7 @@ while running:
                         Scene.animcount = 0
                         Scene.image = pygame.image.load('data\\катсцены\\1 начало\\начало_1.png').convert()
                         Scene.image.fill((0,0,0))
-                        dialog_tab.clear()
+                        dialog_tab.clear(True)
                 if event.key == pygame.K_d:
                     Scene.lock = 1
                     inf = True
@@ -1058,6 +1065,7 @@ while running:
 
         if skip:
             sound.clear()
+            dialog_tab.clear(True)
             menu = True
             start_part = False
             create_button()
@@ -1077,10 +1085,8 @@ while running:
                     #dialog_tab.check(True)
                 if Scene.count == 5:
                     dialog_tab.check(True)
-                if Scene.count == 6:
-                    dialog_tab.check(True)
-                if Scene.count == 7:
-                    dialog_tab.clear()
+                #if Scene.count == 6:
+                #    dialog_tab.check(True)
                 if dialog_start_part < 5 and Scene.count == 3:
                     dialog_start_part += 1
                     dialog_tab.check(True)
@@ -1159,6 +1165,7 @@ while running:
                     if len(game) != 0:
                         menu = False
                         button.clear()
+                        dialog_tab.clear(True)
                         for e in group_draw:
                             e.kill()
                         for e in group_interface:
@@ -1188,6 +1195,7 @@ while running:
                                 loading = True
                                 sound.clear()
                                 button.clear()
+                                dialog_tab.clear(True)
                                 after_count = 0
                                 StartScene.change = True
                                 StartScene.time = time.process_time()
@@ -1207,6 +1215,7 @@ while running:
                             if i.name == 'Continue':
                                 menu = False
                                 button.clear()
+                                dialog_tab.clear(True)
                                 for e in group_draw:
                                     e.kill()
                                 for e in group_interface:
@@ -1416,9 +1425,12 @@ while running:
                                 Bullet.add(pl)
                                 group_draw.add(pl)
                         if event.button == 3:
-                            sound.USE_AUDIO.play()
-                            E = True
-                            Strike = False
+                            if HERO.chat:
+                                dialog_tab.check(True)
+                            else:
+                                sound.USE_AUDIO.play()
+                                E = True
+                                Strike = False
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
@@ -1435,7 +1447,7 @@ while running:
 
         # состояния
         game_or_not = (not menu and not map and not scene_enemy and not scene_enemy2 and not scene_enemy3 and not settings and not KPK and not pre_alpha_scene)
-        take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
+        take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike, dialog, dialog_tab)
         draw()
         health_tab.new_image(HERO.helth)
         #dialog_tab.check(enemy, HERO)

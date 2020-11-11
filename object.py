@@ -163,21 +163,25 @@ class Start(Sprite):
             self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
 
 class DialogWindowSpawner(Sprite):
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name, dialog):
         Sprite.__init__(self)
-        self.number = number
+        self.name = name
+        self.use = False
         self.image = Surface((2, 550)).convert()
         #self.image = load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png')
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
+    def upd(self):
+        self.use = True
+
 
 class Dialog_Tab(Sprite):
     draw = True
     def __init__(self, x, y):
         Sprite.__init__(self)
-        self.data = ''
+        self.data_text = ''
         self.image = load('data\\интерфейс\\диалоговая_полоса.png')
         #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.image.fill((0, 255, 0))
@@ -190,6 +194,7 @@ class Dialog_Tab(Sprite):
         self.who = []
         self.my_phrase = []
         self.phrase = 0
+        self.count = 0
         self.old_art = 'piter_neitral'
         self.art_now = 'piter_neitral'
         self.data = {
@@ -235,7 +240,6 @@ class Dialog_Tab(Sprite):
             cow_text = []
             word = 13
             for i in range(len(count_word)):
-                #print(cow_text)
                 cow_text.append(count_word[i])
                 if (i+1) % word == 0:
                     list_text.append(cow_text.copy())
@@ -251,21 +255,22 @@ class Dialog_Tab(Sprite):
         sql = db.cursor()
         draw = True
         for i in sql.execute(f"SELECT {info[1]} FROM {info[0]}"):
-            self.data = i[0].split(';')
-        for i in self.data:
+            self.data_text = i[0].split(';')
+        for i in self.data_text:
             self.my_phrase.append(format_text(i))
 
         find_who(self.my_phrase)
-        print(self.who)
         self.check(False)
         db.close()
 
 
     def clear(self, all=False):
+        print('очистка')
         self.phrase = 0
         if all:
-            self.data = ''
+            self.data_text = ''
             self.my_phrase = []
+            self.who = []
 
 
     def check(self, skip):
@@ -273,7 +278,8 @@ class Dialog_Tab(Sprite):
 
         if len(self.data) > self.phrase:
             if skip:
-                self.phrase += 1
+                if len(self.who) >= self.phrase:
+                    self.phrase += 1
                 self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
             draw = True
             white = (255, 255, 255)
@@ -896,6 +902,7 @@ class Player(Sprite):
         self.spawn = '@'
         self.level = 0
         self.bottom = self.rect.bottom
+        self.chat = False
         self.rect.move(x, y)
         self.anim = ''
         self.old_anim = ''
@@ -1000,7 +1007,7 @@ class Player(Sprite):
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
 
-    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):
+    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike, dialog, window_dialog):
         global SPEED
 
         # animation
@@ -1009,7 +1016,9 @@ class Player(Sprite):
         # лево право
         if self.helth <= 0:
             self.film = True
-        if not self.film:
+        if self.chat:
+            pass
+        elif not self.film:
             die_anim = False
             if left or right:
                 if self.onGround:
@@ -1200,7 +1209,21 @@ class Player(Sprite):
 
         self.fight_find(enemy)
 
+        self.dialogs(dialog, window_dialog)
+
         return self.wooden(tree, use, screen)
+
+    def dialogs(self, dialog, window_dialog):
+        a = sprite.Group()
+        a.add(self)
+        pl = sprite.groupcollide(a, dialog, False, True)
+        print(pl)
+        if len(pl[self][0]) == 0:
+            self.chat = False
+        else:
+            self.chat = True
+            #window_dialog.clear(True)
+            window_dialog.dialog_with((pl[self][0].name, 'text_1'))
 
     def monsters(self, monster, use):
         for pl in monster:
