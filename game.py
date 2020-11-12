@@ -36,6 +36,7 @@ F = False
 take_barries = False
 Boss_spawn = False
 First_on_audio = 0
+count_dialog = 0
 count_audio = 0
 Strike = False
 first_strike_timer = 0
@@ -172,7 +173,7 @@ clock = pygame.time.Clock()
 
 
 def make_level(level):
-    global all_obj
+    global all_obj, count_dialog
     x, y = 0, 0
 
     def platform(row, col, obj):
@@ -272,7 +273,8 @@ def make_level(level):
                 if (col == '@' and HERO.spawn == '@') or (col == '#' and HERO.spawn == '#') or (col == '%' and HERO.spawn == '%'):
                     HERO.new_coord(x, y)
                 if col == "^":
-                    dialog.add(object.DialogWindowSpawner(x, y, 'FirstPhraseInDange', 'text_1'))
+                    dialog.add(object.DialogWindowSpawner(x, y, count_dialog))
+                    count_dialog += 1
                 if col == "v":
                     platform(row, col, object.Teleport_B)
                 if col == "!":
@@ -359,6 +361,7 @@ def camera_level(place):
     if place == 'level69':
         group_draw.add(BOSS)
         Boss_spawn = True
+    HERO.kill()
     group_draw.add(HERO)
 
 def draw():
@@ -385,7 +388,12 @@ def draw():
     if HERO.chat:
         if dialog_tab.phrase == 0:
              dialog_tab.phrase += 1
-        dialog_tab.check(False)
+             dialog_tab.check(False)
+    if not HERO.chat and not dialog_tab.bool_killed_sprite:
+        dialog_tab.delete_table()
+    elif HERO.chat and dialog_tab.bool_killed_sprite:
+        group_interface.add(dialog_tab)
+        dialog_tab.bool_killed_sprite = False
     group_interface.draw(screen)
     #Bullet.draw(screen)
     if take_barries:
@@ -627,6 +635,7 @@ def interface_bytton():
     group_interface.add(pl2)
     group_interface.add(health_tab)
     group_interface.add(dialog_tab)
+    HERO.kill()
     group_draw.add(HERO)
 
 
@@ -1052,7 +1061,6 @@ while running:
                         Scene.animcount = 0
                         Scene.image = pygame.image.load('data\\катсцены\\1 начало\\начало_1.png').convert()
                         Scene.image.fill((0,0,0))
-                        dialog_tab.clear(True)
                 if event.key == pygame.K_d:
                     Scene.lock = 1
                     inf = True
@@ -1426,7 +1434,7 @@ while running:
                                 group_draw.add(pl)
                         if event.button == 3:
                             if HERO.chat:
-                                dialog_tab.check(True)
+                                dialog_tab.check(True, HERO)
                             else:
                                 sound.USE_AUDIO.play()
                                 E = True
@@ -1450,7 +1458,6 @@ while running:
         take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike, dialog, dialog_tab)
         draw()
         health_tab.new_image(HERO.helth)
-        #dialog_tab.check(enemy, HERO)
         way = 1200
         if HERO.helth <= 0:
             HERO.respawn()

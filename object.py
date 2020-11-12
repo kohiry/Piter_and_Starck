@@ -163,9 +163,18 @@ class Start(Sprite):
             self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
 
 class DialogWindowSpawner(Sprite):
-    def __init__(self, x, y, name, dialog):
+    def __init__(self, x, y, number):
         Sprite.__init__(self)
+        name, dialog = '', ''
+        if number == 0:
+            name = 'FirstPhraseInDange'
+            dialog = 'text_1'
+        if number == 1:
+            name = 'spider'
+            dialog = choice(['text_' + str(i) for i in range(1, 11)])
+        print(name, dialog)
         self.name = name
+        self.dialog = dialog
         self.use = False
         self.image = Surface((2, 550)).convert()
         #self.image = load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png')
@@ -195,6 +204,7 @@ class Dialog_Tab(Sprite):
         self.my_phrase = []
         self.phrase = 0
         self.count = 0
+        self.bool_killed_sprite = False
         self.old_art = 'piter_neitral'
         self.art_now = 'piter_neitral'
         self.data = {
@@ -219,8 +229,11 @@ class Dialog_Tab(Sprite):
         #self.image.blit(self.data['piter_neitral'], (0, 414))  # ещё не перешёл в интеграцию в игру
 
 
-    def dialog_with(self, info): # info = (таблица, столбец) for example: (spider, text_1)
+    def delete_table(self):
+        self.kill()
+        self.bool_killed_sprite = True
 
+    def dialog_with(self, info): # info = (таблица, столбец) for example: (spider, text_1)
 
         def find_who(text_list):
 
@@ -258,6 +271,7 @@ class Dialog_Tab(Sprite):
             self.data_text = i[0].split(';')
         for i in self.data_text:
             self.my_phrase.append(format_text(i))
+        print(self.data_text)
 
         find_who(self.my_phrase)
         self.check(False)
@@ -271,9 +285,10 @@ class Dialog_Tab(Sprite):
             self.data_text = ''
             self.my_phrase = []
             self.who = []
+            self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
 
 
-    def check(self, skip):
+    def check(self, skip, hero=None):
 
 
         if len(self.data) > self.phrase:
@@ -284,13 +299,20 @@ class Dialog_Tab(Sprite):
             draw = True
             white = (255, 255, 255)
             font = Font('pixle_font.ttf', 18)
+            who = ''
+            my_phrase = []
             if self.phrase == 0:
                 my_phrase = ['']
                 who = ''
             else:
-                who = self.who[self.phrase - 1]
-                my_phrase = self.my_phrase[self.phrase - 1]
+                if hero != None:  # продолить еблю с окном
+                    if self.phrase -1 == len(self.who) and self.phrase -1 != 0:
+                        hero.chat = False
+                if (self.phrase -1) != len(self.who):
+                    who = self.who[self.phrase - 1]
+                    my_phrase = self.my_phrase[self.phrase - 1]
             y = 467
+
             font2 = Font('pixle_font.ttf', 25)
             txt = font2.render(who, 1, (0, 0, 0))
             self.image.blit(txt, (139, 419))
@@ -1017,6 +1039,13 @@ class Player(Sprite):
         if self.helth <= 0:
             self.film = True
         if self.chat:
+            self.xvel = 0
+            self.yvel = 0
+            if self.side == 1:
+                self.AnimeStayRight.blit(self.image, (0, 0))
+            if self.side == -1:
+                self.AnimeStayLeft.blit(self.image, (0, 0))
+        elif window_dialog.phrase == len(window_dialog.who):
             pass
         elif not self.film:
             die_anim = False
@@ -1180,11 +1209,11 @@ class Player(Sprite):
             #self.yvel += GRAVITY
             self.yvel += GRAVITY
 
-            if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film:
+            if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film and not self.chat:
                 self.count += 1
                 self.yvel = -(JUMP_POWER - 1)**2
 
-        if up and self.onGround and not self.film:
+        if up and self.onGround and not self.film and not self.chat:
             self.jump = True
             self.onGround = False
             self.yvel = -JUMP_POWER**2
@@ -1217,13 +1246,11 @@ class Player(Sprite):
         a = sprite.Group()
         a.add(self)
         pl = sprite.groupcollide(a, dialog, False, True)
-        print(pl)
-        if len(pl[self][0]) == 0:
-            self.chat = False
-        else:
+        if len(pl) != 0:
             self.chat = True
             #window_dialog.clear(True)
-            window_dialog.dialog_with((pl[self][0].name, 'text_1'))
+            window_dialog.dialog_with((pl[self][0].name, pl[self][0].dialog))
+        pl.clear()
 
     def monsters(self, monster, use):
         for pl in monster:
