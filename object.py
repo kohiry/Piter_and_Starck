@@ -169,7 +169,7 @@ class DialogWindowSpawner(Sprite):
         if number == 0:
             name = 'FirstPhraseInDange'
             dialog = 'text_1'
-        if number in [i for i in range(1, 10)]:
+        if number in [i for i in range(1, 20)]:
             name = 'spider'
             dialog = choice(['text_' + str(i) for i in range(1, 11)])
         self.name = name

@@ -142,11 +142,11 @@ class Game:
 
 
         # Window
-        self.middle = ((int(get_monitors()[0].width) - self.WIDTH)//2, (int(get_monitors()[0].height) - self.HEIGHT)//2)
-        #self.middle = ((1080 - WIDTH)//2, (720 - HEIGHT)//2)
-        #self.size = width, height = 1080, 720
-        #self.window = pygame.display.set_mode(size)
-        self.window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+        #self.middle = ((int(get_monitors()[0].width) - self.WIDTH)//2, (int(get_monitors()[0].height) - self.HEIGHT)//2)
+        self.middle = ((1080 - self.WIDTH)//2, (720 - self.HEIGHT)//2)
+        self.size = width, height = 1080, 720
+        self.window = pygame.display.set_mode(self.size)
+        #self.window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.screen = pygame.Surface(self.SIZE)
         pygame.display.set_caption('Gay game')
 
@@ -206,6 +206,7 @@ class Game:
                     self.window.blit(self.screen, self.middle)
                     pygame.display.flip()
                     self.clock.tick(60)
+
 
 
 
@@ -321,8 +322,6 @@ class Game:
                         self.info[0].life_die(False)
                     self.info.clear()
                     self.sound.clear()
-                    self.sound.BACK_AUDIO.play(-1)
-                    self.sound.BACK2_AUDIO.play(-1)
 
             elif self.loading:
                 self.GAME = False
@@ -711,6 +710,7 @@ class Game:
                                         self.StartScene.time = time.process_time()
                                         for e in self.group_draw:
                                             e.kill()
+                                        self.processing_start()
                                         break
 
                                     if i.name == 'Settings':
@@ -752,11 +752,6 @@ class Game:
                     self.window.blit(self.screen, self.middle)
                     pygame.display.flip()
                     self.clock.tick(60)
-                else:
-                    if not self.settings:
-                        self.sound.clear()
-                        self.sound.BACK_AUDIO.play(-1)
-                        self.sound.BACK2_AUDIO.play(-1)
 
 
             elif self.map:
@@ -768,8 +763,6 @@ class Game:
                         if event.key == pygame.K_ESCAPE or event.key == pygame.K_m:
                             if len(game) != 0:
                                 sound.clear()
-                                sound.BACK_AUDIO.play(-1)
-                                sound.BACK2_AUDIO.play(-1)
                                 map = False
                                 button.clear()
                                 for e in group_draw:
@@ -929,7 +922,6 @@ class Game:
                                     self.Strike = True
                                     self.E = False
                                     #first_strike_timer = time.process_time()
-                                    self.sound.STRIKE_AUDIO.play()
                                     if self.HERO.side == 1:
                                         self.coord_x = self.HERO.rect.x + self.HERO.rect.width
                                     elif self.HERO.side == -1:
@@ -938,6 +930,7 @@ class Game:
                                         pl = object.Ball(self.coord_x, self.HERO.rect.y + 20, self.HERO.side)
                                         self.Bullet.add(pl)
                                         self.group_draw.add(pl)
+                                        self.sound.STRIKE_AUDIO.play()
                                 if event.button == 3:
                                     if self.HERO.chat:
                                         self.dialog_tab.check(True, self.HERO)
@@ -966,7 +959,7 @@ class Game:
                                                      self.BOSS, self.monster, self.Strike, self.dialog, self.dialog_tab)
                 self.draw()
                 self.health_tab.new_image(self.HERO.helth)
-                self.way = 1200
+
                 if self.HERO.helth <= 0:
                     self.HERO.respawn()
                 if self.HERO.fight and not self.fight and self.game_or_not:
@@ -977,16 +970,19 @@ class Game:
                     self.sound.FIGHT_AUDIO.play(-1)
                 elif not self.HERO.fight and self.fight and self.game_or_not:
                     self.fight = False
+                    self.sound.clear()
                     self.sound.FIGHT_AUDIO.stop()
                     self.sound.BACK2_AUDIO.play(-1)
                     self.sound.BACK_AUDIO.play(-1)
                 elif not self.HERO.fight and not self.fight:
                     if (self.sound.BACK_AUDIO.get_num_channels() <= 0 or self.sound.BACK2_AUDIO.get_num_channels() <= 0) and self.game_or_not:
                         self.sound.FIGHT_AUDIO.stop()
+                        self.sound.clear()
                         self.sound.BACK2_AUDIO.play(-1)
                         self.sound.BACK_AUDIO.play(-1)
                 if (self.sound.BACK_AUDIO.get_num_channels() <= 0 or self.sound.BACK2_AUDIO.get_num_channels() <= 0) and self.sound.FIGHT_AUDIO.get_num_channels() <= 0 and self.game_or_not:
                     self.sound.FIGHT_AUDIO.stop()
+                    self.sound.clear()
                     self.sound.BACK2_AUDIO.play(-1)
                     self.sound.BACK_AUDIO.play(-1)
 
@@ -1214,10 +1210,10 @@ class Game:
                             pl = object.Background(x, y, 'data/фоны/овраг.png')
                             self.group_draw.add(pl)
                             self.game.append(pl)
-                            #pl2 = object.Monster(x+lens*3, y+lens*6)
-                            #game.append(pl2)
-                            #group_draw.add(pl2)
-                            #monster.append(pl2)
+                            pl2 = object.Monster(x+self.lens*3, y+self.lens*6)
+                            self.game.append(pl2)
+                            self.group_draw.add(pl2)
+                            self.monster.append(pl2)
                         if col == 'i':
                             pl = object.Background(x, y, 'data/фоны/вертикаль.png')
                             self.group_draw.add(pl)
@@ -1254,14 +1250,14 @@ class Game:
                         platform(row, col, object.Teleport_BOSS)
                     if col == "?":
                         platform(row, col, object.Teleport_COME)
-                    """if col == "&":
-                        pl = object.Enemy(x, y, sound)
-                        enemy.append(pl)
-                        game.append(pl)"""
-                    """if col == "$":
-                        pl = object.Enemy2(x, y, sound)
-                        enemy.append(pl)
-                        game.append(pl)"""
+                    if col == "&":
+                        pl = object.Enemy(x, y, self.sound)
+                        self.enemy.append(pl)
+                        self.game.append(pl)
+                    if col == "$":
+                        pl = object.Enemy2(x, y, self.sound)
+                        self.enemy.append(pl)
+                        self.game.append(pl)
                     if col == "$":
                         self.BOSS.new_coord(x, y)
                         self.BOSS.isdie = False
@@ -1427,72 +1423,87 @@ class Game:
         self.group_draw.add(self.HERO)
 
 
-# Потоки
-def damage():
-    while updBullet_ai:
-        try:
-            if GAME:
-                info = pygame.sprite.groupcollide(Bullet, enemy, True, False)
-                keys_bullet = info.keys()
-                pygame.sprite.groupcollide(Bullet, group_platform, True, False)
-                Bullet.update(HERO, enemy)
-                for i in keys_bullet:
-                    for j in info[i]:
-                        sound.DAMAGE_AUDIO.play()
-                        j.helth -= 1
-                        j.damage = True
-                        j.hit()
-                        if j.helth < 0:
-                            j.die()
-                        break
-                clock.tick(60)
-        except Exception as e:
-            add_info_into_config.main('Third Thread: ' + str(e))
-    print('Third Thread end.')
+
+
+    # Потоки
+    def damage(self):
+        while self.updBullet_ai:
+            try:
+                if self.GAME:
+                    info = pygame.sprite.groupcollide(self.Bullet, self.enemy, True, False)
+                    keys_bullet = info.keys()
+                    pygame.sprite.groupcollide(self.Bullet, self.group_platform, True, False)
+                    self.Bullet.update(self.HERO, self.enemy)
+                    for i in keys_bullet:
+                        for j in info[i]:
+                            self.sound.DAMAGE_AUDIO.play()
+                            j.helth -= 1
+                            j.damage = True
+                            j.hit()
+                            if j.helth < 0:
+                                j.die()
+                            break
+                    self.clock.tick(60)
+            except Exception as e:
+                add_info_into_config.main('Third Thread: ' + str(e))
+        print('Third Thread end.')
 
 
 
-def UpdAI():
-    while updai_bool:
-        try:
-            if GAME:
-                list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
-                b = list_collide(enemy)
-                a = HERO.rect.collidelistall(b)
-                for i in a:
-                    enemy[i].AI(HERO, group_platform)
-                d = list_collide(monster)
-                q = HERO.rect.collidelistall(d)
-                for i in q:
-                    monster[i].AI(HERO)
-                if Boss_spawn:
-                    BOSS.AI(HERO, group_platform)
-                clock.tick(60)
-        except Exception as e:
-            add_info_into_config.main('Second Thread: ' + str(e))
-    print('Second Thread end.')
+    def UpdAI(self):
+        way = 1200
+        while self.updai_bool:
+            try:
+                if self.GAME:
+                    list_collide = lambda x: [Rect(i.rect.x - 500, i.rect.y-250, way, 500) for i in x]
+                    b = list_collide(self.enemy)
+                    a = self.HERO.rect.collidelistall(b)
+                    for i in a:
+                        self.enemy[i].AI(self.HERO, self.group_platform)
+                    d = list_collide(self.monster)
+                    q = self.HERO.rect.collidelistall(d)
+                    for i in q:
+                        self.monster[i].AI(self.HERO)
+                    if self.Boss_spawn:
+                        self.BOSS.AI(self.HERO, self.group_platform)
+                    self.clock.tick(60)
+            except Exception as e:
+                add_info_into_config.main('Second Thread: ' + str(e))
+        print('Second Thread end.')
 
 
-def updHERO_ai():
-    global take_barries
-    while updHERO_ai:
-        try:
-            if GAME:
-                take_barries = HERO.update(LEFT, RIGHT, UP, group_platform, teleports, tree, enemy, E, screen, BOSS, monster, Strike)
-                clock.tick(60)
-        except Exception as e:
-            add_info_into_config.main('First Thread: ' + str(e))
-    print('First Thread end.')
+    def updHERO_ai(self):
+        while self.updHERO_ai:
+            try:
+                if self.GAME:
+                    take_barries = self.HERO.update(self.LEFT, self.RIGHT, self.UP, self.group_platform,
+                                                    self.teleports, self.tree, self.enemy, self.E, self.screen,
+                                                    self.BOSS, self.monster, self.Strike)
+                    self.clock.tick(60)
+            except Exception as e:
+                add_info_into_config.main('First Thread: ' + str(e))
+        print('First Thread end.')
+
+    def processing_start(self):
+        self.updai_bool = True
+        self.updBullet_ai = True
+        self.updHERO_ai = True
+        self.process_one = threading.Thread(target=self.UpdAI)
+        self.process_two = threading.Thread(target=self.damage)
+        self.process_one.start()
+        self.process_two.start()
+        #threading.Thread(target=self.updHERO_ai).start()
 
 
 
-#threading.Thread(target=UpdAI).start()
-#threading.Thread(target=damage).start()
-#threading.Thread(target=updHERO_ai).start()
+
+
+
 
 
 def main():
     My_Games = Game()
+
     My_Games.game_cycle()
 
 
