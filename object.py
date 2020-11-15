@@ -208,6 +208,7 @@ class Dialog_Tab(Sprite):
         self.rect.x = x
         self.rect.y = y
         self.who = []
+        self.emotion = []
         self.my_phrase = []
         self.phrase = 0
         self.count = 0
@@ -253,7 +254,13 @@ class Dialog_Tab(Sprite):
                     self.who.append('Железный Человек')
                 if first_sumbol == 'Г':
                     self.who.append('Грибной Паук')
-                text_list[i][0][0] = text_list[i][0][0][1:]
+                number_emotion = text[i][0][1:3]
+                if number_emotion in ['1 ', '2 ', '3 ', '4 ', '5 ', '6 ', '7 ', '8 ', '9 ']:
+                    self.emotion.append(number_emotion)
+                if number_emotion in ['10', '12', '13', '14', '15', '16']:
+                    pass
+
+                text_list[i][0][0] = text_list[i][0][0][3:]
 
 
         def format_text(text):
