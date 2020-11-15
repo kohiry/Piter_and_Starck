@@ -48,7 +48,6 @@ class Game:
 
         # audio
         self.sound = object.Sound()
-        self.count_dialog = 0
         self.count_audio = 0
         #startet_obj
         self.group_draw = pygame.sprite.Group()
@@ -142,11 +141,11 @@ class Game:
 
 
         # Window
-        #self.middle = ((int(get_monitors()[0].width) - self.WIDTH)//2, (int(get_monitors()[0].height) - self.HEIGHT)//2)
-        self.middle = ((1080 - self.WIDTH)//2, (720 - self.HEIGHT)//2)
-        self.size = width, height = 1080, 720
-        self.window = pygame.display.set_mode(self.size)
-        #self.window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+        self.middle = ((int(get_monitors()[0].width) - self.WIDTH)//2, (int(get_monitors()[0].height) - self.HEIGHT)//2)
+        #self.middle = ((1080 - self.WIDTH)//2, (720 - self.HEIGHT)//2)
+        #self.size = width, height = 1080, 720
+        #self.window = pygame.display.set_mode(self.size)
+        self.window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.screen = pygame.Surface(self.SIZE)
         pygame.display.set_caption('Gay game')
 
@@ -1242,12 +1241,11 @@ class Game:
                     if (col == '@' and self.HERO.spawn == '@') or (col == '#' and self.HERO.spawn == '#') or (col == '%' and self.HERO.spawn == '%'):
                         self.HERO.new_coord(x, y)
                     if col == "^":
-                        self.dialog.add(object.DialogWindowSpawner(x, y, self.count_dialog))
-                        self.count_dialog += 1
+                        self.dialog.add(object.DialogWindowSpawner(x, y, '^'))
                     if col == "v":
-                        platform(row, col, object.Teleport_B)
+                        self.dialog.add(object.DialogWindowSpawner(x, y, 'v'))
                     if col == "!":
-                        platform(row, col, object.Teleport_BOSS)
+                        self.dialog.add(object.DialogWindowSpawner(x, y, '0'))
                     if col == "?":
                         platform(row, col, object.Teleport_COME)
                     if col == "&":

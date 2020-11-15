@@ -166,12 +166,20 @@ class DialogWindowSpawner(Sprite):
     def __init__(self, x, y, number):
         Sprite.__init__(self)
         name, dialog = '', ''
-        if number == 0:
+        if number == '0':
             name = 'FirstPhraseInDange'
             dialog = 'text_1'
-        if number in [i for i in range(1, 20)]:
+        if number == '^':
             name = 'spider'
-            dialog = choice(['text_' + str(i) for i in range(1, 11)])
+            dialog = choice(['text_' + str(i) for i in range(1, 18)])
+        if number == 'v':
+            name = 'monster'
+            dialog = choice(['text_' + str(i) for i in range(1, 6)])
+        if number == '*':
+            name = 'Hedgehog'
+            dialog = choice(['text_' + str(i) for i in range(1, 5)])
+
+
         self.name = name
         self.dialog = dialog
         self.use = False
@@ -232,7 +240,7 @@ class Dialog_Tab(Sprite):
         self.kill()
         self.bool_killed_sprite = True
 
-    def dialog_with(self, info): # info = (таблица, столбец) for example: (spider, text_1)
+    def dialog_with(self, info): # info = (таблица, столбец) for example: (spider, text_1)d
         self.clear(True)
 
         def find_who(text_list):
@@ -269,6 +277,7 @@ class Dialog_Tab(Sprite):
         db = connect('game.db')
         sql = db.cursor()
         draw = True
+        print('1', info)
         for i in sql.execute(f"SELECT {info[1]} FROM {info[0]}"):
             self.data_text = i[0].split(';')
         for i in self.data_text:
