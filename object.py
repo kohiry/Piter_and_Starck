@@ -169,10 +169,9 @@ class DialogWindowSpawner(Sprite):
         if number == 0:
             name = 'FirstPhraseInDange'
             dialog = 'text_1'
-        if number == 1:
+        if number in [i for i in range(1, 10)]:
             name = 'spider'
             dialog = choice(['text_' + str(i) for i in range(1, 11)])
-        print(name, dialog)
         self.name = name
         self.dialog = dialog
         self.use = False
@@ -222,7 +221,7 @@ class Dialog_Tab(Sprite):
             'piter_flirt': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_флирт.png').convert(),
             'spider': load('data\\интерфейс\\иконки и кнопки\\морды\\грибной_паук.png').convert(),
             'Boss': load('data\\интерфейс\\иконки и кнопки\\морды\\королева.png').convert(),
-            'esh': load('data\\интерфейс\\иконки и кнопки\\морды\\ёж.png').convert(),
+            'esh': load('data\\интерфейс\\иконки и кнопки\\морды\\ёж.png').convert()
         }
         for i in self.data.keys():
             self.data[i].set_colorkey((0, 255, 0))
@@ -234,6 +233,7 @@ class Dialog_Tab(Sprite):
         self.bool_killed_sprite = True
 
     def dialog_with(self, info): # info = (таблица, столбец) for example: (spider, text_1)
+        self.clear(True)
 
         def find_who(text_list):
 
@@ -242,7 +242,9 @@ class Dialog_Tab(Sprite):
                 if first_sumbol == 'П':
                     self.who.append('Человек Паук')
                 if first_sumbol == 'Ж':
-                    self.who.append('Железный человек')
+                    self.who.append('Железный Человек')
+                if first_sumbol == 'Г':
+                    self.who.append('Грибной Паук')
                 text_list[i][0][0] = text_list[i][0][0][1:]
 
 
@@ -312,7 +314,10 @@ class Dialog_Tab(Sprite):
                     who = self.who[self.phrase - 1]
                     my_phrase = self.my_phrase[self.phrase - 1]
             y = 467
-
+            if who == 'Человек Паук':
+                self.image.blit(self.data['piter_neitral'], (0, 414))
+            if who == 'Грибной Паук':
+                self.image.blit(self.data['spider'], (0, 414))
             font2 = Font('pixle_font.ttf', 25)
             txt = font2.render(who, 1, (0, 0, 0))
             self.image.blit(txt, (139, 419))
@@ -1039,6 +1044,7 @@ class Player(Sprite):
         if self.helth <= 0:
             self.film = True
         if self.chat:
+            self.resize('take')
             self.xvel = 0
             self.yvel = 0
             if self.side == 1:

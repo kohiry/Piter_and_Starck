@@ -13,6 +13,7 @@ import add_info_into_config
 pygame.init()
 
 class Game:
+    '''My game about Spider man. Wrote this cod - kohiry (PinkyGully). Artist - Hiku'''
     def __init__(self):
         print('Game is switch on, my congratulations!')
 
@@ -172,7 +173,7 @@ class Game:
                                 for e in self.group_draw:
                                     e.kill()
                                 self.button.clear()
-                                self.dialog_tab.clear(True)
+                                #self.dialog_tab.clear(True)
                                 self.dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
                                 self.Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', self.HEIGHT, 'spawn')
                                 self.group_draw.add(self.Scene)
@@ -192,7 +193,7 @@ class Game:
                         e.kill()
                     self.button.clear()
                     self.Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', self.HEIGHT, 'spawn')
-                    self.dialog_tab.clear(True)
+                    #self.dialog_tab.clear(True)
                     self.dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
                     self.group_draw.add(self.Scene)
                 else:
@@ -205,6 +206,7 @@ class Game:
                     self.window.blit(self.screen, self.middle)
                     pygame.display.flip()
                     self.clock.tick(60)
+
 
 
 
@@ -573,7 +575,7 @@ class Game:
 
                 if skip:
                     self.sound.clear()
-                    self.dialog_tab.clear(True)
+                    #self.dialog_tab.clear(True)
                     self.menu = True
                     self.start_part = False
                     self.create_button()
@@ -673,7 +675,7 @@ class Game:
                             if len(self.game) != 0:
                                 self.menu = False
                                 self.button.clear()
-                                self.dialog_tab.clear(True)
+                                #self.dialog_tab.clear(True)
                                 for e in self.group_draw:
                                     e.kill()
                                 for e in self.group_interface:
@@ -703,7 +705,7 @@ class Game:
                                         self.loading = True
                                         self.sound.clear()
                                         self.button.clear()
-                                        self.dialog_tab.clear(True)
+                                        #self.dialog_tab.clear(True)
                                         self.after_count = 0
                                         self.StartScene.change = True
                                         self.StartScene.time = time.process_time()
@@ -723,7 +725,7 @@ class Game:
                                     if i.name == 'Continue':
                                         self.menu = False
                                         self.button.clear()
-                                        self.dialog_tab.clear(True)
+                                        #self.dialog_tab.clear(True)
                                         for e in self.group_draw:
                                             e.kill()
                                         for e in self.group_interface:
@@ -832,6 +834,10 @@ class Game:
             else:
                 self.GAME = True
                 self.ball = 0
+                if not self.HERO.chat:
+                    self.dialog_tab.kill()
+                else:
+                    self.group_interface.add(self.dialog_tab)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.running = False
@@ -1417,11 +1423,8 @@ class Game:
         self.group_interface.add(pl2)
         self.group_interface.add(self.health_tab)
         self.group_interface.add(self.dialog_tab)
-        self.HERO.kill()
+        #self.HERO.kill()
         self.group_draw.add(self.HERO)
-
-
-
 
 
 # Потоки
