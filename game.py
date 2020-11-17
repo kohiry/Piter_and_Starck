@@ -3,6 +3,7 @@ from screeninfo import get_monitors
 from level import map as MAP
 import object
 import time
+from random import choice
 from pyganim import PygAnimation
 from pygame.locals import *
 #import asyncio
@@ -75,7 +76,6 @@ class Game:
         self.monster = []
         self.info = []
         self.button = []
-        self.x_hero, y_hero = 0, 0
         self.lens = 54
 
         self.animation_balck = []
@@ -92,10 +92,15 @@ class Game:
         self.GREEN = (0, 200, 0)
 
         self.FONT = "pixle_font.ttf"
-        self.VERSION = 'V0.6.9a'
+        self.VERSION = 'V0.9.9a'
         self.UP = False
         self.ball = 0
         self.dialog_start_part = 1
+        #dialogs
+        self.count_spiders_phrase = 0
+        self.count_monster_phrase = 0
+        self.count_Handehog_phrase = 0
+
         self.LEFT = False
         self.RIGHT = False
         self.E = False
@@ -141,11 +146,11 @@ class Game:
 
 
         # Window
-        self.middle = ((int(get_monitors()[0].width) - self.WIDTH)//2, (int(get_monitors()[0].height) - self.HEIGHT)//2)
-        #self.middle = ((1080 - self.WIDTH)//2, (720 - self.HEIGHT)//2)
-        #self.size = width, height = 1080, 720
-        #self.window = pygame.display.set_mode(self.size)
-        self.window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+        #self.middle = ((int(get_monitors()[0].width) - self.WIDTH)//2, (int(get_monitors()[0].height) - self.HEIGHT)//2)
+        self.middle = ((1080 - self.WIDTH)//2, (720 - self.HEIGHT)//2)
+        self.size = width, height = 1080, 720
+        self.window = pygame.display.set_mode(self.size)
+        #self.window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.screen = pygame.Surface(self.SIZE)
         pygame.display.set_caption('Gay game')
 
@@ -166,16 +171,7 @@ class Game:
                             if self.StartScene.change:
                                 self.StartScene.change = False
                             elif not self.StartScene.change:
-                                self.start_game = False
-                                self.start_part = True
-                                self.sound.START_AUDIO.play(-1)
-                                for e in self.group_draw:
-                                    e.kill()
-                                self.button.clear()
-                                #self.dialog_tab.clear(True)
-                                self.dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
-                                self.Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', self.HEIGHT, 'spawn')
-                                self.group_draw.add(self.Scene)
+                                self.start_part_def()
 
                 self.screen.fill((255, 255, 255))
                 if (time.process_time() - self.StartScene.time) <= 5 and self.StartScene.change != False:
@@ -185,16 +181,7 @@ class Game:
                     self.StartScene.upd(False)
 
                 elif (time.process_time() - self.StartScene.time) > 3 and self.StartScene.change == False:
-                    self.start_game = False
-                    self.start_part = True
-                    self.sound.START_AUDIO.play(-1)
-                    for e in self.group_draw:
-                        e.kill()
-                    self.button.clear()
-                    self.Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', self.HEIGHT, 'spawn')
-                    #self.dialog_tab.clear(True)
-                    self.dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
-                    self.group_draw.add(self.Scene)
+                    self.start_part_def()
                 else:
                     if self.StartScene.change != False:
                         self.StartScene.change = False
@@ -571,6 +558,10 @@ class Game:
                         if event.button == 3:
                             self.next_dialog = True
 
+
+                #self.Scene.image.fill((0,0,0))
+
+
                 if skip:
                     self.sound.clear()
                     #self.dialog_tab.clear(True)
@@ -579,39 +570,80 @@ class Game:
                     self.create_button()
                     self.sound.MENU_AUDIO.play(-1)
                 else:
-                    self.screen.fill((255, 255, 255))
-                    if (self.Scene.count == 3 or self.Scene.count == 4 or self.Scene.count == 5) and self.next_dialog:
-                        pass
-                    self.group_draw.draw(self.screen)
-                    if self.dialog_tab.draw:
-                        self.screen.blit(self.dialog_tab.image, (0, 0))
-                    self.window.blit(self.screen, self.middle)
-                    if inf:
-                        if self.Scene.count not in [1] and (self.dialog_start_part < 5 and self.Scene.count != 3):
-                            self.dialog_tab.check(True)
-                        #if Scene.count == 4:
-                            #dialog_tab.check(True)
-                        if self.Scene.count == 5:
-                            self.dialog_tab.check(True)
-                        #if Scene.count == 6:
-                        #    dialog_tab.check(True)
-                        if self.dialog_start_part < 5 and self.Scene.count == 3:
-                            self.dialog_start_part += 1
-                            self.dialog_tab.check(True)
+                    if self.Scene.count == 1:
+                        if not self.Scene.first_end:
+                            self.Scene.upd()
                         else:
-                            if self.Scene.upd():
-                                self.sound.clear()
-                                self.menu = True
-                                self.start_part = False
-                                self.create_button()
-                                self.sound.MENU_AUDIO.play(-1)
-                    if self.Scene.count in [1, 4]:
+                            if 1 <= self.dialog_start_part < 2 and inf:
+                                self.dialog_tab.check(True)
+                                self.dialog_start_part += 1
+                            elif self.dialog_start_part >= 2 and inf:
+                                self.Scene.count = 2
+                                #self.dialog_tab.check(True)
+                                #self.dialog_start_part += 1
+                    if self.Scene.count == 4:
                         self.Scene.upd()
-                        #if Scene.count == 5:
-                            #dialog_tab.check(True)
+                        if self.Scene.four_end:
+                            self.dialog_tab.check(True)
+                            self.dialog_start_part += 1
+                            self.Scene.count = 5
+                    if self.Scene.count == 2:
+                        self.Scene.upd()
+                        if 2 <= self.dialog_start_part < 4 and inf:
+                            self.dialog_tab.check(True)
+                            self.dialog_start_part += 1
+                        elif self.dialog_start_part >= 4 and inf:
+                            self.Scene.count = 3
+                            #self.dialog_tab.check(True)
+                            #self.dialog_start_part += 1
+                    if self.Scene.count == 3:
+                        self.Scene.upd()
+                        if 4 <= self.dialog_start_part < 6 and inf:
+                            self.dialog_tab.check(True)
+                            self.dialog_start_part += 1
+                        elif self.dialog_start_part == 6 and inf:
+                            self.Scene.count = 4
+                            self.dialog_tab.check(True)
+                            self.dialog_start_part += 1
+                    if self.Scene.count == 5:
+                            self.Scene.upd()
+                            if 7 <= self.dialog_start_part < 8 and inf:
+                                self.dialog_tab.check(True)
+                                self.dialog_start_part += 1
+                            elif self.dialog_start_part == 8 and inf:
+                                self.Scene.count = 6
+                                #self.dialog_tab.check(True)
+                                #self.dialog_start_part += 1
+                    if self.Scene.count == 6:
+                            self.Scene.upd()
+                            if 8 <= self.dialog_start_part < 9 and inf:
 
-                    pygame.display.flip()
-                    pygame.time.Clock().tick(60)
+                                self.dialog_tab.check(True)
+                                self.dialog_start_part += 1
+                            elif self.dialog_start_part == 9 and inf:
+                                self.Scene.count = 7
+                    if self.Scene.count == 7:
+                            self.Scene.upd()
+                            if 9 <= self.dialog_start_part < 10 and inf:
+                                self.dialog_tab.check(True)
+                                self.dialog_start_part += 1
+                            elif self.dialog_start_part == 10 and inf:
+                                self.Scene.count = 8
+
+                    if self.Scene.count <= 7:
+                        self.group_draw.draw(self.screen)
+                        if self.dialog_tab.draw:
+                            self.screen.blit(self.dialog_tab.image, (0, 0))
+                        self.window.blit(self.screen, self.middle)
+                        pygame.display.flip()
+                        pygame.time.Clock().tick(60)
+                    else:
+                        self.sound.clear()
+                        self.menu = True
+                        self.start_part = False
+                        self.create_button()
+                        self.sound.MENU_AUDIO.play(-1)
+
 
             elif self.settings:
                 self.GAME = False
@@ -1241,11 +1273,16 @@ class Game:
                     if (col == '@' and self.HERO.spawn == '@') or (col == '#' and self.HERO.spawn == '#') or (col == '%' and self.HERO.spawn == '%'):
                         self.HERO.new_coord(x, y)
                     if col == "^":
-                        self.dialog.add(object.DialogWindowSpawner(x, y, '^'))
+                        self.count_spiders_phrase += 1
+                        self.dialog.add(object.DialogWindowSpawner(x, y, '^', self.count_spiders_phrase))
                     if col == "v":
-                        self.dialog.add(object.DialogWindowSpawner(x, y, 'v'))
+                        self.count_monster_phrase += 1
+                        self.dialog.add(object.DialogWindowSpawner(x, y, 'v', self.count_monster_phrase))
                     if col == "!":
-                        self.dialog.add(object.DialogWindowSpawner(x, y, '0'))
+                        self.dialog.add(object.DialogWindowSpawner(x, y, '0', 0))
+                    if col == "*":
+                        self.count_Handehog_phrase += 1
+                        self.dialog.add(object.DialogWindowSpawner(x, y, '*', self.count_Handehog_phrase))
                     if col == "?":
                         platform(row, col, object.Teleport_COME)
                     if col == "&":
@@ -1256,9 +1293,9 @@ class Game:
                         pl = object.Enemy2(x, y, self.sound)
                         self.enemy.append(pl)
                         self.game.append(pl)
-                    if col == "$":
-                        self.BOSS.new_coord(x, y)
-                        self.BOSS.isdie = False
+                    #if col == "$":
+                        #self.BOSS.new_coord(x, y)
+                        #self.BOSS.isdie = False
                     if col == "_":
                         pass
 
@@ -1421,13 +1458,24 @@ class Game:
         self.group_draw.add(self.HERO)
 
 
+    def start_part_def(self):
+        self.start_game = False
+        self.start_part = True
+        self.sound.START_AUDIO.play(-1)
+        for e in self.group_draw:
+            e.kill()
+        self.button.clear()
+        #self.dialog_tab.clear(True)
+        self.dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
+        self.Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', self.HEIGHT, 'spawn')
+        self.group_draw.add(self.Scene)
 
 
     # Потоки
     def damage(self):
         while self.updBullet_ai:
             try:
-                if self.GAME:
+                if self.GAME and not self.HERO.chat:
                     info = pygame.sprite.groupcollide(self.Bullet, self.enemy, True, False)
                     keys_bullet = info.keys()
                     pygame.sprite.groupcollide(self.Bullet, self.group_platform, True, False)
@@ -1440,6 +1488,11 @@ class Game:
                             j.hit()
                             if j.helth < 0:
                                 j.die()
+                                self.HERO.chat = True
+                                text = choice(['text_2_end', 'text_6_end', 'text_8_end', 'text_13_end', 'text_24_end'])
+                                print(text)
+                                self.dialog_tab.dialog_with(('spider', text))
+                                print(1)
                             break
                     self.clock.tick(60)
             except Exception as e:

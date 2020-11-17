@@ -163,34 +163,30 @@ class Start(Sprite):
             self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
 
 class DialogWindowSpawner(Sprite):
-    def __init__(self, x, y, number):
+    def __init__(self, x, y, name_, number):
         Sprite.__init__(self)
         name, dialog = '', ''
-        if number == '0':
+        if name_ == '0':
             name = 'FirstPhraseInDange'
             dialog = 'text_1'
-        if number == '^':
+        if name_ == '^':
             name = 'spider'
-            dialog = choice(['text_' + str(i) for i in range(1, 18)])
-        if number == 'v':
+            dialog = 'text_' + str(number)
+        if name_ == 'v':
             name = 'monster'
-            dialog = choice(['text_' + str(i) for i in range(1, 6)])
-        if number == '*':
+            dialog = 'text_' + str(number)
+        if name_ == '*':
             name = 'Hedgehog'
-            dialog = choice(['text_' + str(i) for i in range(1, 5)])
+            dialog = 'text_' + str(number)
 
 
         self.name = name
         self.dialog = dialog
-        self.use = False
         self.image = Surface((2, 550)).convert()
         #self.image = load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png')
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
-    def upd(self):
-        self.use = True
 
 
 class Dialog_Tab(Sprite):
@@ -216,21 +212,20 @@ class Dialog_Tab(Sprite):
         self.old_art = 'piter_neitral'
         self.art_now = 'piter_neitral'
         self.data = {
-            'stark_bad': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_недоволен.png').convert(),
-            'stark_neitral': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_нейтрал.png').convert(),
-            'stark_happy': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_рад.png').convert(),
-            'piter_napriag': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_напряг.png').convert(),
-            'piter_neitral': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png').convert(),
-            'piter_sad': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_обижен.png').convert(),
-            'piter_sheet': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_падла.png').convert(),
-            'piter_kill_1': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_убивака_1.png').convert(),
-            'piter_kill_2': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_убивака_2.png').convert(),
-            'piter_shock': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_удивлен.png').convert(),
-            'piter_very_sad': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_уныние.png').convert(),
-            'piter_flirt': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_флирт.png').convert(),
-            'spider': load('data\\интерфейс\\иконки и кнопки\\морды\\грибной_паук.png').convert(),
-            'Boss': load('data\\интерфейс\\иконки и кнопки\\морды\\королева.png').convert(),
-            'esh': load('data\\интерфейс\\иконки и кнопки\\морды\\ёж.png').convert()
+            1: load('data\\интерфейс\\иконки и кнопки\\морды\\1 Питер_нейтрал.png').convert(),
+            2: load('data\\интерфейс\\иконки и кнопки\\морды\\2 Питер_удивлен.png').convert(),
+            3: load('data\\интерфейс\\иконки и кнопки\\морды\\3 Питер_напряг.png').convert(),
+            4: load('data\\интерфейс\\иконки и кнопки\\морды\\4 Питер_уныние.png').convert(),
+            5: load('data\\интерфейс\\иконки и кнопки\\морды\\5 Питер_падла.png').convert(),
+            6: load('data\\интерфейс\\иконки и кнопки\\морды\\6 Питер_флирт.png').convert(),
+            7: load('data\\интерфейс\\иконки и кнопки\\морды\\7 Питер_убивака_1.png').convert(),
+            8: load('data\\интерфейс\\иконки и кнопки\\морды\\8 Питер_убивака_2.png').convert(),
+            9: load('data\\интерфейс\\иконки и кнопки\\морды\\9 Питер_обижен.png').convert(),
+            10: load('data\\интерфейс\\иконки и кнопки\\морды\\10 Тони_костюм.png').convert(),
+            11: load('data\\интерфейс\\иконки и кнопки\\морды\\11 Тони_недоволен.png').convert(),
+            12: load('data\\интерфейс\\иконки и кнопки\\морды\\12 Тони_нейтрал.png').convert(),
+            13: load('data\\интерфейс\\иконки и кнопки\\морды\\13 Тони_рад.png').convert(),
+            14: load('data\\интерфейс\\иконки и кнопки\\морды\\14 грибной_паук.png').convert()
         }
         for i in self.data.keys():
             self.data[i].set_colorkey((0, 255, 0))
@@ -254,13 +249,13 @@ class Dialog_Tab(Sprite):
                     self.who.append('Железный Человек')
                 if first_sumbol == 'Г':
                     self.who.append('Грибной Паук')
-                number_emotion = text[i][0][1:3]
-                if number_emotion in ['1 ', '2 ', '3 ', '4 ', '5 ', '6 ', '7 ', '8 ', '9 ']:
-                    self.emotion.append(number_emotion)
+                number_emotion = text_list[i][0][0][2:4]
+                if number_emotion in ['1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                    self.emotion.append(self.data[int(number_emotion[0])])
                 if number_emotion in ['10', '12', '13', '14', '15', '16']:
-                    pass
+                    self.emotion.append(self.data[int(number_emotion)])
 
-                text_list[i][0][0] = text_list[i][0][0][3:]
+                text_list[i][0][0] = text_list[i][0][0][4:]
 
 
         def format_text(text):
@@ -284,12 +279,12 @@ class Dialog_Tab(Sprite):
         db = connect('game.db')
         sql = db.cursor()
         draw = True
-        print('1', info)
+        #print('1', info)
         for i in sql.execute(f"SELECT {info[1]} FROM {info[0]}"):
             self.data_text = i[0].split(';')
         for i in self.data_text:
             self.my_phrase.append(format_text(i))
-        print(self.data_text)
+        #print(self.data_text)
 
         find_who(self.my_phrase)
         self.check(False)
@@ -301,8 +296,9 @@ class Dialog_Tab(Sprite):
         self.phrase = 0
         if all:
             self.data_text = ''
-            self.my_phrase = []
-            self.who = []
+            self.my_phrase.clear()
+            self.emotion.clear()
+            self.who.clear()
             self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
 
 
@@ -329,11 +325,9 @@ class Dialog_Tab(Sprite):
                 if (self.phrase -1) != len(self.who):
                     who = self.who[self.phrase - 1]
                     my_phrase = self.my_phrase[self.phrase - 1]
+                    self.image.blit(self.emotion[self.phrase - 1], (0, 414))
             y = 467
-            if who == 'Человек Паук':
-                self.image.blit(self.data['piter_neitral'], (0, 414))
-            if who == 'Грибной Паук':
-                self.image.blit(self.data['spider'], (0, 414))
+
             font2 = Font('pixle_font.ttf', 25)
             txt = font2.render(who, 1, (0, 0, 0))
             self.image.blit(txt, (139, 419))
@@ -381,10 +375,13 @@ class Cutscene(Sprite):
         self.rect.y = 0
         self.name = name
         self.end = end
+        self.first_end = False
+        self.four_end = False
         self.count = 1
         self.animcount = 0
         self.anim = False
         self.lock = 0
+        self.not_fast = False
 
         self.number = 0
         self.animation = []
@@ -395,6 +392,7 @@ class Cutscene(Sprite):
             self.animation_black.append(load(i))
 
     def upd(self):
+        print(self.count)
 
         if self.count == 1:
             if not self.anim:
@@ -406,12 +404,20 @@ class Cutscene(Sprite):
                 self.animcount += 1
                 self.image.blit(self.animation_black[self.animcount // 1], (0, 0))
             if self.rect.y + 1528 <= self.end and self.anim:
-                self.count = 2
+                self.first_end = True
             else:
                 if self.anim:
                     self.rect.y -= 2
+        elif self.count == 2:
+            self.rect.y = 0
+            self.animcount = 0
+            self.image = load(self.filename + str(self.count) + '.png').convert()
 
-        elif self.count == 4:
+        elif self.count == 3:
+            self.rect.y = 0
+            self.animcount = 0
+            self.image = load(self.filename + str(self.count) + '.png').convert()
+        elif self.count == 4:  #решить проблему со 2 картинкой которую почему то код игнорирует
             self.animcount += 1
             if self.animcount < 48:
                 self.image = load(self.filename + str(self.count) + '.png').convert()
@@ -419,15 +425,19 @@ class Cutscene(Sprite):
                 self.image.blit(self.animation[(self.animcount - 47) // 5], (0, 0))
                 if self.animcount - 47 >= 14:
                     self.animcount = 0
-                    self.count += 1
-
-        elif self.count + 1 <= 7 and self.lock == 1:
+                    self.four_end = True
+        elif self.count == 5:
             self.rect.y = 0
             self.animcount = 0
-            self.count += 1
             self.image = load(self.filename + str(self.count) + '.png').convert()
-        elif self.count + 1 > 7:
-            return True
+        elif self.count == 6:
+            self.rect.y = 0
+            self.animcount = 0
+            self.image = load(self.filename + str(self.count) + '.png').convert()
+        elif self.count == 7:
+            self.rect.y = 0
+            self.animcount = 0
+            self.image = load(self.filename + str(self.count) + '.png').convert()
 
 class After_words(Sprite):
     def __init__(self, end):
@@ -547,10 +557,13 @@ class Enemy(Sprite):
 
     def AI(self, hero, platforms):
         way = 1100
-        if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
-            self.update(False, True, platforms)
-        elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
-            self.update(True, False, platforms)
+        if not hero.chat:
+            if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
+                self.update(False, True, platforms)
+            elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
+                self.update(True, False, platforms)
+            else:
+                self.update(False, False, platforms)
         else:
             self.update(False, False, platforms)
         """elif self.damage:
