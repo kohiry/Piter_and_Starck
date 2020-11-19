@@ -12,7 +12,8 @@ from pygame import sprite
 from pygame.display import set_mode
 from time import process_time
 from pygame import HWSURFACE, DOUBLEBUF, FULLSCREEN
-
+from sqlite3  import connect
+import add_info_into_config
 mixer.init()
 
 
@@ -161,10 +162,38 @@ class Start(Sprite):
         else:
             self.image = load('data\\ЗАСТАВКА\\дисклаймер.png').convert_alpha()
 
+class DialogWindowSpawner(Sprite):
+    def __init__(self, x, y, name_, number):
+        Sprite.__init__(self)
+        name, dialog = '', ''
+        if name_ == '0':
+            name = 'FirstPhraseInDange'
+            dialog = 'text_1'
+        if name_ == '^':
+            name = 'spider'
+            dialog = 'text_' + str(number)
+        if name_ == 'v':
+            name = 'monster'
+            dialog = 'text_' + str(number)
+        if name_ == '*':
+            name = 'Hedgehog'
+            dialog = 'text_' + str(number)
+
+
+        self.name = name
+        self.dialog = dialog
+        self.image = Surface((2, 550)).convert()
+        #self.image = load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
 class Dialog_Tab(Sprite):
+    draw = True
     def __init__(self, x, y):
         Sprite.__init__(self)
-
+        self.data_text = ''
         self.image = load('data\\интерфейс\\диалоговая_полоса.png')
         #set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.image.fill((0, 255, 0))
@@ -174,55 +203,145 @@ class Dialog_Tab(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.who = []
+        self.emotion = []
+        self.my_phrase = []
+        self.phrase = 0
+        self.count = 0
+        self.bool_killed_sprite = False
         self.old_art = 'piter_neitral'
         self.art_now = 'piter_neitral'
         self.data = {
-            'stark_bad': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_недоволен.png').convert(),
-            'stark_neitral': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_нейтрал.png').convert(),
-            'stark_happy': load('data\\интерфейс\\иконки и кнопки\\морды\\Тони\\Тони_рад.png').convert(),
-            'piter_napriag': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_напряг.png').convert(),
-            'piter_neitral': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_нейтрал.png').convert(),
-            'piter_sad': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_обижен.png').convert(),
-            'piter_sheet': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_падла.png').convert(),
-            'piter_kill_1': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_убивака_1.png').convert(),
-            'piter_kill_2': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_убивака_2.png').convert(),
-            'piter_shock': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_удивлен.png').convert(),
-            'piter_very_sad': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_уныние.png').convert(),
-            'piter_flirt': load('data\\интерфейс\\иконки и кнопки\\морды\\Питер\\Питер_флирт.png').convert(),
-            'spider': load('data\\интерфейс\\иконки и кнопки\\морды\\грибной_паук.png').convert(),
-            'Boss': load('data\\интерфейс\\иконки и кнопки\\морды\\королева.png').convert(),
-            'esh': load('data\\интерфейс\\иконки и кнопки\\морды\\ёж.png').convert(),
+            1: load('data\\интерфейс\\иконки и кнопки\\морды\\1 Питер_нейтрал.png').convert(),
+            2: load('data\\интерфейс\\иконки и кнопки\\морды\\2 Питер_удивлен.png').convert(),
+            3: load('data\\интерфейс\\иконки и кнопки\\морды\\3 Питер_напряг.png').convert(),
+            4: load('data\\интерфейс\\иконки и кнопки\\морды\\4 Питер_уныние.png').convert(),
+            5: load('data\\интерфейс\\иконки и кнопки\\морды\\5 Питер_падла.png').convert(),
+            6: load('data\\интерфейс\\иконки и кнопки\\морды\\6 Питер_флирт.png').convert(),
+            7: load('data\\интерфейс\\иконки и кнопки\\морды\\7 Питер_убивака_1.png').convert(),
+            8: load('data\\интерфейс\\иконки и кнопки\\морды\\8 Питер_убивака_2.png').convert(),
+            9: load('data\\интерфейс\\иконки и кнопки\\морды\\9 Питер_обижен.png').convert(),
+            10: load('data\\интерфейс\\иконки и кнопки\\морды\\10 Тони_костюм.png').convert(),
+            11: load('data\\интерфейс\\иконки и кнопки\\морды\\11 Тони_недоволен.png').convert(),
+            12: load('data\\интерфейс\\иконки и кнопки\\морды\\12 Тони_нейтрал.png').convert(),
+            13: load('data\\интерфейс\\иконки и кнопки\\морды\\13 Тони_рад.png').convert(),
+            14: load('data\\интерфейс\\иконки и кнопки\\морды\\14 грибной_паук.png').convert()
         }
         for i in self.data.keys():
-            self.data[i].set_colorkey((0, 0, 0))
-        self.image.blit(self.data['piter_neitral'], (0, 414))  # ещё не перешёл в интеграцию в игру
+            self.data[i].set_colorkey((0, 255, 0))
+        #self.image.blit(self.data['piter_neitral'], (0, 414))  # ещё не перешёл в интеграцию в игру
 
 
-    def check(self, enemys, hero):
-        obl = 600
+    def delete_table(self):
+        self.kill()
+        self.bool_killed_sprite = True
 
-        for i in enemys:
-            if Rect(hero.rect.topleft[0]-obl, hero.rect.topleft[1]-obl, 2*obl, 2*obl).colliderect(i.rect) and not i.phrase:
-                if self.art_now == self.old_art and self.art_now not in ['spider', 'esh', 'Boss']:
-                    self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
-                    name = ''
-                    if type(i) == Enemy:
-                        name = 'spider'
-                        self.image.blit(self.data['spider'], (0, 414))
-                    elif type(i) == Enemy2:
-                        name = 'esh'
-                        self.image.blit(self.data['esh'], (0, 414))
-                    elif type(i) == Boss:
-                        name = 'Boss'
-                        self.image.blit(self.data['Boss'], (0, 414))
-                    self.old_art = self.art_now
-                    self.art_now = name
-                break
-        else:
-            if self.art_now in ['spider', 'esh', 'Boss']:
+    def dialog_with(self, info): # info = (таблица, столбец) for example: (spider, text_1)d
+        self.clear(True)
+
+        def find_who(text_list):
+
+            for i in range(len(text_list)):  # смотрю по первому символу диалога
+                first_sumbol = text_list[i][0][0][0]
+                if first_sumbol == 'П':
+                    self.who.append('Человек Паук')
+                if first_sumbol == 'Ж':
+                    self.who.append('Железный Человек')
+                if first_sumbol == 'Г':
+                    self.who.append('Грибной Паук')
+                number_emotion = text_list[i][0][0][2:4]
+                if number_emotion in ['1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                    self.emotion.append(self.data[int(number_emotion[0])])
+                if number_emotion in ['10', '12', '13', '14', '15', '16']:
+                    self.emotion.append(self.data[int(number_emotion)])
+
+                text_list[i][0][0] = text_list[i][0][0][4:]
+
+
+        def format_text(text):
+            new_text = ''
+            count_word = text.split()
+            list_text = []
+            cow_text = []
+            word = 13
+            for i in range(len(count_word)):
+                cow_text.append(count_word[i])
+                if (i+1) % word == 0:
+                    list_text.append(cow_text.copy())
+                    cow_text.clear()
+                if i == len(count_word) -1:
+                    list_text.append(cow_text.copy())
+                    cow_text.clear()
+            assert type(list_text) == type(list())
+            return list_text
+
+
+        db = connect('game.db')
+        sql = db.cursor()
+        draw = True
+        #print('1', info)
+        for i in sql.execute(f"SELECT {info[1]} FROM {info[0]}"):
+            self.data_text = i[0].split(';')
+        for i in self.data_text:
+            self.my_phrase.append(format_text(i))
+        #print(self.data_text)
+
+        find_who(self.my_phrase)
+        self.check(False)
+        db.close()
+
+
+    def clear(self, all=False):
+        print('очистка')
+        self.phrase = 0
+        if all:
+            self.data_text = ''
+            self.my_phrase.clear()
+            self.emotion.clear()
+            self.who.clear()
+            self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
+
+
+    def check(self, skip, hero=None):
+
+
+        if len(self.data) > self.phrase:
+            if skip:
+                if len(self.who) >= self.phrase:
+                    self.phrase += 1
                 self.image = load('data\\интерфейс\\диалоговая_полоса.png').convert_alpha()
-                self.image.blit(self.data['piter_neitral'], (0, 414))
-            self.old_art = self.art_now = 'piter_neitral'
+            draw = True
+            white = (255, 255, 255)
+            font = Font('pixle_font.ttf', 18)
+            who = ''
+            my_phrase = []
+            if self.phrase == 0:
+                my_phrase = ['']
+                who = ''
+            else:
+                if hero != None:  # продолить еблю с окном
+                    if self.phrase -1 == len(self.who) and self.phrase -1 != 0:
+                        hero.chat = False
+                if (self.phrase -1) != len(self.who):
+                    who = self.who[self.phrase - 1]
+                    my_phrase = self.my_phrase[self.phrase - 1]
+                    self.image.blit(self.emotion[self.phrase - 1], (0, 414))
+            y = 467
+
+            font2 = Font('pixle_font.ttf', 25)
+            txt = font2.render(who, 1, (0, 0, 0))
+            self.image.blit(txt, (139, 419))
+            font2 = Font('pixle_font.ttf', 25)
+            txt = font2.render(who, 1, (80, 200, 120))
+            self.image.blit(txt, (140, 420))
+            for i in my_phrase:
+                txt = font.render((' ').join(i), 1, white)
+                self.image.blit(txt, (170, y))
+                y += 25
+
+        else:
+            draw = False
+
 
 class Health_tab(Sprite):
     def __init__(self, x, y):
@@ -256,10 +375,13 @@ class Cutscene(Sprite):
         self.rect.y = 0
         self.name = name
         self.end = end
+        self.first_end = False
+        self.four_end = False
         self.count = 1
         self.animcount = 0
         self.anim = False
         self.lock = 0
+        self.not_fast = False
 
         self.number = 0
         self.animation = []
@@ -270,6 +392,7 @@ class Cutscene(Sprite):
             self.animation_black.append(load(i))
 
     def upd(self):
+        print(self.count)
 
         if self.count == 1:
             if not self.anim:
@@ -281,12 +404,20 @@ class Cutscene(Sprite):
                 self.animcount += 1
                 self.image.blit(self.animation_black[self.animcount // 1], (0, 0))
             if self.rect.y + 1528 <= self.end and self.anim:
-                self.count = 2
+                self.first_end = True
             else:
                 if self.anim:
                     self.rect.y -= 2
+        elif self.count == 2:
+            self.rect.y = 0
+            self.animcount = 0
+            self.image = load(self.filename + str(self.count) + '.png').convert()
 
-        elif self.count == 4:
+        elif self.count == 3:
+            self.rect.y = 0
+            self.animcount = 0
+            self.image = load(self.filename + str(self.count) + '.png').convert()
+        elif self.count == 4:  #решить проблему со 2 картинкой которую почему то код игнорирует
             self.animcount += 1
             if self.animcount < 48:
                 self.image = load(self.filename + str(self.count) + '.png').convert()
@@ -294,15 +425,19 @@ class Cutscene(Sprite):
                 self.image.blit(self.animation[(self.animcount - 47) // 5], (0, 0))
                 if self.animcount - 47 >= 14:
                     self.animcount = 0
-                    self.count += 1
-
-        elif self.count + 1 <= 7 and self.lock == 1:
+                    self.four_end = True
+        elif self.count == 5:
             self.rect.y = 0
             self.animcount = 0
-            self.count += 1
             self.image = load(self.filename + str(self.count) + '.png').convert()
-        elif self.count + 1 > 7:
-            return True
+        elif self.count == 6:
+            self.rect.y = 0
+            self.animcount = 0
+            self.image = load(self.filename + str(self.count) + '.png').convert()
+        elif self.count == 7:
+            self.rect.y = 0
+            self.animcount = 0
+            self.image = load(self.filename + str(self.count) + '.png').convert()
 
 class After_words(Sprite):
     def __init__(self, end):
@@ -422,10 +557,13 @@ class Enemy(Sprite):
 
     def AI(self, hero, platforms):
         way = 1100
-        if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
-            self.update(False, True, platforms)
-        elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
-            self.update(True, False, platforms)
+        if not hero.chat:
+            if hero.rect.x >= self.rect.x and hero.rect.x > self.rect.x + self.rect.width-1:
+                self.update(False, True, platforms)
+            elif hero.rect.x <= self.rect.x and hero.rect.x < self.rect.x:
+                self.update(True, False, platforms)
+            else:
+                self.update(False, False, platforms)
         else:
             self.update(False, False, platforms)
         """elif self.damage:
@@ -820,6 +958,7 @@ class Player(Sprite):
         self.spawn = '@'
         self.level = 0
         self.bottom = self.rect.bottom
+        self.chat = False
         self.rect.move(x, y)
         self.anim = ''
         self.old_anim = ''
@@ -924,7 +1063,7 @@ class Player(Sprite):
         self.image.set_colorkey((0, 255, 0))
         self.image.fill((0, 255, 0))
 
-    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike):
+    def update(self, left, right, up, platforms, teleports, tree, enemy, use, screen, BOSS, monster, strike, dialog, window_dialog):
         global SPEED
 
         # animation
@@ -933,7 +1072,17 @@ class Player(Sprite):
         # лево право
         if self.helth <= 0:
             self.film = True
-        if not self.film:
+        if self.chat:
+            self.resize('take')
+            self.xvel = 0
+            self.yvel = 0
+            if self.side == 1:
+                self.AnimeStayRight.blit(self.image, (0, 0))
+            if self.side == -1:
+                self.AnimeStayLeft.blit(self.image, (0, 0))
+        elif window_dialog.phrase == len(window_dialog.who):
+            pass
+        elif not self.film:
             die_anim = False
             if left or right:
                 if self.onGround:
@@ -1095,11 +1244,11 @@ class Player(Sprite):
             #self.yvel += GRAVITY
             self.yvel += GRAVITY
 
-            if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film:
+            if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film and not self.chat:
                 self.count += 1
                 self.yvel = -(JUMP_POWER - 1)**2
 
-        if up and self.onGround and not self.film:
+        if up and self.onGround and not self.film and not self.chat:
             self.jump = True
             self.onGround = False
             self.yvel = -JUMP_POWER**2
@@ -1124,7 +1273,19 @@ class Player(Sprite):
 
         self.fight_find(enemy)
 
+        self.dialogs(dialog, window_dialog)
+
         return self.wooden(tree, use, screen)
+
+    def dialogs(self, dialog, window_dialog):
+        a = sprite.Group()
+        a.add(self)
+        pl = sprite.groupcollide(a, dialog, False, True)
+        if len(pl) != 0:
+            self.chat = True
+            #window_dialog.clear(True)
+            window_dialog.dialog_with((pl[self][0].name, pl[self][0].dialog))
+        pl.clear()
 
     def monsters(self, monster, use):
         for pl in monster:
