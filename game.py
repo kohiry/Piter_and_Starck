@@ -14,9 +14,9 @@ import add_info_into_config
 pygame.init()
 
 class Game:
-    '''My game about Spider man. Wrote this cod - kohiry (PinkyGully). Artist - Hiku'''
+    '''Game about Spider man. Wrote this cod - kohiry (PinkyGully). Artist - Hiku'''
     def __init__(self):
-        print('Game is switch on, my congratulations!')
+        print("Game is switch on, my congratulations! But why you don't open game.exe? Pls, don't kill my game :^3")
 
         self.SIZE = self.WIDTH, self.HEIGHT = 960, 540
         #camera

@@ -617,7 +617,6 @@ class Enemy(Sprite):
     def collide(self, xvel, yvel, platforms):
         for pl in platforms:
             if collide_rect(self, pl):
-                #self.serf = True
                 if yvel > 0:
                     self.onGround = True
                     self.rect.bottom = pl.rect.top
@@ -757,7 +756,6 @@ class Boss(Sprite):
     def collide(self, xvel, yvel, platforms):
         for pl in platforms:
             if collide_rect(self, pl):
-                #self.serf = True
                 if yvel > 0:
                     self.onGround = True
                     self.rect.bottom = pl.rect.top
@@ -1000,7 +998,7 @@ class Player(Sprite):
             'climb': (47, 144),
             'go_strike': (120, 117),
             'die': (127, 109),
-            'take': (90, 140)
+            'take': (99, 108)
 
         }
 
@@ -1073,7 +1071,7 @@ class Player(Sprite):
         if self.helth <= 0:
             self.film = True
         if self.chat:
-            self.resize('take')
+            self.resize('stay')
             self.xvel = 0
             self.yvel = 0
             if self.side == 1:
@@ -1242,7 +1240,8 @@ class Player(Sprite):
         if not self.onGround:
             #if self.yvel < 50:
             #self.yvel += GRAVITY
-            self.yvel += GRAVITY
+            if not self.serf:
+                self.yvel += GRAVITY
 
             if up and self.count < 1 and self.yvel > 0 and not self.onGround and not self.film and not self.chat:
                 self.count += 1
@@ -1350,7 +1349,7 @@ class Player(Sprite):
             if pl.name == '-':
                 #self.serf = True
                 if yvel > 0:
-                    self.serf = False
+                    #self.serf = False
                     self.onGround = True
                     self.count = 0
 
