@@ -1092,12 +1092,16 @@ class Player(Sprite):
                 if left and right:
                     self.xvel = 0
                 elif left or right:
-                    if left:
+                    if left and not self.serf:
                         self.xvel = -SPEED
                         self.side = -1
-                    elif right:
+                    #elif left and self.serf:
+                        #self.yvel = -SPEED
+                    elif right and not self.serf:
                         self.xvel = SPEED
                         self.side = 1
+                    #elif right and self.serf:
+                        #self.yvel = SPEED
                 if up and not self.serf:
                     if self.side == 1:
                         self.resize('jump')
@@ -1113,10 +1117,10 @@ class Player(Sprite):
                         elif self.side == -1:
                             self.resize('jump')
                             self.AnimeJumpLeft.blit(self.image, (0, 0))
-                    elif left:
+                    elif left and self.serf:
                         self.resize('climb')
                         self.AnimeClimbLeft.blit(self.image, (0, 0))
-                    elif right:
+                    elif right and self.serf:
                         self.resize('climb')
                         self.AnimeClimbRight.blit(self.image, (0, 0))
                 else:
@@ -1254,11 +1258,11 @@ class Player(Sprite):
 
 
         self.onGround = False
-        self.serf = False
+        #self.serf = False
         self.change_coord('x')
-        self.collide(self.xvel, 0, platforms)
+        self.collide(self.xvel, 0, platforms, up)
         self.change_coord('y')
-        self.collide(0, self.yvel, platforms)
+        self.collide(0, self.yvel, platforms, up)
 
         answer = self.teleport(self.xvel, 0, teleports, BOSS)
         if not answer:
@@ -1343,7 +1347,7 @@ class Player(Sprite):
                     break
 
 
-    def collide(self, xvel, yvel, platforms):
+    def collide(self, xvel, yvel, platforms, UP):
         pl = sprite.spritecollideany(self, platforms, collided = None)
         if pl != None:
             if pl.name == '-':
@@ -1361,17 +1365,18 @@ class Player(Sprite):
                     self.onGround = False
                     self.rect.top = pl.rect.bottom
                 if xvel < 0:
-                    self.yvel = -SPEED
                     self.onGround = True
                     self.serf = True
                     self.jump = False
                     self.rect.left = pl.rect.right
                 if xvel > 0:
-                    self.yvel = -SPEED
                     self.onGround = True
                     self.serf = True
                     self.jump = False
-                    self.rect.right = pl.rect.left
+                    self.rect.right = pl.rect.left  # пытаемся определить состояние когда включить self.serf пока. При нажатии up ничего не меняется
+        if UP:
+            self.serf = False
+
 
 
     def wooden(self, tree, use, screen):
