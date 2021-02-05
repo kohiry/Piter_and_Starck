@@ -146,11 +146,11 @@ class Game:
 
 
         # Window
-        #self.middle = ((int(get_monitors()[0].width) - self.WIDTH)//2, (int(get_monitors()[0].height) - self.HEIGHT)//2)
-        self.middle = ((1080 - self.WIDTH)//2, (720 - self.HEIGHT)//2)
-        self.size = width, height = 1080, 720
-        self.window = pygame.display.set_mode(self.size)
-        #self.window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
+        self.middle = ((int(get_monitors()[0].width) - self.WIDTH)//2, (int(get_monitors()[0].height) - self.HEIGHT)//2)
+        #self.middle = ((1080 - self.WIDTH)//2, (720 - self.HEIGHT)//2)
+        #self.size = width, height = 1080, 720
+        #self.window = pygame.display.set_mode(self.size)
+        self.window = pygame.display.set_mode((0, 0), HWSURFACE| DOUBLEBUF| FULLSCREEN)
         self.screen = pygame.Surface(self.SIZE)
         pygame.display.set_caption('Gay game')
 
