@@ -63,6 +63,7 @@ class Game:
         self.health_tab = object.Health_tab(415, 10)
         self.black_theme = object.BlackTheme()
         self.dialog_tab = object.Dialog_Tab(0, 0)
+        self.dialog_tab.delete_table()
         self.BOSS.new_coord(-100, -100)
         self.StartScene = object.Start()
         self.start_game_gr.add(self.StartScene)
@@ -167,7 +168,7 @@ class Game:
                     if event.type == pygame.QUIT:
                         self.running = False
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
+                        if event.key == pygame.K_RETURN:
                             if self.StartScene.change:
                                 self.StartScene.change = False
                             elif not self.StartScene.change:
@@ -347,15 +348,15 @@ class Game:
 
 
 
-                screen.fill((255, 255, 255))
+                self.screen.fill((255, 255, 255))
                 if after_count < 2:
                     after_count+= 1
                 if not words.update():
                     running = False
-                group_draw.draw(screen)
-                window.blit(screen, middle)
+                self.group_draw.draw(self.screen)
+                self.window.blit(self.screen, self.middle)
                 pygame.display.flip()
-                clock.tick(60)
+                self.clock.tick(60)
 
             elif self.pre_alpha_scene:
                 GAME = False
@@ -391,10 +392,10 @@ class Game:
 
 
 
-                screen.fill((255, 255, 255))
-                screen.blit(pygame.image.load('end_phrase.jpg').convert(),(0, 0))
-                black_theme.draw(screen)
-                window.blit(screen, middle)
+                self.screen.fill((255, 255, 255))
+                self.screen.blit(pygame.image.load('end_phrase.jpg').convert(),(0, 0))
+                self.black_theme.draw(self.screen)
+                self.window.blit(self.screen, self.middle)
                 #group_draw.draw(screen)
                 #Scene.upd()
 
@@ -435,10 +436,10 @@ class Game:
 
 
 
-                screen.fill((255, 255, 255))
-                screen.blit(pygame.image.load('data\катсцены\экран_проигрыш_вы_всрали.png').convert(),(0, 0))
-                black_theme.draw(screen)
-                window.blit(screen, middle)
+                self.screen.fill((255, 255, 255))
+                self.screen.blit(pygame.image.load('data\катсцены\экран_проигрыш_вы_всрали.png').convert(),(0, 0))
+                self.black_theme.draw(self.screen)
+                self.window.blit(self.screen, self.middle)
                 #group_draw.draw(screen)
                 #Scene.upd()
 
@@ -455,23 +456,18 @@ class Game:
                         pass
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if event.button == 1:
-                            die_end = True
-                            scene_enemy = False
-                            black_count = 0
-                            black_theme.zero()
-                            #inf = True
+                            self.running = False
 
 
-
-                screen.fill((255, 255, 255))
-                screen.blit(pygame.image.load('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png').convert(),(0, 0))
-                black_theme.draw(screen)
-                window.blit(screen, middle)
+                self.screen.fill((255, 255, 255))
+                self.screen.blit(pygame.image.load('data\\катсцены\\5 грибной паук\\грибной_паук_проигрыш.png').convert(),(0, 0))
+                self.black_theme.draw(self.screen)
+                self.window.blit(self.screen, self.middle)
                 #group_draw.draw(screen)
                 #Scene.upd()
 
                 pygame.display.flip()
-                clock.tick(60)
+                self.clock.tick(60)
 
             elif self.scene_enemy2:
                 GAME = False
@@ -483,17 +479,14 @@ class Game:
                         pass
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if event.button == 1:
-                            die_end = True
-                            scene_enemy2 = False
-                            black_theme.zero()
-                            #inf = True
+                            self.running = False
 
 
 
-                screen.fill((255, 255, 255))
-                screen.blit(pygame.image.load('data\\катсцены\\6 ёж\\ёж_проигрыш.png').convert(),(0, 0))
-                black_theme.draw(screen)
-                window.blit(screen, middle)
+                self.screen.fill((255, 255, 255))
+                self.screen.blit(pygame.image.load('data\\катсцены\\6 ёж\\ёж_проигрыш.png').convert(),(0, 0))
+                self.black_theme.draw(self.screen)
+                self.window.blit(self.screen, self.middle)
                 #group_draw.draw(screen)
                 #Scene.upd()
 
@@ -510,18 +503,16 @@ class Game:
                         pass
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         if event.button == 1:
-                            die_end = True
-                            scene_enemy3 = False
-                            black_count = 0
+                            self.running = False
 
 
 
 
-                screen.fill((255, 255, 255))
+                self.screen.fill((255, 255, 255))
 
-                screen.blit(pygame.image.load('data\\катсцены\\2 тентакли\\тентакли.png').convert(), (0, 0))
-                black_theme.draw(screen)
-                window.blit(screen, middle)
+                self.screen.blit(pygame.image.load('data\\катсцены\\2 тентакли\\тентакли.png').convert(), (0, 0))
+                self.black_theme.draw(self.screen)
+                self.window.blit(self.screen, self.middle)
                 #group_draw.draw(screen)
                 #Scene.upd()
 
@@ -538,7 +529,7 @@ class Game:
                     if event.type == pygame.QUIT:
                         self.running = False
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
+                        if event.key == pygame.K_RETURN:
                             skip = True
                         if event.key == pygame.K_a:
                             if self.Scene.count != 1:
@@ -821,7 +812,7 @@ class Game:
                         if event.button == 1 or event.button == 3:
                             for i in button:
                                 if i.rect.collidepoint((event.pos[0] - jump_x, event.pos[1] - jump_y)):
-                                    screen.fill((0, 0, 0))
+                                    self.screen.fill((0, 0, 0))
                                     if i.name == 'back':
                                         if len(game) != 0:
                                             sound.clear()
@@ -848,12 +839,12 @@ class Game:
 
 
 
-                screen.fill((255, 255, 255))
-                screen.blit(pygame.image.load('data\\МИНИКАРТА\\миникарта.png').convert(), (0, 0))
-                group_draw.draw(screen)
-                window.blit(screen, middle)
+                self.screen.fill((255, 255, 255))
+                self.screen.blit(pygame.image.load('data\\МИНИКАРТА\\миникарта.png').convert(), (0, 0))
+                self.group_draw.draw(self.screen)
+                self.window.blit(self.screen, self.middle)
                 pygame.display.flip()
-                clock.tick(60)
+                self.clock.tick(60)
 
             else:
                 self.GAME = True
@@ -1021,6 +1012,7 @@ class Game:
                 self.clock.tick(60)
 
                 if self.HERO.death:
+                    print(1)
                     self.sound.clear()
                     self.sound.CUTSCENE_AUDIO.play(-1)
                     self.black_count = 0
@@ -1466,9 +1458,9 @@ class Game:
             e.kill()
         self.button.clear()
         #self.dialog_tab.clear(True)
-        self.dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
         self.Scene = object.Cutscene('data\\катсцены\\1 начало\\начало_', self.HEIGHT, 'spawn')
         self.group_draw.add(self.Scene)
+        self.dialog_tab.dialog_with(('FirstCutscene', 'text_1'))
 
 
     # Потоки
